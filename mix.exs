@@ -21,7 +21,8 @@ defmodule Nostr.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:k256, git: "https://github.com/davidarmstronglewis/k256.git"}
+      {:k256, git: "https://github.com/davidarmstronglewis/k256.git"},
+      {:binary, "~> 0.0.5"}
     ]
   end
 end
