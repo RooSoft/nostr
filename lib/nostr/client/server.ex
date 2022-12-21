@@ -2,7 +2,7 @@ defmodule Nostr.Client.Server do
   use WebSockex
   require Logger
 
-  alias Nostr.Client.Request
+  alias Nostr.Client.{Event, Request}
 
   def handle_connect(_conn, state) do
     Logger.warning("Connected to relay...")
@@ -24,9 +24,16 @@ defmodule Nostr.Client.Server do
   end
 
   def handle_frame({type, msg}, state) do
-    IO.inspect(type)
-    IO.inspect(msg)
-    IO.inspect(msg |> Jason.decode!(), limit: :infinity)
+    case type do
+      :text ->
+        msg
+        |> Jason.decode!()
+        |> IO.inspect(label: "the message")
+        |> Event.dispatch()
+
+      _ ->
+        Logger.warn("#{type}: unknown type of frame")
+    end
 
     {:ok, state}
   end
