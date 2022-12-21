@@ -28,7 +28,6 @@ defmodule Nostr.Client.Server do
       :text ->
         msg
         |> Jason.decode!()
-        |> IO.inspect(label: "the message")
         |> Event.dispatch()
 
       _ ->
