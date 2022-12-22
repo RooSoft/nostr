@@ -9,7 +9,7 @@ defmodule Nostr.Client.Server do
     Logger.warning("Connected to relay...")
 
     request =
-      Request.author("efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c")
+      Request.author("efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c", 100)
       |> IO.inspect(label: "sending")
 
     WebSockex.cast(self(), {:send_message, request})
