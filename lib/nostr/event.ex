@@ -1,7 +1,7 @@
 defmodule Nostr.Event do
   require Logger
 
-  alias Nostr.Event.{MetadataEvent, ContactsEvent, ReactionEvent}
+  alias Nostr.Event.{MetadataEvent, ContactsEvent, ReactionEvent, EndOfRecordedHistoryEvent}
 
   def dispatch(["EVENT", "myreq", %{"kind" => 0} = content]) do
     MetadataEvent.parse(content)
@@ -80,7 +80,7 @@ defmodule Nostr.Event do
   end
 
   def dispatch(["EOSE", "myreq"]) do
-    Logger.info("end of recorded history, what follow is live stuff")
+    %EndOfRecordedHistoryEvent{}
   end
 
   def dispatch(contents) do
