@@ -1,6 +1,7 @@
 # Nostr
 
-**TODO: Add description**
+![nostr](https://raw.githubusercontent.com/RooSoft/nostr/main/guides/assets/images/nostr.jpeg)
+![Elixir](https://raw.githubusercontent.com/RooSoft/nostr/main/guides/assets/images/elixir-with-name.svg)
 
 ## Installation
 
