@@ -5,6 +5,7 @@ defmodule Nostr.Event do
     MetadataEvent,
     TextEvent,
     ContactsEvent,
+    EncryptedDirectMessageEvent,
     BoostEvent,
     ReactionEvent,
     EndOfRecordedHistoryEvent
@@ -27,7 +28,7 @@ defmodule Nostr.Event do
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 4} = content]) do
-    Logger.info("4- encrypted direct messages: #{inspect(content)}")
+    EncryptedDirectMessageEvent.parse(content)
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 5} = content]) do
