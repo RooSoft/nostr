@@ -1,4 +1,4 @@
-defmodule Nostr.Client.Event.Reaction do
+defmodule Nostr.Event.Reaction do
   require Logger
 
   def parse(content) do

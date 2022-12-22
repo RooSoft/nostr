@@ -1,7 +1,7 @@
-defmodule Nostr.Client.Event do
+defmodule Nostr.Event do
   require Logger
 
-  alias Nostr.Client.Event.{Reaction}
+  alias Nostr.Event.{Reaction}
 
   def dispatch(["EVENT", "myreq", %{"kind" => 0} = content]) do
     Logger.info("0- metadata: #{inspect(content)}")

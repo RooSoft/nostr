@@ -1,4 +1,4 @@
-defmodule Nostr.Client.Request do
+defmodule Nostr.Event.Request do
   def author(pub_key, limit \\ 10) do
     [
       "REQ",

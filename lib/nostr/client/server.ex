@@ -2,7 +2,8 @@ defmodule Nostr.Client.Server do
   use WebSockex
   require Logger
 
-  alias Nostr.Client.{Event, Request}
+  alias Nostr.Event
+  alias Nostr.Event.{Request}
 
   def handle_connect(_conn, state) do
     Logger.warning("Connected to relay...")
