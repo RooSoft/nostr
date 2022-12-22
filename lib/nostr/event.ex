@@ -1,7 +1,7 @@
 defmodule Nostr.Event do
   require Logger
 
-  alias Nostr.Event.{Metadata, Reaction}
+  alias Nostr.Event.{Metadata, Contacts, Reaction}
 
   def dispatch(["EVENT", "myreq", %{"kind" => 0} = content]) do
     Logger.info("0- metadata: #{inspect(content)}")
@@ -18,7 +18,7 @@ defmodule Nostr.Event do
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 3} = content]) do
-    Logger.info("3- contacts: #{inspect(content)}")
+    Contacts.parse(content)
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 4} = content]) do
