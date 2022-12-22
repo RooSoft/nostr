@@ -3,6 +3,7 @@ defmodule Nostr.Event do
 
   alias Nostr.Event.{
     MetadataEvent,
+    TextEvent,
     ContactsEvent,
     BoostEvent,
     ReactionEvent,
@@ -14,7 +15,7 @@ defmodule Nostr.Event do
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 1} = content]) do
-    Logger.info("1- text: #{inspect(content)}")
+    TextEvent.parse(content)
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 2} = content]) do
