@@ -96,7 +96,6 @@ defmodule Nostr.Event do
   end
 
   def dispatch(contents) do
-    Logger.warning("even more unknown event type")
-    IO.inspect(contents)
+    Logger.warning("unknown event type: #{contents}")
   end
 end

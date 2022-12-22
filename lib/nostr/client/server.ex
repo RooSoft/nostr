@@ -6,11 +6,10 @@ defmodule Nostr.Client.Server do
   alias Nostr.Event.{Request}
 
   def handle_connect(_conn, state) do
-    Logger.warning("Connected to relay...")
+    Logger.info("Connected to relay...")
 
     request =
       Request.author("efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c", 100)
-      |> IO.inspect(label: "sending")
 
     WebSockex.cast(self(), {:send_message, request})
 
@@ -18,19 +17,20 @@ defmodule Nostr.Client.Server do
   end
 
   def handle_cast({:send_message, subscription_json}, state) do
-    Logger.info("subscribing messages...")
-    IO.inspect(subscription_json, label: "from handle_cast")
+    Logger.info("Subscribing messages...")
 
     {:reply, {:text, subscription_json}, state}
   end
 
-  def handle_frame({type, msg}, state) do
+  def handle_frame({type, msg}, %{client_pid: client_pid} = state) do
     case type do
       :text ->
-        msg
-        |> Jason.decode!()
-        |> Event.dispatch()
-        |> IO.inspect(label: "TEXT: ")
+        event =
+          msg
+          |> Jason.decode!()
+          |> Event.dispatch()
+
+        send(client_pid, event)
 
       _ ->
         Logger.warn("#{type}: unknown type of frame")
