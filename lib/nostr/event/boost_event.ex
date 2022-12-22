@@ -1,7 +1,7 @@
 defmodule Nostr.Event.BoostEvent do
   require Logger
 
-  defstruct [:content, :tags, :pubkey, :created_at]
+  defstruct [:content, :tags, :pubkey, :sig, :created_at]
 
   alias Nostr.Event.BoostEvent
 
@@ -12,13 +12,13 @@ defmodule Nostr.Event.BoostEvent do
       "id" => _id,
       "kind" => 6,
       "pubkey" => pubkey,
-      "sig" => _sig,
+      "sig" => sig,
       "tags" => tags
     } = body
 
     with {:ok, content} <- Jason.decode(json_content),
          {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %BoostEvent{content: content, created_at: created_at, pubkey: pubkey, tags: tags}
+      %BoostEvent{content: content, created_at: created_at, pubkey: pubkey, sig: sig, tags: tags}
     else
       {:error, _message} -> %BoostEvent{}
     end

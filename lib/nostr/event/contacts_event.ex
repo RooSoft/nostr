@@ -1,7 +1,7 @@
 defmodule Nostr.Event.ContactsEvent do
   require Logger
 
-  defstruct [:pubkey, :created_at, contacts: []]
+  defstruct [:pubkey, :sig, :created_at, contacts: []]
 
   alias Nostr.Event.ContactsEvent
   alias Nostr.Models.Client
@@ -14,7 +14,7 @@ defmodule Nostr.Event.ContactsEvent do
       "id" => _id,
       "kind" => 3,
       "pubkey" => pubkey,
-      "sig" => _sig,
+      "sig" => sig,
       "tags" => tags
     } = content
 
@@ -24,13 +24,15 @@ defmodule Nostr.Event.ContactsEvent do
       %ContactsEvent{
         contacts: contacts,
         pubkey: pubkey,
+        sig: sig,
         created_at: created_at
       }
     else
       {:error, _message} ->
         %ContactsEvent{
           contacts: contacts,
-          pubkey: pubkey
+          pubkey: pubkey,
+          sig: sig
         }
     end
   end
