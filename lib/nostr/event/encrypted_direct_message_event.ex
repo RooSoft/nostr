@@ -1,7 +1,7 @@
 defmodule Nostr.Event.EncryptedDirectMessageEvent do
   require Logger
 
-  defstruct [:content, :tags, :pubkey, :sig, :created_at]
+  defstruct [:id, :content, :tags, :pubkey, :sig, :created_at]
 
   alias Nostr.Event.EncryptedDirectMessageEvent
 
@@ -9,7 +9,7 @@ defmodule Nostr.Event.EncryptedDirectMessageEvent do
     %{
       "content" => content,
       "created_at" => unix_timestamp,
-      "id" => _id,
+      "id" => id,
       "kind" => 4,
       "pubkey" => pubkey,
       "sig" => sig,
@@ -18,6 +18,7 @@ defmodule Nostr.Event.EncryptedDirectMessageEvent do
 
     with {:ok, created_at} <- DateTime.from_unix(unix_timestamp) do
       %EncryptedDirectMessageEvent{
+        id: id,
         content: content,
         tags: tags,
         pubkey: pubkey,
