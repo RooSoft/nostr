@@ -1,7 +1,13 @@
 defmodule Nostr.Event do
   require Logger
 
-  alias Nostr.Event.{MetadataEvent, ContactsEvent, ReactionEvent, EndOfRecordedHistoryEvent}
+  alias Nostr.Event.{
+    MetadataEvent,
+    ContactsEvent,
+    BoostEvent,
+    ReactionEvent,
+    EndOfRecordedHistoryEvent
+  }
 
   def dispatch(["EVENT", "myreq", %{"kind" => 0} = content]) do
     MetadataEvent.parse(content)
@@ -25,6 +31,10 @@ defmodule Nostr.Event do
 
   def dispatch(["EVENT", "myreq", %{"kind" => 5} = content]) do
     Logger.info("5- event deletion: #{inspect(content)}")
+  end
+
+  def dispatch(["EVENT", "myreq", %{"kind" => 6} = content]) do
+    BoostEvent.parse(content)
   end
 
   def dispatch(["EVENT", "myreq", %{"kind" => 7} = content]) do
