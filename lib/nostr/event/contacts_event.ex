@@ -1,10 +1,15 @@
-defmodule Nostr.Event.Contacts do
+defmodule Nostr.Event.ContactsEvent do
   require Logger
+
+  defstruct [:created_at, contacts: []]
+
+  alias Nostr.Event.ContactsEvent
 
   def parse(content) do
     %{
-      "content" => content,
-      "created_at" => 1_671_685_107,
+      # according to NIP-02, should be ignored
+      "content" => _content,
+      "created_at" => unix_created_at,
       "id" => _id,
       "kind" => 3,
       "pubkey" => _pubkey,
@@ -12,12 +17,19 @@ defmodule Nostr.Event.Contacts do
       "tags" => tags
     } = content
 
-    contacts =
-      tags
-      |> Enum.map(&parse_contact/1)
+    contacts = Enum.map(tags, &parse_contact/1)
 
-    content |> IO.inspect(label: "------------------CONTACTS CONTENT", limit: :infinity)
-    contacts |> IO.inspect(label: "------------------CONTACTS TAGS", limit: :infinity)
+    with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
+      %ContactsEvent{
+        contacts: contacts,
+        created_at: created_at
+      }
+    else
+      {:error, _message} ->
+        %ContactsEvent{
+          contacts: contacts
+        }
+    end
   end
 
   def parse_contact(["p" | [pubkey | []]]), do: %{pubkey: pubkey}
