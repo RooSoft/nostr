@@ -1,7 +1,7 @@
 defmodule Nostr.Event.ReactionEvent do
   require Logger
 
-  defstruct [:created_at]
+  defstruct [:pubkey, :created_at]
 
   alias Nostr.Event.ReactionEvent
 
@@ -11,16 +11,16 @@ defmodule Nostr.Event.ReactionEvent do
       "created_at" => unix_created_at,
       "id" => _id,
       "kind" => 7,
-      "pubkey" => _pub_key,
+      "pubkey" => pubkey,
       "sig" => _signature,
       "tags" => _tags
     } = content
 
     with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %ReactionEvent{created_at: created_at}
+      %ReactionEvent{pubkey: pubkey, created_at: created_at}
     else
       {:error, _message} ->
-        %ReactionEvent{}
+        %ReactionEvent{pubkey: pubkey}
     end
   end
 end

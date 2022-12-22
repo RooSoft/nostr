@@ -1,7 +1,7 @@
 defmodule Nostr.Event.ContactsEvent do
   require Logger
 
-  defstruct [:created_at, contacts: []]
+  defstruct [:pubkey, :created_at, contacts: []]
 
   alias Nostr.Event.ContactsEvent
   alias Nostr.Models.Client
@@ -13,7 +13,7 @@ defmodule Nostr.Event.ContactsEvent do
       "created_at" => unix_created_at,
       "id" => _id,
       "kind" => 3,
-      "pubkey" => _pubkey,
+      "pubkey" => pubkey,
       "sig" => _sig,
       "tags" => tags
     } = content
@@ -23,12 +23,14 @@ defmodule Nostr.Event.ContactsEvent do
     with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
       %ContactsEvent{
         contacts: contacts,
+        pubkey: pubkey,
         created_at: created_at
       }
     else
       {:error, _message} ->
         %ContactsEvent{
-          contacts: contacts
+          contacts: contacts,
+          pubkey: pubkey
         }
     end
   end

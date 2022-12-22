@@ -30,7 +30,7 @@ defmodule Nostr.Client.Server do
         msg
         |> Jason.decode!()
         |> Event.dispatch()
-        |> IO.inspect(label: "A FRAME")
+        |> IO.inspect(label: "TEXT: ")
 
       _ ->
         Logger.warn("#{type}: unknown type of frame")
