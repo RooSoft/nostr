@@ -4,6 +4,7 @@ defmodule Nostr.Event.ContactsEvent do
   defstruct [:created_at, contacts: []]
 
   alias Nostr.Event.ContactsEvent
+  alias Nostr.Models.Client
 
   def parse(content) do
     %{
@@ -32,13 +33,13 @@ defmodule Nostr.Event.ContactsEvent do
     end
   end
 
-  def parse_contact(["p" | [pubkey | []]]), do: %{pubkey: pubkey}
+  def parse_contact(["p" | [pubkey | []]]), do: %Client{pubkey: pubkey}
 
   def parse_contact(["p" | [pubkey | [main_relay | []]]]),
-    do: %{pubkey: pubkey, main_relay: main_relay}
+    do: %Client{pubkey: pubkey, main_relay: main_relay}
 
   def parse_contact(["p" | [pubkey | [main_relay | [petname]]]]),
-    do: %{pubkey: pubkey, main_relay: main_relay, petname: petname}
+    do: %Client{pubkey: pubkey, main_relay: main_relay, petname: petname}
 
   def parse_contact(data), do: %{unknown_content_type: data}
 end
