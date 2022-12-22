@@ -48,8 +48,9 @@ defmodule Nostr.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.29.1"},
-      {:dialyxir, "~> 1.2"},
+      {:ex_doc, "~> 0.29.1", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:websockex, "~> 0.4.3"},
       {:jason, "~> 1.4"},
       {:k256, git: "https://github.com/davidarmstronglewis/k256.git"},
