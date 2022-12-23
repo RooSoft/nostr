@@ -15,8 +15,12 @@ defmodule Nostr.Client do
   end
 
   def subscribe_author(pid, pubkey, max_messages \\ 100) do
-    request = Request.author(pubkey, max_messages)
+    {request_id, request} = Request.author(pubkey, max_messages)
+
+    IO.inspect(request, label: "REWQU")
 
     WebSockex.cast(pid, {:send_message, request})
+
+    request_id
   end
 end

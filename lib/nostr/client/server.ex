@@ -22,7 +22,7 @@ defmodule Nostr.Client.Server do
   def handle_frame({type, msg}, %{client_pid: client_pid} = state) do
     case type do
       :text ->
-        event =
+        {_request_id, event} =
           msg
           |> Jason.decode!()
           |> Event.dispatch()
