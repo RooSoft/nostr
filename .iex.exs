@@ -8,10 +8,17 @@ defmodule Receiver do
   end
 
   @impl true
-  def init(stack) do
-    Nostr.Client.start_link(@relay)
-    
-    {:ok, stack}
+  def init(_) do
+    {:ok, server_pid} = Nostr.Client.start_link(@relay)
+
+    {:ok, %{server_pid: server_pid}}
+  end
+
+  @impl true
+  def handle_info(:connected, %{server_pid: server_pid} = socket) do
+    Nostr.Client.subscribe_author(server_pid, "efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c")
+
+    {:noreply, socket}
   end
 
   @impl true

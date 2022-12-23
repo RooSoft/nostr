@@ -3,25 +3,22 @@ defmodule Nostr.Client.Server do
   require Logger
 
   alias Nostr.Event
-  alias Nostr.Event.{Request}
 
-  def handle_connect(_conn, state) do
+  @impl true
+  def handle_connect(_conn, %{client_pid: client_pid} = state) do
     Logger.info("Connected to relay...")
 
-    request =
-      Request.author("efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c", 100)
-
-    WebSockex.cast(self(), {:send_message, request})
+    send(client_pid, :connected)
 
     {:ok, state}
   end
 
-  def handle_cast({:send_message, subscription_json}, state) do
-    Logger.info("Subscribing messages...")
-
-    {:reply, {:text, subscription_json}, state}
+  @impl true
+  def handle_cast({:send_message, message}, state) do
+    {:reply, {:text, message}, state}
   end
 
+  @impl true
   def handle_frame({type, msg}, %{client_pid: client_pid} = state) do
     case type do
       :text ->
