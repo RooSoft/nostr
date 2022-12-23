@@ -22,12 +22,12 @@ defmodule Nostr.Client.Server do
   def handle_frame({type, msg}, %{client_pid: client_pid} = state) do
     case type do
       :text ->
-        {_request_id, event} =
+        {request_id, event} =
           msg
           |> Jason.decode!()
           |> Event.dispatch()
 
-        send(client_pid, event)
+        send(client_pid, {request_id, event})
 
       _ ->
         Logger.warn("#{type}: unknown type of frame")
