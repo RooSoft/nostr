@@ -2,10 +2,11 @@ defmodule Nostr.ValidatorTest do
   use ExUnit.Case, async: true
 
   alias Nostr.Validator
+  alias Nostr.Event
 
   setup_all do
     %{
-      text_event: %Nostr.Event.TextEvent{
+      event: %Event{
         id: "c87a24fc125871887a632dd069b7a510bbf987fe7210f3e5bc67492ef461d87d",
         content:
           "Making sure the schnorr signature included with notes correspond to the public key",
@@ -22,20 +23,20 @@ defmodule Nostr.ValidatorTest do
     }
   end
 
-  test "validate a note", %{text_event: text_event} do
-    validation_result = Validator.validate_note(text_event)
+  test "validate a note", %{event: event} do
+    validation_result = Validator.validate_event(event)
 
     assert :ok = validation_result
   end
 
-  test "validate a note's id", %{text_event: text_event} do
-    validation_result = Validator.validate_id(text_event)
+  test "validate a note's id", %{event: event} do
+    validation_result = Validator.validate_id(event)
 
     assert :ok = validation_result
   end
 
-  test "validate a note's signature", %{text_event: text_event} do
-    validation_result = Validator.validate_signature(text_event)
+  test "validate a note's signature", %{event: event} do
+    validation_result = Validator.validate_signature(event)
 
     assert :ok = validation_result
   end

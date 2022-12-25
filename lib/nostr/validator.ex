@@ -1,10 +1,11 @@
 defmodule Nostr.Validator do
   alias K256.Schnorr
   alias Nostr.Crypto
+  alias Nostr.Event
 
   @text_event_kind 1
 
-  def validate_note(%Nostr.Event.TextEvent{} = event) do
+  def validate_event(%Event{} = event) do
     with :ok <- validate_id(event),
          :ok <- validate_signature(event) do
       :ok
@@ -13,14 +14,14 @@ defmodule Nostr.Validator do
     end
   end
 
-  def validate_id(%Nostr.Event.TextEvent{id: id} = event) do
+  def validate_id(%Event{id: id} = event) do
     case id == create_id(event) do
       true -> :ok
       false -> {:error, "generated ID and the one in the event don't match"}
     end
   end
 
-  def validate_signature(%Nostr.Event.TextEvent{id: hex_id, sig: hex_sig, pubkey: hex_pubkey}) do
+  def validate_signature(%Event{id: hex_id, sig: hex_sig, pubkey: hex_pubkey}) do
     id = Binary.from_hex(hex_id)
     sig = Binary.from_hex(hex_sig)
     pubkey = Binary.from_hex(hex_pubkey)
@@ -28,7 +29,7 @@ defmodule Nostr.Validator do
     Schnorr.verify_message_digest(id, sig, pubkey)
   end
 
-  defp create_id(%Nostr.Event.TextEvent{
+  defp create_id(%Event{
          pubkey: pubkey,
          created_at: created_at,
          tags: tags,

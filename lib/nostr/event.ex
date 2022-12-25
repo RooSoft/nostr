@@ -1,6 +1,11 @@
 defmodule Nostr.Event do
   require Logger
 
+  defstruct [:id, :pubkey, :created_at, :kind, :tags, :content, :sig]
+
+  alias Nostr.Event
+  alias Nostr.Crypto
+
   alias Nostr.Event.{
     MetadataEvent,
     TextEvent,
@@ -10,6 +15,26 @@ defmodule Nostr.Event do
     ReactionEvent,
     EndOfRecordedHistoryEvent
   }
+
+  def create_id(%Event{
+        pubkey: pubkey,
+        created_at: created_at,
+        kind: kind,
+        tags: tags,
+        content: content
+      }) do
+    [
+      0,
+      pubkey,
+      created_at |> DateTime.to_unix(),
+      kind,
+      tags,
+      content
+    ]
+    |> Jason.encode!()
+    |> Crypto.sha256()
+    |> Binary.to_hex()
+  end
 
   def dispatch(["EVENT", request_id, %{"kind" => 0} = content]) do
     {request_id, MetadataEvent.parse(content)}

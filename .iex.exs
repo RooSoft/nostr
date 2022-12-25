@@ -21,17 +21,21 @@ defmodule Receiver do
       "efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c"
     )
 
-    _request_id = Nostr.Client.subscribe_author(
-      server_pid,
-      "d75a0bcc4b494628d51ceab95ca1b34b9b23b1cb3a715beb1c5a8d963d161460"
-    )
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({request_id, %Nostr.Event.TextEvent{event: event}}, socket) do
+    IO.puts "TEXT EVENT"
+    IO.inspect event, label: "#{request_id}"
+    IO.inspect Nostr.Validator.validate_event(event)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({request_id, event}, socket) do
-    IO.inspect event, label: "#{request_id}"
+  def handle_info({_request_id, _event}, socket) do
+    # IO.inspect event, label: "#{request_id}"
 
     {:noreply, socket}
   end

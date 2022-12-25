@@ -1,26 +1,44 @@
 defmodule Nostr.Event.ReactionEvent do
   require Logger
 
-  defstruct [:id, :pubkey, :sig, :created_at]
+  defstruct event: %Nostr.Event{}
 
+  alias Nostr.Event
   alias Nostr.Event.ReactionEvent
 
   def parse(content) do
     %{
-      "content" => _content,
+      "content" => content,
       "created_at" => unix_created_at,
       "id" => id,
       "kind" => 7,
       "pubkey" => pubkey,
       "sig" => sig,
-      "tags" => _tags
+      "tags" => tags
     } = content
 
     with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %ReactionEvent{id: id, pubkey: pubkey, sig: sig, created_at: created_at}
+      %ReactionEvent{
+        event: %Event{
+          id: id,
+          pubkey: pubkey,
+          created_at: created_at,
+          sig: sig,
+          tags: tags,
+          content: content
+        }
+      }
     else
       {:error, _message} ->
-        %ReactionEvent{pubkey: pubkey}
+        %ReactionEvent{
+          event: %Event{
+            id: id,
+            pubkey: pubkey,
+            sig: sig,
+            tags: tags,
+            content: content
+          }
+        }
     end
   end
 end
