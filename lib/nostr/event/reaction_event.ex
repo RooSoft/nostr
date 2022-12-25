@@ -14,10 +14,13 @@ defmodule Nostr.Event.ReactionEvent do
       "created_at" => unix_created_at,
       "id" => id,
       "kind" => @kind,
-      "pubkey" => pubkey,
-      "sig" => sig,
+      "pubkey" => hex_pubkey,
+      "sig" => hex_sig,
       "tags" => tags
     } = content
+
+    pubkey = Binary.from_hex(hex_pubkey)
+    sig = Binary.from_hex(hex_sig)
 
     with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
       %ReactionEvent{

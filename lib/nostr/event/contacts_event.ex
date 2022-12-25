@@ -16,10 +16,13 @@ defmodule Nostr.Event.ContactsEvent do
       "created_at" => unix_created_at,
       "id" => id,
       "kind" => @kind,
-      "pubkey" => pubkey,
-      "sig" => sig,
+      "pubkey" => hex_pubkey,
+      "sig" => hex_sig,
       "tags" => tags
     } = content
+
+    pubkey = Binary.from_hex(hex_pubkey)
+    sig = Binary.from_hex(hex_sig)
 
     contacts = Enum.map(tags, &parse_contact/1)
 

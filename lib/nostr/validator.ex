@@ -18,10 +18,8 @@ defmodule Nostr.Validator do
     end
   end
 
-  def validate_signature(%Event{id: hex_id, sig: hex_sig, pubkey: hex_pubkey}) do
+  def validate_signature(%Event{id: hex_id, sig: sig, pubkey: pubkey}) do
     id = Binary.from_hex(hex_id)
-    sig = Binary.from_hex(hex_sig)
-    pubkey = Binary.from_hex(hex_pubkey)
 
     Schnorr.verify_message_digest(id, sig, pubkey)
   end

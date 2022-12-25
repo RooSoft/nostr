@@ -16,6 +16,21 @@ defmodule Nostr.Event do
     EndOfRecordedHistoryEvent
   }
 
+  def create(pubkey, content) do
+    %Event{
+      pubkey: pubkey,
+      created_at: DateTime.now!("Etc/UTC"),
+      tags: [],
+      content: content
+    }
+  end
+
+  def add_id(event) do
+    id = create_id(event)
+
+    %{event | id: id}
+  end
+
   def create_id(%Event{
         pubkey: pubkey,
         created_at: created_at,
@@ -23,10 +38,13 @@ defmodule Nostr.Event do
         tags: tags,
         content: content
       }) do
+    hex_pubkey = Binary.to_hex(pubkey)
+    timestamp = DateTime.to_unix(created_at)
+
     [
       0,
-      pubkey,
-      created_at |> DateTime.to_unix(),
+      hex_pubkey,
+      timestamp,
       kind,
       tags,
       content

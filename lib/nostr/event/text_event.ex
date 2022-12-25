@@ -8,16 +8,10 @@ defmodule Nostr.Event.TextEvent do
 
   @kind 1
 
-  def create(pubkey, content) do
-    %TextEvent{
-      event: %Event{
-        pubkey: pubkey,
-        created_at: DateTime.now!("Etc/UTC") |> DateTime.to_unix(),
-        kind: @kind,
-        tags: [],
-        content: content
-      }
-    }
+  def create(<<_::256>> = pubkey, content) do
+    event = Event.create(pubkey, content)
+
+    %{event | kind: @kind}
   end
 
   def parse(body) do
@@ -26,10 +20,13 @@ defmodule Nostr.Event.TextEvent do
       "created_at" => unix_timestamp,
       "id" => id,
       "kind" => @kind,
-      "pubkey" => pubkey,
-      "sig" => sig,
+      "pubkey" => hex_pubkey,
+      "sig" => hex_sig,
       "tags" => tags
     } = body
+
+    pubkey = Binary.from_hex(hex_pubkey)
+    sig = Binary.from_hex(hex_sig)
 
     with {:ok, created_at} <- DateTime.from_unix(unix_timestamp) do
       %TextEvent{

@@ -14,10 +14,13 @@ defmodule Nostr.Event.EncryptedDirectMessageEvent do
       "created_at" => unix_timestamp,
       "id" => id,
       "kind" => @kind,
-      "pubkey" => pubkey,
-      "sig" => sig,
+      "pubkey" => hex_pubkey,
+      "sig" => hex_sig,
       "tags" => tags
     } = body
+
+    pubkey = Binary.from_hex(hex_pubkey)
+    sig = Binary.from_hex(hex_sig)
 
     with {:ok, created_at} <- DateTime.from_unix(unix_timestamp) do
       %EncryptedDirectMessageEvent{
