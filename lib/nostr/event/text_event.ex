@@ -8,13 +8,12 @@ defmodule Nostr.Event.TextEvent do
 
   @kind 1
 
-  def create(pubkey, sig, content) do
+  def create(pubkey, content) do
     %TextEvent{
       event: %Event{
         pubkey: pubkey,
-        created_at: DateTime.now!() |> DateTime.to_unix(),
+        created_at: DateTime.now!("Etc/UTC") |> DateTime.to_unix(),
         kind: @kind,
-        sig: sig,
         tags: [],
         content: content
       }
