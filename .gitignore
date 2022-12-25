@@ -28,3 +28,4 @@ nostr-*.tar
 .elixir_ls
 
 .DS_Store
+.iex.local.exs
