@@ -1,9 +1,6 @@
 defmodule Nostr.Validator do
   alias K256.Schnorr
-  alias Nostr.Crypto
   alias Nostr.Event
-
-  @text_event_kind 1
 
   def validate_event(%Event{} = event) do
     with :ok <- validate_id(event),
@@ -15,7 +12,7 @@ defmodule Nostr.Validator do
   end
 
   def validate_id(%Event{id: id} = event) do
-    case id == create_id(event) do
+    case id == Event.create_id(event) do
       true -> :ok
       false -> {:error, "generated ID and the one in the event don't match"}
     end
@@ -27,24 +24,5 @@ defmodule Nostr.Validator do
     pubkey = Binary.from_hex(hex_pubkey)
 
     Schnorr.verify_message_digest(id, sig, pubkey)
-  end
-
-  defp create_id(%Event{
-         pubkey: pubkey,
-         created_at: created_at,
-         tags: tags,
-         content: content
-       }) do
-    [
-      0,
-      pubkey,
-      created_at |> DateTime.to_unix(),
-      @text_event_kind,
-      tags,
-      content
-    ]
-    |> Jason.encode!()
-    |> Crypto.sha256()
-    |> Binary.to_hex()
   end
 end

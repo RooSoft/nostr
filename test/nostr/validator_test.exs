@@ -18,7 +18,8 @@ defmodule Nostr.ValidatorTest do
         pubkey: "efc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c",
         sig:
           "1073eb38ba54982bf7a92139cecf23959d8cf6900ec44474bcecd9882b32f70afeadfda20620b1436f3ce9680a62261f126b92a5314fa27a4b0eab8f2447eabd",
-        created_at: ~U[2022-12-25 16:33:04Z]
+        created_at: ~U[2022-12-25 16:33:04Z],
+        kind: 1
       }
     }
   end
