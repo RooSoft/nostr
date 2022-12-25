@@ -7,13 +7,15 @@ defmodule Nostr.Event.ContactsEvent do
   alias Nostr.Event.ContactsEvent
   alias Nostr.Models.Client
 
+  @kind 3
+
   def parse(content) do
     %{
       # according to NIP-02, should be ignored
       "content" => _content,
       "created_at" => unix_created_at,
       "id" => id,
-      "kind" => 3,
+      "kind" => @kind,
       "pubkey" => pubkey,
       "sig" => sig,
       "tags" => tags
@@ -27,7 +29,8 @@ defmodule Nostr.Event.ContactsEvent do
           id: id,
           pubkey: pubkey,
           sig: sig,
-          created_at: created_at
+          created_at: created_at,
+          kind: @kind
         },
         contacts: contacts
       }
@@ -37,7 +40,8 @@ defmodule Nostr.Event.ContactsEvent do
           event: %Event{
             id: id,
             pubkey: pubkey,
-            sig: sig
+            sig: sig,
+            kind: @kind
           },
           contacts: contacts
         }

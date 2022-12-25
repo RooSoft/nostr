@@ -6,13 +6,15 @@ defmodule Nostr.Event.MetadataEvent do
   alias Nostr.Event
   alias Nostr.Event.MetadataEvent
 
+  @kind 0
+
   def parse(content) do
     %{
       # according to NIP-02, should be ignored
       "content" => _content,
       "created_at" => unix_created_at,
       "id" => id,
-      "kind" => 3,
+      "kind" => 0,
       "pubkey" => pubkey,
       "sig" => sig,
       "tags" => tags
@@ -24,6 +26,7 @@ defmodule Nostr.Event.MetadataEvent do
           id: id,
           pubkey: pubkey,
           created_at: created_at,
+          kind: @kind,
           sig: sig,
           tags: tags,
           content: content
@@ -35,6 +38,7 @@ defmodule Nostr.Event.MetadataEvent do
           event: %Event{
             id: id,
             pubkey: pubkey,
+            kind: @kind,
             sig: sig,
             tags: tags,
             content: content

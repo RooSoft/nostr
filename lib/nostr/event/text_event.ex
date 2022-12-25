@@ -6,12 +6,14 @@ defmodule Nostr.Event.TextEvent do
   alias Nostr.Event
   alias Nostr.Event.TextEvent
 
+  @kind 1
+
   def parse(body) do
     %{
       "content" => content,
       "created_at" => unix_timestamp,
       "id" => id,
-      "kind" => 1,
+      "kind" => @kind,
       "pubkey" => pubkey,
       "sig" => sig,
       "tags" => tags
@@ -23,6 +25,7 @@ defmodule Nostr.Event.TextEvent do
           id: id,
           pubkey: pubkey,
           created_at: created_at,
+          kind: @kind,
           sig: sig,
           tags: tags,
           content: content
@@ -34,6 +37,7 @@ defmodule Nostr.Event.TextEvent do
           event: %Event{
             id: id,
             pubkey: pubkey,
+            kind: @kind,
             sig: sig,
             tags: tags,
             content: content
