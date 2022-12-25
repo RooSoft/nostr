@@ -8,6 +8,19 @@ defmodule Nostr.Event.TextEvent do
 
   @kind 1
 
+  def create(pubkey, sig, content) do
+    %TextEvent{
+      event: %Event{
+        pubkey: pubkey,
+        created_at: DateTime.now!() |> DateTime.to_unix(),
+        kind: @kind,
+        sig: sig,
+        tags: [],
+        content: content
+      }
+    }
+  end
+
   def parse(body) do
     %{
       "content" => content,
