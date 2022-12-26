@@ -9,11 +9,13 @@ defmodule Nostr.Client.SubscribeRequest do
   end
 
   def request(id, pubkey, limit) do
+    hex_pubkey = Binary.to_hex(pubkey)
+
     [
       "REQ",
       id,
       %{
-        authors: [pubkey],
+        authors: [hex_pubkey],
         limit: limit
       }
     ]
