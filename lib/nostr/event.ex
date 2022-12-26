@@ -63,7 +63,14 @@ defmodule Nostr.Event do
     %{event | id: id}
   end
 
-  def create_id(%Event{
+  def create_id(%Event{} = event) do
+    event
+    |> json_for_id()
+    |> Crypto.sha256()
+    |> Binary.to_hex()
+  end
+
+  def json_for_id(%Event{
         pubkey: pubkey,
         created_at: created_at,
         kind: kind,
@@ -82,8 +89,6 @@ defmodule Nostr.Event do
       content
     ]
     |> Jason.encode!()
-    |> Crypto.sha256()
-    |> Binary.to_hex()
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 0} = content]) do

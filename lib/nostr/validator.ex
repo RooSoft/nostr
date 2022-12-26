@@ -2,6 +2,7 @@ defmodule Nostr.Validator do
   alias K256.Schnorr
   alias Nostr.Event
 
+  @spec(validate_event(%Event{}) :: :ok, {:error, message})
   def validate_event(%Event{} = event) do
     with :ok <- validate_id(event),
          :ok <- validate_signature(event) do

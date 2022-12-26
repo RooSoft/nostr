@@ -33,12 +33,9 @@ defmodule Nostr.Client do
     {:ok, signed_event} =
       text_event.event
       |> Signer.sign_event(privkey)
-      |> IO.inspect(label: "signed event")
 
     request = SendRequest.event(signed_event)
 
     WebSockex.cast(pid, {:send_message, request})
-
-    #  IO.inspect(sig, label: "signature")
   end
 end
