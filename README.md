@@ -37,3 +37,18 @@ test_private_key = <<>> ### here goes your private key
 
 NostrApp.start_link(relay, test_private_key)
 ```
+
+and start iex
+
+```bash
+iex -S mix
+```
+
+## Now what?
+
+You'll receive past and live events into the console, and are now able to send messages with
+that identity.
+
+```elixir
+NostrApp.send("aren't you entertained?")
+```
