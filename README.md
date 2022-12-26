@@ -33,9 +33,9 @@ file and paste that in
 
 ```elixir
 relay = "wss://relay.nostr.pro" ## here's a list of relays: https://nostr-registry.netlify.app
-test_private_key = <<>> ### here goes your private key
+private_key = <<>> ### here goes your private key
 
-NostrApp.start_link(relay, test_private_key)
+NostrApp.start_link(relay, private_key)
 ```
 
 and start iex
