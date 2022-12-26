@@ -16,6 +16,38 @@ defmodule Nostr.Event do
     EndOfRecordedHistoryEvent
   }
 
+  defimpl Jason.Encoder do
+    def encode(
+          %Event{
+            id: id,
+            pubkey: pubkey,
+            created_at: created_at,
+            kind: kind,
+            sig: sig,
+            tags: _tags,
+            content: content
+          },
+          opts
+        ) do
+      hex_pubkey = Binary.to_hex(pubkey)
+      hex_sig = Binary.to_hex(sig)
+      timestamp = DateTime.to_unix(created_at)
+
+      Jason.Encode.map(
+        %{
+          "id" => id,
+          "pubkey" => hex_pubkey,
+          "created_at" => timestamp,
+          "kind" => kind,
+          "tags" => [],
+          "content" => content,
+          "sig" => hex_sig
+        },
+        opts
+      )
+    end
+  end
+
   def create(pubkey, content) do
     %Event{
       pubkey: pubkey,
@@ -136,6 +168,10 @@ defmodule Nostr.Event do
 
   def dispatch(["EOSE", request_id]) do
     {request_id, %EndOfRecordedHistoryEvent{}}
+  end
+
+  def dispatch([type | remaining]) do
+    {"unknown", %{type: type, data: remaining}}
   end
 
   def dispatch(contents) do

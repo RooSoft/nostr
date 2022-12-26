@@ -1,8 +1,9 @@
 defmodule Nostr.Client do
   require Logger
 
-  alias Nostr.Event
-  alias Nostr.Event.{Request, TextEvent}
+  alias Nostr.Event.{TextEvent}
+  alias Nostr.Client.{SubscribeRequest, SendRequest}
+  alias Nostr.Signer
   alias K256.Schnorr
 
   @default_relay "wss://relay.nostr.pro"
@@ -17,26 +18,26 @@ defmodule Nostr.Client do
   end
 
   def subscribe_author(pid, pubkey, max_messages \\ 100) do
-    {request_id, request} = Request.author(pubkey, max_messages)
+    {request_id, request} = SubscribeRequest.author(pubkey, max_messages)
 
     WebSockex.cast(pid, {:send_message, request})
 
     request_id
   end
 
-  def send_note(_pid, note, privkey) do
-    IO.puts("WILL SEND A NOTE")
-
+  def send_note(pid, note, privkey) do
     {:ok, pubkey} = Schnorr.verifying_key_from_signing_key(privkey)
 
-    pubkey |> IO.inspect(label: "public key", base: :hex)
+    text_event = TextEvent.create(pubkey, note)
 
-    # note_event =
-    TextEvent.create(pubkey, note)
-    |> Event.add_id()
-    |> IO.inspect(label: "event with id")
+    {:ok, signed_event} =
+      text_event.event
+      |> Signer.sign_event(privkey)
+      |> IO.inspect(label: "signed event")
 
-    # {:ok, sig} = Schnorr.create_signature(note_event, privkey) |> IO.inspect(label: "signature")
+    request = SendRequest.event(signed_event)
+
+    WebSockex.cast(pid, {:send_message, request})
 
     #  IO.inspect(sig, label: "signature")
   end

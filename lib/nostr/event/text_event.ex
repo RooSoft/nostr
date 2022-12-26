@@ -9,9 +9,11 @@ defmodule Nostr.Event.TextEvent do
   @kind 1
 
   def create(<<_::256>> = pubkey, content) do
-    event = Event.create(pubkey, content)
+    event =
+      %{Event.create(pubkey, content) | kind: @kind}
+      |> Event.add_id()
 
-    %{event | kind: @kind}
+    %TextEvent{event: event}
   end
 
   def parse(body) do
