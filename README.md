@@ -7,6 +7,10 @@ Communicate with any participant, be it relays or clients, with elixir
 
 ## Installation
 
+As of now, this project needs [rust](https://www.rust-lang.org) to compile. We're in the process of getting 
+rid of that dependency despite rust still being use dunder the covers, thanks to 
+[rustler_precompiled](https://github.com/philss/rustler_precompiled).
+
 ```elixir
 def deps do
   [
