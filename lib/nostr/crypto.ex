@@ -10,4 +10,21 @@ defmodule Nostr.Crypto do
   def sha256(bin) when is_bitstring(bin) do
     :crypto.hash(:sha256, bin)
   end
+
+  @doc """
+  Decodes a bech32 item into its respective type, be it privkey, pubkey or note
+
+  ## Examples
+      iex> "npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6"
+      ...> |> Nostr.Crypto.bech32_decode()
+      <<0x3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d::256>>
+  """
+  @spec bech32_decode(binary()) :: binary()
+  def bech32_decode("npub" <> _ = bech32_pubkey) do
+    case Bech32.decode(bech32_pubkey) do
+      {:ok, "npub", pubkey} -> pubkey
+      {:ok, _, _} -> {:error, "malformed bech32 public key"}
+      {:error, message} -> {:error, message}
+    end
+  end
 end
