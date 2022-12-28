@@ -13,7 +13,7 @@ defmodule Nostr.Keys.PublicKey do
   end
 
   @doc """
-  Converts a bech32 string into a binary public key that can be used with this lib
+  Converts a public key in the npub format into a binary public key that can be used with this lib
 
   ## Examples
       iex> npub = "npub1d4ed5x49d7p24xn63flj4985dc4gpfngdhtqcxpth0ywhm6czxcscfpcq8"
@@ -27,5 +27,18 @@ defmodule Nostr.Keys.PublicKey do
       {:ok, _, _} -> {:error, "malformed bech32 public key"}
       {:error, message} -> {:error, message}
     end
+  end
+
+  @doc """
+  Encodes a public key into the npub format
+
+  ## Examples
+      iex> public_key = <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>
+      ...> Nostr.Keys.PublicKey.to_npub(public_key)
+      "npub1d4ed5x49d7p24xn63flj4985dc4gpfngdhtqcxpth0ywhm6czxcscfpcq8"
+  """
+  @spec to_npub(<<_::256>>) :: binary()
+  def to_npub(<<_::256>> = public_key) do
+    Bech32.encode("npub", public_key)
   end
 end
