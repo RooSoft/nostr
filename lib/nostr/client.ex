@@ -43,7 +43,7 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(pid(), String.t(), <<_::256>>)
+  @spec send_note(pid(), String.t(), <<_::256>>) :: :ok
   def send_note(pid, note, privkey) do
     {:ok, pubkey} = Schnorr.verifying_key_from_signing_key(privkey)
 
