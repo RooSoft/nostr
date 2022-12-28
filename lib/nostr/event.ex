@@ -183,3 +183,24 @@ defmodule Nostr.Event do
     Logger.warning("unknown event type: #{contents}")
   end
 end
+
+defimpl Inspect, for: Nostr.Event do
+  alias Nostr.Formatting.HexBinary
+
+  def inspect(%Nostr.Event{} = event, opts) do
+    hex_pubkey =
+      case event.pubkey do
+        nil -> nil
+        _ -> %HexBinary{data: event.pubkey}
+      end
+
+    hex_sig =
+      case event.sig do
+        nil -> nil
+        _ -> %HexBinary{data: event.sig}
+      end
+
+    %{event | pubkey: hex_pubkey, sig: hex_sig}
+    |> Inspect.Any.inspect(opts)
+  end
+end
