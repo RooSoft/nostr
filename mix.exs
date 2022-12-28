@@ -54,7 +54,8 @@ defmodule Nostr.MixProject do
       {:websockex, "~> 0.4.3"},
       {:jason, "~> 1.4"},
       {:k256, "~> 0.0.6"},
-      {:binary, "~> 0.0.5"}
+      {:binary, "~> 0.0.5"},
+      {:bech32, "~> 1.0"}
     ]
   end
 end
