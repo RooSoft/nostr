@@ -53,7 +53,7 @@ defmodule Nostr.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:websockex, "~> 0.4.3"},
       {:jason, "~> 1.4"},
-      {:k256, git: "https://github.com/davidarmstronglewis/k256.git"},
+      {:k256, "~> 0.0.6"},
       {:binary, "~> 0.0.5"}
     ]
   end
