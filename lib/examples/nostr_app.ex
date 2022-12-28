@@ -38,13 +38,15 @@ defmodule NostrApp do
   @impl true
   def handle_info(
         :connected,
-        %{nostr_client_pid: nostr_client_pid, public_key: public_key} = socket
+        %{nostr_client_pid: nostr_client_pid, public_key: _public_key} = socket
       ) do
+    public_key = <<0x51CCC482F89773349EF650407294A8B6A1658F0B377B3CAFB714423A29FC31C7::256>>
+
     _request_id =
       Nostr.Client.subscribe_author(
         nostr_client_pid,
         public_key,
-        2
+        10
       )
 
     {:noreply, socket}
@@ -52,7 +54,16 @@ defmodule NostrApp do
 
   @impl true
   def handle_info({request_id, %Nostr.Event.TextEvent{event: event}}, socket) do
-    IO.puts("TEXT EVENT")
+    # IO.puts("TEXT EVENT")
+    # IO.inspect(event, label: "#{request_id}")
+    # IO.inspect(Nostr.Validator.validate_event(event))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({request_id, %Nostr.Event.EncryptedDirectMessageEvent{event: event}}, socket) do
+    IO.puts("ENCRYPTED DM EVENT")
     IO.inspect(event, label: "#{request_id}")
     IO.inspect(Nostr.Validator.validate_event(event))
 
