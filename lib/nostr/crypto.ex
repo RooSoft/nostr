@@ -40,8 +40,8 @@ defmodule Nostr.Crypto do
   @spec bech32_decode(binary()) :: {:pubkey, binary()} | {:error, binary()}
   def bech32_decode_to_hex("npub" <> _ = bech32_pubkey) do
     case bech32_decode(bech32_pubkey) do
-      {type, pubkey} -> {type, Binary.to_hex(pubkey)}
       {:error, message} -> {:error, message}
+      {type, pubkey} -> {type, Binary.to_hex(pubkey)}
     end
   end
 end
