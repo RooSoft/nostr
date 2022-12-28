@@ -19,10 +19,10 @@ defmodule Nostr.Crypto do
       ...> |> Nostr.Crypto.bech32_decode()
       {:pubkey, <<0x3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d::256>>}
   """
-  @spec bech32_decode(binary()) :: {:pubkey, binary()} | {:error, binary()}
+  @spec bech32_decode(String.t()) :: {:pubkey, <<_::256>>} | {:error, String.t()}
   def bech32_decode("npub" <> _ = bech32_pubkey) do
     case Bech32.decode(bech32_pubkey) do
-      {:ok, "npub", pubkey} -> {:pubkey, pubkey}
+      {:ok, "npub", <<_::256>> = pubkey} -> {:pubkey, pubkey}
       {:ok, _, _} -> {:error, "malformed bech32 public key"}
       {:error, message} -> {:error, message}
     end
