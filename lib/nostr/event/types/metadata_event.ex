@@ -23,30 +23,22 @@ defmodule Nostr.Event.Types.MetadataEvent do
     pubkey = Binary.from_hex(hex_pubkey)
     sig = Binary.from_hex(hex_sig)
 
-    with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %MetadataEvent{
-        event: %Event{
-          id: id,
-          pubkey: pubkey,
-          created_at: created_at,
-          kind: @kind,
-          sig: sig,
-          tags: tags,
-          content: content
-        }
+    created_at =
+      case DateTime.from_unix(unix_created_at) do
+        {:ok, created_at} -> created_at
+        {:error, _} -> nil
+      end
+
+    %MetadataEvent{
+      event: %Event{
+        id: id,
+        pubkey: pubkey,
+        created_at: created_at,
+        kind: @kind,
+        sig: sig,
+        tags: tags,
+        content: content
       }
-    else
-      {:error, _message} ->
-        %MetadataEvent{
-          event: %Event{
-            id: id,
-            pubkey: pubkey,
-            kind: @kind,
-            sig: sig,
-            tags: tags,
-            content: content
-          }
-        }
-    end
+    }
   end
 end
