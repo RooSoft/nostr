@@ -11,7 +11,7 @@ defmodule Nostr.Keys.PrivateKey do
   end
 
   @doc """
-  Converts a private key in the nsec format into a binary private key that can be used with this lib
+  Extracts a binary private key from the nsec format
 
   ## Examples
       iex> nsec = "nsec1d4ed5x49d7p24xn63flj4985dc4gpfngdhtqcxpth0ywhm6czxcs5l2exj"
@@ -24,6 +24,22 @@ defmodule Nostr.Keys.PrivateKey do
       {:ok, "nsec", private_key} -> {:ok, private_key}
       {:ok, _, _} -> {:error, "malformed bech32 private key"}
       {:error, message} -> {:error, message}
+    end
+  end
+
+  @doc """
+  Extracts a binary private key from the nsec format
+
+  ## Examples
+      iex> nsec = "nsec1d4ed5x49d7p24xn63flj4985dc4gpfngdhtqcxpth0ywhm6czxcs5l2exj"
+      ...> Nostr.Keys.PrivateKey.from_nsec!(nsec)
+      <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>
+  """
+  @spec from_nsec!(binary()) :: <<_::256>>
+  def from_nsec!("nsec" <> _ = bech32_private_key) do
+    case from_nsec(bech32_private_key) do
+      {:ok, private_key} -> private_key
+      {:error, message} -> raise message
     end
   end
 
