@@ -1,7 +1,7 @@
 defmodule Nostr.Integration.SignAndVerifyTest do
   use ExUnit.Case, async: true
 
-  alias Nostr.{Signer, Validator}
+  alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event
   alias K256.Schnorr
 

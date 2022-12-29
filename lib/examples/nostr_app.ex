@@ -55,7 +55,7 @@ defmodule NostrApp do
   def handle_info({request_id, %TextEvent{event: event}}, socket) do
     IO.puts("TEXT EVENT")
     IO.inspect(event, label: "#{request_id}")
-    IO.inspect(Nostr.Validator.validate_event(event))
+    IO.inspect(Nostr.Event.Validator.validate_event(event))
 
     {:noreply, socket}
   end
@@ -64,7 +64,7 @@ defmodule NostrApp do
   def handle_info({request_id, %EncryptedDirectMessageEvent{event: event}}, socket) do
     IO.puts("ENCRYPTED DM EVENT")
     IO.inspect(event, label: "#{request_id}")
-    IO.inspect(Nostr.Validator.validate_event(event))
+    IO.inspect(Nostr.Event.Validator.validate_event(event))
 
     {:noreply, socket}
   end

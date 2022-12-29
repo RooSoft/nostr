@@ -1,7 +1,7 @@
-defmodule Nostr.ValidatorTest do
+defmodule Nostr.Event.ValidatorTest do
   use ExUnit.Case, async: true
 
-  alias Nostr.Validator
+  alias Nostr.Event.Validator
   alias Nostr.Event
 
   setup_all do

@@ -1,4 +1,4 @@
-defmodule Nostr.Validator do
+defmodule Nostr.Event.Validator do
   alias K256.Schnorr
   alias Nostr.Event
 

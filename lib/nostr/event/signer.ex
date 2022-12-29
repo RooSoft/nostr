@@ -1,4 +1,4 @@
-defmodule Nostr.Signer do
+defmodule Nostr.Event.Signer do
   alias Nostr.Event
   alias K256.Schnorr
 
