@@ -1,4 +1,8 @@
 defmodule Nostr.Keys.PublicKey do
+  @moduledoc """
+  Public keys management functions
+  """
+
   @doc """
   Issues the public key corresponding to a given private key
 

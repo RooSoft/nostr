@@ -1,4 +1,8 @@
 defmodule Nostr.Keys.PrivateKey do
+  @moduledoc """
+  Private keys management functions
+  """
+
   @doc """
   Creates a new private key
 
