@@ -8,42 +8,13 @@ defmodule Nostr.Event.Types.BoostEvent do
 
   @kind 6
 
+  @spec parse(map()) :: {:ok, %BoostEvent{}} | {:error, binary()}
   def parse(body) do
-    %{
-      "content" => json_content,
-      "created_at" => unix_created_at,
-      "id" => id,
-      "kind" => @kind,
-      "pubkey" => hex_pubkey,
-      "sig" => hex_sig,
-      "tags" => tags
-    } = body
+    event = Event.parse(body)
 
-    pubkey = Binary.from_hex(hex_pubkey)
-    sig = Binary.from_hex(hex_sig)
-
-    created_at =
-      case DateTime.from_unix(unix_created_at) do
-        {:ok, created_at} -> created_at
-        {:error, _message} -> nil
-      end
-
-    content =
-      case Jason.decode(json_content) do
-        {:ok, content} -> content
-        {:error, _} -> nil
-      end
-
-    %BoostEvent{
-      event: %Event{
-        id: id,
-        content: content,
-        created_at: created_at,
-        kind: @kind,
-        pubkey: pubkey,
-        sig: sig,
-        tags: tags
-      }
-    }
+    case event.kind do
+      @kind -> {:ok, %BoostEvent{event: event}}
+      kind -> {:error, "Tried to parse a boost event with kind #{kind} instead of #{@kind}"}
+    end
   end
 end

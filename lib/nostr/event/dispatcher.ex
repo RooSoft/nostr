@@ -74,7 +74,7 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 6} = content]) do
-    {request_id, BoostEvent.parse(content)}
+    {request_id, BoostEvent.parse(content).elem(1)}
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 7} = content]) do

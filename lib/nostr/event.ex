@@ -8,6 +8,7 @@ defmodule Nostr.Event do
   defstruct [:id, :pubkey, :created_at, :kind, :tags, :content, :sig]
 
   alias Nostr.Event
+  alias Nostr.Event.Parser
   alias Nostr.Crypto
 
   # This thing is needed so that the Jason library knows how to serialize the events
@@ -70,6 +71,11 @@ defmodule Nostr.Event do
       tags: [],
       content: content
     }
+  end
+
+  @spec parse(map()) :: %Event{}
+  def parse(body) do
+    Parser.parse(body)
   end
 
   def add_id(event) do
