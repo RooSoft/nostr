@@ -43,18 +43,18 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(pid(), String.t(), <<_::256>>) :: :ok
+  # must fix the k256 lib so we can remove this dialyzer nowarn statement
+  @dialyzer {:nowarn_function, send_note: 3}
+  @spec send_note(pid(), String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
   def send_note(pid, note, privkey) do
-    {:ok, pubkey} = Schnorr.verifying_key_from_signing_key(privkey)
+    with {:ok, <<_::256>> = pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
+         text_event = TextEvent.create(note, pubkey),
+         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey) do
+      request = SendRequest.event(signed_event)
 
-    text_event = TextEvent.create(note, pubkey)
-
-    {:ok, signed_event} =
-      text_event.event
-      |> Signer.sign_event(privkey)
-
-    request = SendRequest.event(signed_event)
-
-    WebSockex.cast(pid, {:send_message, request})
+      WebSockex.cast(pid, {:send_message, request})
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 end

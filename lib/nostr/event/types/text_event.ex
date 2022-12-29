@@ -8,7 +8,7 @@ defmodule Nostr.Event.Types.TextEvent do
 
   @kind 1
 
-  def create(<<_::256>> = pubkey, content) do
+  def create(content, <<_::256>> = pubkey) do
     event =
       %{Event.create(content, pubkey) | kind: @kind}
       |> Event.add_id()
