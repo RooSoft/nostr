@@ -25,7 +25,7 @@ defmodule Nostr.Client.Server do
         {request_id, event} =
           msg
           |> Jason.decode!()
-          |> Event.dispatch()
+          |> Event.Dispatcher.dispatch()
 
         send(client_pid, {request_id, event})
 
