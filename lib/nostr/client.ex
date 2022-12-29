@@ -31,7 +31,7 @@ defmodule Nostr.Client do
   @doc """
   Subscribes to an author's events
   """
-  @spec subscribe_author(pid(), <<_::256>>, Integer.t()) :: binary()
+  @spec subscribe_author(pid(), <<_::256>>, integer()) :: binary()
   def subscribe_author(pid, pubkey, max_messages \\ 100) do
     {request_id, request} = SubscribeRequest.author(pubkey, max_messages)
 

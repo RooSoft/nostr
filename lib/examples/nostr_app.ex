@@ -5,18 +5,22 @@ defmodule NostrApp do
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
 
   def start_link(relay, <<_::256>> = private_key) do
-    {:ok, public_key} = K256.Schnorr.verifying_key_from_signing_key(private_key)
-    args = %{relay: relay, private_key: private_key, public_key: public_key}
+    args = %{relay: relay, private_key: private_key}
 
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   @impl true
-  def init(%{relay: relay} = args) do
-    case Nostr.Client.start_link(relay) do
-      {:ok, nostr_client_pid} ->
-        {:ok, args |> Map.put(:nostr_client_pid, nostr_client_pid)}
-
+  def init(%{relay: relay, private_key: private_key} = args) do
+    with {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(private_key),
+         {:ok, nostr_client_pid} <- Nostr.Client.start_link(relay) do
+      {
+        :ok,
+        args
+        |> Map.put(:nostr_client_pid, nostr_client_pid)
+        |> Map.put(:public_key, public_key)
+      }
+    else
       {:error, message} ->
         {:stop, message}
     end
