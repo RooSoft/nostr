@@ -5,7 +5,7 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Event.Signer
+  alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.{SubscribeRequest, SendRequest}
   alias K256.Schnorr
@@ -49,7 +49,8 @@ defmodule Nostr.Client do
   def send_note(pid, note, privkey) do
     with {:ok, <<_::256>> = pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
          text_event = TextEvent.create(note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey) do
+         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
+         :ok <- Validator.validate_event(signed_event) do
       request = SendRequest.event(signed_event)
 
       WebSockex.cast(pid, {:send_message, request})
