@@ -8,37 +8,12 @@ defmodule Nostr.Event.Types.MetadataEvent do
 
   @kind 0
 
-  def parse(content) do
-    %{
-      # according to NIP-02, should be ignored
-      "content" => _content,
-      "created_at" => unix_created_at,
-      "id" => id,
-      "kind" => 0,
-      "pubkey" => hex_pubkey,
-      "sig" => hex_sig,
-      "tags" => tags
-    } = content
+  def parse(body) do
+    event = Event.parse(body)
 
-    pubkey = Binary.from_hex(hex_pubkey)
-    sig = Binary.from_hex(hex_sig)
-
-    created_at =
-      case DateTime.from_unix(unix_created_at) do
-        {:ok, created_at} -> created_at
-        {:error, _} -> nil
-      end
-
-    %MetadataEvent{
-      event: %Event{
-        id: id,
-        pubkey: pubkey,
-        created_at: created_at,
-        kind: @kind,
-        sig: sig,
-        tags: tags,
-        content: content
-      }
-    }
+    case event.kind do
+      @kind -> {:ok, %MetadataEvent{event: event}}
+      kind -> {:error, "Tried to parse a metadata event with kind #{kind} instead of #{@kind}"}
+    end
   end
 end
