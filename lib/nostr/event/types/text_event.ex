@@ -10,7 +10,7 @@ defmodule Nostr.Event.Types.TextEvent do
 
   def create(<<_::256>> = pubkey, content) do
     event =
-      %{Event.create(pubkey, content) | kind: @kind}
+      %{Event.create(content, pubkey) | kind: @kind}
       |> Event.add_id()
 
     %TextEvent{event: event}

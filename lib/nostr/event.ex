@@ -1,4 +1,8 @@
 defmodule Nostr.Event do
+  @moduledoc """
+  Represents the basic structure of anything that's being sent to/from relays
+  """
+
   require Logger
 
   defstruct [:id, :pubkey, :created_at, :kind, :tags, :content, :sig]
@@ -6,6 +10,7 @@ defmodule Nostr.Event do
   alias Nostr.Event
   alias Nostr.Crypto
 
+  # This thing is needed so that the Jason library knows how to serialize the events
   defimpl Jason.Encoder do
     def encode(
           %Event{
@@ -38,10 +43,30 @@ defmodule Nostr.Event do
     end
   end
 
-  def create(pubkey, content) do
+  @doc """
+  Simplifies the creation of an event, adding the created_at and tags fields and
+  requiring the bare minimum to do so
+
+  ## Examples
+      iex> now = DateTime.utc_now()
+      ...> pubkey = <<0xEFC83F01C8FB309DF2C8866B8C7924CC8B6F0580AFDDE1D6E16E2B6107C2862C::256>>
+      ...> event = Nostr.Event.create("this is the content", pubkey)
+      ...> %{event | created_at: now}
+      %Nostr.Event{
+        id: nil,
+        pubkey: <<0xefc83f01c8fb309df2c8866b8c7924cc8b6f0580afdde1d6e16e2b6107c2862c::256>>,
+        kind: nil,
+        created_at: now,
+        tags: [],
+        content: "this is the content",
+        sig: nil
+      }
+  """
+  @spec create(binary(), <<_::256>>) :: %Event{}
+  def create(content, <<_::256>> = pubkey) do
     %Event{
       pubkey: pubkey,
-      created_at: DateTime.now!("Etc/UTC"),
+      created_at: DateTime.utc_now(),
       tags: [],
       content: content
     }

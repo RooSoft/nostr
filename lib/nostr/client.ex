@@ -47,7 +47,7 @@ defmodule Nostr.Client do
   def send_note(pid, note, privkey) do
     {:ok, pubkey} = Schnorr.verifying_key_from_signing_key(privkey)
 
-    text_event = TextEvent.create(pubkey, note)
+    text_event = TextEvent.create(note, pubkey)
 
     {:ok, signed_event} =
       text_event.event
