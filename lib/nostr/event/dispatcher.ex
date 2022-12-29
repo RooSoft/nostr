@@ -1,4 +1,9 @@
 defmodule Nostr.Event.Dispatcher do
+  @moduledoc """
+  Receive raw nostr protocol events and send them to the right module so it can
+  be parsed in the appropriate way and sent back in a usable way
+  """
+
   require Logger
 
   alias Nostr.Event.Types.{
