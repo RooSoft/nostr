@@ -10,38 +10,4 @@ defmodule Nostr.Crypto do
   def sha256(bin) when is_bitstring(bin) do
     :crypto.hash(:sha256, bin)
   end
-
-  @doc """
-  Decodes a bech32 item into its respective type, be it privkey, pubkey or note
-
-  ## Examples
-      iex> "npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6"
-      ...> |> Nostr.Crypto.bech32_decode()
-      {:pubkey, <<0x3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d::256>>}
-  """
-  @spec bech32_decode(String.t()) :: {:pubkey, <<_::256>>} | {:error, String.t()}
-  def bech32_decode("npub" <> _ = bech32_pubkey) do
-    case Bech32.decode(bech32_pubkey) do
-      {:ok, "npub", <<_::256>> = pubkey} -> {:pubkey, pubkey}
-      {:ok, _, _} -> {:error, "malformed bech32 public key"}
-      {:error, message} -> {:error, message}
-    end
-  end
-
-  @doc """
-  Decodes a bech32 item into its respective type, be it privkey, pubkey or note and outputs
-  it in a hex string format
-
-  ## Examples
-      iex> "npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6"
-      ...> |> Nostr.Crypto.bech32_decode_to_hex()
-      {:pubkey, "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"}
-  """
-  @spec bech32_decode(binary()) :: {:pubkey, binary()} | {:error, binary()}
-  def bech32_decode_to_hex("npub" <> _ = bech32_pubkey) do
-    case bech32_decode(bech32_pubkey) do
-      {:error, message} -> {:error, message}
-      {type, pubkey} -> {type, Binary.to_hex(pubkey)}
-    end
-  end
 end
