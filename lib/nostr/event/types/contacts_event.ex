@@ -9,39 +9,27 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
   @kind 3
 
-  def parse(content) do
-    %{
-      # according to NIP-02, should be ignored
-      "content" => _content,
-      "created_at" => unix_created_at,
-      "id" => id,
-      "kind" => @kind,
-      "pubkey" => hex_pubkey,
-      "sig" => hex_sig,
-      "tags" => tags
-    } = content
+  def parse(body) do
+    event = Event.parse(body)
 
-    pubkey = Binary.from_hex(hex_pubkey)
-    sig = Binary.from_hex(hex_sig)
+    contacts = Enum.map(event.tags, &parse_contact/1)
 
-    contacts = Enum.map(tags, &parse_contact/1)
+    case event.kind do
+      @kind ->
+        {
+          :ok,
+          %ContactsEvent{
+            event: event,
+            contacts: contacts
+          }
+        }
 
-    created_at =
-      case DateTime.from_unix(unix_created_at) do
-        {:ok, created_at} -> created_at
-        {:error, _message} -> nil
-      end
-
-    %ContactsEvent{
-      event: %Event{
-        id: id,
-        pubkey: pubkey,
-        sig: sig,
-        created_at: created_at,
-        kind: @kind
-      },
-      contacts: contacts
-    }
+      kind ->
+        {
+          :error,
+          "Tried to parse a contacts event with kind #{kind} instead of #{@kind}"
+        }
+    end
   end
 
   def parse_contact(["p" | [pubkey | []]]), do: %Client{pubkey: pubkey}
