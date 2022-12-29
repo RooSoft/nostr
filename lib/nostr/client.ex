@@ -5,7 +5,7 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Event.{TextEvent}
+  alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.{SubscribeRequest, SendRequest}
   alias Nostr.Signer
   alias K256.Schnorr

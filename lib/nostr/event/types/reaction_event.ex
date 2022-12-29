@@ -1,10 +1,10 @@
-defmodule Nostr.Event.ReactionEvent do
+defmodule Nostr.Event.Types.ReactionEvent do
   require Logger
 
   defstruct event: %Nostr.Event{}
 
   alias Nostr.Event
-  alias Nostr.Event.ReactionEvent
+  alias Nostr.Event.Types.ReactionEvent
 
   @kind 7
 

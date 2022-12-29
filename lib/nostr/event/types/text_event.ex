@@ -1,12 +1,20 @@
-defmodule Nostr.Event.EncryptedDirectMessageEvent do
+defmodule Nostr.Event.Types.TextEvent do
   require Logger
 
   defstruct event: %Nostr.Event{}
 
   alias Nostr.Event
-  alias Nostr.Event.EncryptedDirectMessageEvent
+  alias Nostr.Event.Types.TextEvent
 
-  @kind 4
+  @kind 1
+
+  def create(<<_::256>> = pubkey, content) do
+    event =
+      %{Event.create(pubkey, content) | kind: @kind}
+      |> Event.add_id()
+
+    %TextEvent{event: event}
+  end
 
   def parse(body) do
     %{
@@ -23,7 +31,7 @@ defmodule Nostr.Event.EncryptedDirectMessageEvent do
     sig = Binary.from_hex(hex_sig)
 
     with {:ok, created_at} <- DateTime.from_unix(unix_timestamp) do
-      %EncryptedDirectMessageEvent{
+      %TextEvent{
         event: %Event{
           id: id,
           pubkey: pubkey,
@@ -36,7 +44,7 @@ defmodule Nostr.Event.EncryptedDirectMessageEvent do
       }
     else
       {:error, _message} ->
-        %EncryptedDirectMessageEvent{
+        %TextEvent{
           event: %Event{
             id: id,
             pubkey: pubkey,

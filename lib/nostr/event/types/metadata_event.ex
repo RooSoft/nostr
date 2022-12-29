@@ -1,49 +1,50 @@
-defmodule Nostr.Event.BoostEvent do
+defmodule Nostr.Event.Types.MetadataEvent do
   require Logger
 
   defstruct event: %Nostr.Event{}
 
   alias Nostr.Event
-  alias Nostr.Event.BoostEvent
+  alias Nostr.Event.Types.MetadataEvent
 
-  @kind 6
+  @kind 0
 
-  def parse(body) do
+  def parse(content) do
     %{
-      "content" => json_content,
+      # according to NIP-02, should be ignored
+      "content" => _content,
       "created_at" => unix_created_at,
       "id" => id,
-      "kind" => @kind,
+      "kind" => 0,
       "pubkey" => hex_pubkey,
       "sig" => hex_sig,
       "tags" => tags
-    } = body
+    } = content
 
     pubkey = Binary.from_hex(hex_pubkey)
     sig = Binary.from_hex(hex_sig)
 
-    with {:ok, content} <- Jason.decode(json_content),
-         {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %BoostEvent{
+    with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
+      %MetadataEvent{
         event: %Event{
           id: id,
-          content: content,
+          pubkey: pubkey,
           created_at: created_at,
           kind: @kind,
-          pubkey: pubkey,
           sig: sig,
-          tags: tags
+          tags: tags,
+          content: content
         }
       }
     else
       {:error, _message} ->
-        %BoostEvent{
+        %MetadataEvent{
           event: %Event{
             id: id,
-            kind: @kind,
             pubkey: pubkey,
+            kind: @kind,
             sig: sig,
-            tags: tags
+            tags: tags,
+            content: content
           }
         }
     end

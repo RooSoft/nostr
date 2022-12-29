@@ -2,6 +2,7 @@ defmodule NostrApp do
   use GenServer
 
   alias Nostr.Client
+  alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
 
   def start_link(relay, <<_::256>> = private_key) do
     {:ok, public_key} = K256.Schnorr.verifying_key_from_signing_key(private_key)
@@ -51,16 +52,16 @@ defmodule NostrApp do
   end
 
   @impl true
-  def handle_info({request_id, %Nostr.Event.TextEvent{event: event}}, socket) do
-    # IO.puts("TEXT EVENT")
-    # IO.inspect(event, label: "#{request_id}")
-    # IO.inspect(Nostr.Validator.validate_event(event))
+  def handle_info({request_id, %TextEvent{event: event}}, socket) do
+    IO.puts("TEXT EVENT")
+    IO.inspect(event, label: "#{request_id}")
+    IO.inspect(Nostr.Validator.validate_event(event))
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({request_id, %Nostr.Event.EncryptedDirectMessageEvent{event: event}}, socket) do
+  def handle_info({request_id, %EncryptedDirectMessageEvent{event: event}}, socket) do
     IO.puts("ENCRYPTED DM EVENT")
     IO.inspect(event, label: "#{request_id}")
     IO.inspect(Nostr.Validator.validate_event(event))
@@ -69,8 +70,8 @@ defmodule NostrApp do
   end
 
   @impl true
-  def handle_info({_request_id, _event}, socket) do
-    # IO.inspect event, label: "#{request_id}"
+  def handle_info({request_id, event}, socket) do
+    IO.inspect(event, label: "#{request_id}")
 
     {:noreply, socket}
   end

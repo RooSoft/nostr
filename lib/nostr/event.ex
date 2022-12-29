@@ -6,7 +6,7 @@ defmodule Nostr.Event do
   alias Nostr.Event
   alias Nostr.Crypto
 
-  alias Nostr.Event.{
+  alias Nostr.Event.Types.{
     MetadataEvent,
     TextEvent,
     ContactsEvent,

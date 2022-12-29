@@ -1,10 +1,10 @@
-defmodule Nostr.Event.ContactsEvent do
+defmodule Nostr.Event.Types.ContactsEvent do
   require Logger
 
   defstruct event: %Nostr.Event{}, contacts: []
 
   alias Nostr.Event
-  alias Nostr.Event.ContactsEvent
+  alias Nostr.Event.Types.ContactsEvent
   alias Nostr.Models.Client
 
   @kind 3
