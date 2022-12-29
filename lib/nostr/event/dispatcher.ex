@@ -34,7 +34,8 @@ defmodule Nostr.Event.Dispatcher do
       ...>     "tags" => []
       ...>   }
       ...> ] |> Nostr.Event.Dispatcher.dispatch
-      {"7ab5569915f0f09a28a214880cf8bb50",
+      {
+        "7ab5569915f0f09a28a214880cf8bb50",
         %Nostr.Event.Types.TextEvent{
           event: %Nostr.Event{
             id: "e02903e546a84d54772121f4bbbe213f171103a3c3a121b5531098dafdaba725",
@@ -50,11 +51,11 @@ defmodule Nostr.Event.Dispatcher do
       }
   """
   def dispatch(["EVENT", request_id, %{"kind" => 0} = content]) do
-    {request_id, MetadataEvent.parse(content)}
+    {request_id, MetadataEvent.parse(content) |> elem(1)}
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 1} = content]) do
-    {request_id, TextEvent.parse(content)}
+    {request_id, TextEvent.parse(content) |> elem(1)}
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 2} = content]) do
@@ -62,11 +63,11 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 3} = content]) do
-    {request_id, ContactsEvent.parse(content)}
+    {request_id, ContactsEvent.parse(content) |> elem(1)}
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 4} = content]) do
-    {request_id, EncryptedDirectMessageEvent.parse(content)}
+    {request_id, EncryptedDirectMessageEvent.parse(content) |> elem(1)}
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 5} = content]) do
@@ -78,7 +79,7 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(["EVENT", request_id, %{"kind" => 7} = content]) do
-    {request_id, ReactionEvent.parse(content)}
+    {request_id, ReactionEvent.parse(content) |> elem(1)}
   end
 
   def dispatch(["EVENT", _request_id, %{"kind" => 40} = content]) do
