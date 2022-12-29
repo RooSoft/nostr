@@ -19,12 +19,17 @@ defmodule Nostr.Keys.PrivateKey do
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
   @spec from_nsec(binary()) :: {:ok, binary()} | {:error, binary()}
+
   def from_nsec("nsec" <> _ = bech32_private_key) do
     case Bech32.decode(bech32_private_key) do
       {:ok, "nsec", private_key} -> {:ok, private_key}
       {:ok, _, _} -> {:error, "malformed bech32 private key"}
       {:error, message} -> {:error, message}
     end
+  end
+
+  def from_nsec(badly_formatted_address) do
+    {:error, "#{badly_formatted_address} is not an nsec formatted address"}
   end
 
   @doc """
@@ -54,5 +59,9 @@ defmodule Nostr.Keys.PrivateKey do
   @spec to_nsec(<<_::256>>) :: binary()
   def to_nsec(<<_::256>> = private_key) do
     Bech32.encode("nsec", private_key)
+  end
+
+  def to_nsec(not_a_256_bits_private_key) do
+    {:error, "#{not_a_256_bits_private_key} should be a 256 bits private key"}
   end
 end
