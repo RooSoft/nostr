@@ -9,35 +9,15 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
   @kind 4
 
   def parse(body) do
-    %{
-      "content" => content,
-      "created_at" => unix_timestamp,
-      "id" => id,
-      "kind" => @kind,
-      "pubkey" => hex_pubkey,
-      "sig" => hex_sig,
-      "tags" => tags
-    } = body
+    event = Event.parse(body)
 
-    pubkey = Binary.from_hex(hex_pubkey)
-    sig = Binary.from_hex(hex_sig)
+    case event.kind do
+      @kind ->
+        {:ok, %EncryptedDirectMessageEvent{event: event}}
 
-    created_at =
-      case DateTime.from_unix(unix_timestamp) do
-        {:ok, created_at} -> created_at
-        {:error, _} -> nil
-      end
-
-    %EncryptedDirectMessageEvent{
-      event: %Event{
-        id: id,
-        pubkey: pubkey,
-        created_at: created_at,
-        kind: @kind,
-        sig: sig,
-        tags: tags,
-        content: content
-      }
-    }
+      kind ->
+        {:error,
+         "Tried to parse a encrypted direct message event with kind #{kind} instead of #{@kind}"}
+    end
   end
 end
