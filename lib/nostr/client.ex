@@ -43,7 +43,7 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  # must fix the k256 lib so we can remove this dialyzer nowarn statement
+  # TODO: must fix the k256 lib so we can remove this dialyzer nowarn statement
   @dialyzer {:nowarn_function, send_note: 3}
   @spec send_note(pid(), String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
   def send_note(pid, note, privkey) do
