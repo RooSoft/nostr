@@ -26,29 +26,22 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
     contacts = Enum.map(tags, &parse_contact/1)
 
-    with {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %ContactsEvent{
-        event: %Event{
-          id: id,
-          pubkey: pubkey,
-          sig: sig,
-          created_at: created_at,
-          kind: @kind
-        },
-        contacts: contacts
-      }
-    else
-      {:error, _message} ->
-        %ContactsEvent{
-          event: %Event{
-            id: id,
-            pubkey: pubkey,
-            sig: sig,
-            kind: @kind
-          },
-          contacts: contacts
-        }
-    end
+    created_at =
+      case DateTime.from_unix(unix_created_at) do
+        {:ok, created_at} -> created_at
+        {:error, _message} -> nil
+      end
+
+    %ContactsEvent{
+      event: %Event{
+        id: id,
+        pubkey: pubkey,
+        sig: sig,
+        created_at: created_at,
+        kind: @kind
+      },
+      contacts: contacts
+    }
   end
 
   def parse_contact(["p" | [pubkey | []]]), do: %Client{pubkey: pubkey}
