@@ -22,30 +22,28 @@ defmodule Nostr.Event.Types.BoostEvent do
     pubkey = Binary.from_hex(hex_pubkey)
     sig = Binary.from_hex(hex_sig)
 
-    with {:ok, content} <- Jason.decode(json_content),
-         {:ok, created_at} <- DateTime.from_unix(unix_created_at) do
-      %BoostEvent{
-        event: %Event{
-          id: id,
-          content: content,
-          created_at: created_at,
-          kind: @kind,
-          pubkey: pubkey,
-          sig: sig,
-          tags: tags
-        }
+    created_at =
+      case DateTime.from_unix(unix_created_at) do
+        {:ok, created_at} -> created_at
+        {:error, _message} -> nil
+      end
+
+    content =
+      case Jason.decode(json_content) do
+        {:ok, content} -> content
+        {:error, _} -> nil
+      end
+
+    %BoostEvent{
+      event: %Event{
+        id: id,
+        content: content,
+        created_at: created_at,
+        kind: @kind,
+        pubkey: pubkey,
+        sig: sig,
+        tags: tags
       }
-    else
-      {:error, _message} ->
-        %BoostEvent{
-          event: %Event{
-            id: id,
-            kind: @kind,
-            pubkey: pubkey,
-            sig: sig,
-            tags: tags
-          }
-        }
-    end
+    }
   end
 end
