@@ -5,6 +5,8 @@ defmodule Nostr.Keys.PrivateKey do
   ## Examples
       iex> Nostr.Keys.PrivateKey.create()
   """
+  # TODO: must fix the k256 lib so we can remove this dialyzer nowarn statement
+  @dialyzer {:nowarn_function, create: 0}
   @spec create() :: <<_::256>>
   def create do
     K256.Schnorr.generate_random_signing_key()
