@@ -13,7 +13,7 @@ defmodule Nostr.Event.Dispatcher do
     EncryptedDirectMessageEvent,
     BoostEvent,
     ReactionEvent,
-    EndOfRecordedHistoryEvent
+    EndOfStoredEvents
   }
 
   @doc """
@@ -131,7 +131,7 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(["EOSE", request_id]) do
-    {request_id, %EndOfRecordedHistoryEvent{}}
+    {request_id, %EndOfStoredEvents{}}
   end
 
   def dispatch([type | remaining]) do
