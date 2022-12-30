@@ -3,9 +3,10 @@ defmodule Nostr.Client.Server.FrameDispatcher do
   alias Nostr.Event.Types.EndOfStoredEvents
 
   def dispatch(["EVENT" | [request_id | [data]]]) do
-    event = Event.Dispatcher.dispatch(data)
-
-    {:ok, {request_id, event}}
+    case Event.Dispatcher.dispatch(data) do
+      {:ok, event} -> {:ok, {request_id, event}}
+      {:error, message} -> {:error, message}
+    end
   end
 
   def dispatch(["EOSE", request_id]) do

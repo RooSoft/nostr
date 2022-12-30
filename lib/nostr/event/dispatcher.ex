@@ -30,124 +30,127 @@ defmodule Nostr.Event.Dispatcher do
       ...>   "tags" => []
       ...> }
       ...>  |> Nostr.Event.Dispatcher.dispatch
-      %Nostr.Event.Types.TextEvent{
-        event: %Nostr.Event{
-          id: "e02903e546a84d54772121f4bbbe213f171103a3c3a121b5531098dafdaba725",
-          pubkey: <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
-          created_at: ~U[2022-12-26 19:24:59Z],
-          kind: 1,
-          tags: [],
-          content: "aren't you entertained?",
-          sig:
-            <<0x8D3B6DC22F3A94E1491EBB6997FF220156C89826E925E383430D0E488E80F4B5AAA03D04F75A3DAFD80A97D42A7546C048720B9861CF0DF776DA824DE716F5A6::512>>
+      {
+        :ok,
+        %Nostr.Event.Types.TextEvent{
+          event: %Nostr.Event{
+            id: "e02903e546a84d54772121f4bbbe213f171103a3c3a121b5531098dafdaba725",
+            pubkey: <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
+            created_at: ~U[2022-12-26 19:24:59Z],
+            kind: 1,
+            tags: [],
+            content: "aren't you entertained?",
+            sig:
+              <<0x8D3B6DC22F3A94E1491EBB6997FF220156C89826E925E383430D0E488E80F4B5AAA03D04F75A3DAFD80A97D42A7546C048720B9861CF0DF776DA824DE716F5A6::512>>
+          }
         }
       }
   """
   def dispatch(%{"kind" => 0} = content) do
-    MetadataEvent.parse(content) |> elem(1)
+    MetadataEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 1} = content) do
-    TextEvent.parse(content) |> elem(1)
+    TextEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 2} = content) do
     Logger.info("2- recommend relay: #{inspect(content)}")
 
-    :recommend_relay_event
+    {:ok, :recommend_relay_event}
   end
 
   def dispatch(%{"kind" => 3} = content) do
-    ContactsEvent.parse(content) |> elem(1)
+    ContactsEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 4} = content) do
-    EncryptedDirectMessageEvent.parse(content) |> elem(1)
+    EncryptedDirectMessageEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 5} = content) do
     Logger.info("5- event deletion: #{inspect(content)}")
 
-    :event_deletion_event
+    {:ok, :event_deletion_event}
   end
 
   def dispatch(%{"kind" => 6} = content) do
-    BoostEvent.parse(content).elem(1)
+    BoostEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 7} = content) do
-    ReactionEvent.parse(content) |> elem(1)
+    ReactionEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 40} = content) do
     Logger.info("40- channel creation: #{inspect(content)}")
 
-    :channel_creation_event
+    {:ok, :channel_creation_event}
   end
 
   def dispatch(%{"kind" => 41} = content) do
     Logger.info("41- channel metadata: #{inspect(content)}")
 
-    :channel_metadata_event
+    {:ok, :channel_metadata_event}
   end
 
   def dispatch(%{"kind" => 42} = content) do
     Logger.info("42- channel message: #{inspect(content)}")
 
-    :channel_message_event
+    {:ok, :channel_message_event}
   end
 
   def dispatch(%{"kind" => 43} = content) do
     Logger.info("43- channel hide message: #{inspect(content)}")
 
-    :channel_hide_message_event
+    {:ok, :channel_hide_message_event}
   end
 
   def dispatch(%{"kind" => 44} = content) do
     Logger.info("44- channel mute user: #{inspect(content)}")
 
-    :channel_mute_user_event
+    {:ok, :channel_mute_user_event}
   end
 
   def dispatch(%{"kind" => 45} = content) do
     Logger.info("45- public chat reserved: #{inspect(content)}")
 
-    :public_chat_reserved_event_45
+    {:ok, :public_chat_reserved_event_45}
   end
 
   def dispatch(%{"kind" => 46} = content) do
     Logger.info("46- public chat reserved: #{inspect(content)}")
 
-    :public_chat_reserved_event_46
+    {:ok, :public_chat_reserved_event_46}
   end
 
   def dispatch(%{"kind" => 47} = content) do
     Logger.info("47- public chat reserved: #{inspect(content)}")
 
-    :public_chat_reserved_event_47
+    {:ok, :public_chat_reserved_event_47}
   end
 
   def dispatch(%{"kind" => 48} = content) do
     Logger.info("48- public chat reserved: #{inspect(content)}")
 
-    :public_chat_reserved_event_48
+    {:ok, :public_chat_reserved_event_48}
   end
 
   def dispatch(%{"kind" => 49} = content) do
     Logger.info("49- public chat reserved: #{inspect(content)}")
 
-    :public_chat_reserved_event_49
+    {:ok, :public_chat_reserved_event_49}
   end
 
   def dispatch(%{"kind" => kind} = content) do
     Logger.info("#{kind}- unknown event type: #{inspect(content)}")
 
-    :unknown_event_type
+    {:error, :unknown_event_type}
   end
 
   def dispatch(contents) do
     Logger.warning("malformed event: #{contents}")
 
-    :malformed_event
+    {:error, :malformed_event}
   end
 end
