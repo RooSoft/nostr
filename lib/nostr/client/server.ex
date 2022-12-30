@@ -1,8 +1,9 @@
 defmodule Nostr.Client.Server do
   use WebSockex
+
   require Logger
 
-  alias Nostr.Event
+  alias Nostr.Client.Server.FrameDispatcher
 
   @impl true
   def handle_connect(_conn, %{client_pid: client_pid} = state) do
@@ -19,18 +20,13 @@ defmodule Nostr.Client.Server do
   end
 
   @impl true
-  def handle_frame({type, msg}, %{client_pid: client_pid} = state) do
-    case type do
+  def handle_frame({frame_type, frame}, %{client_pid: client_pid} = state) do
+    case frame_type do
       :text ->
-        {request_id, event} =
-          msg
-          |> Jason.decode!()
-          |> Event.Dispatcher.dispatch()
-
-        send(client_pid, {request_id, event})
+        handle_text_frame(frame, client_pid)
 
       _ ->
-        Logger.warn("#{type}: unknown type of frame")
+        Logger.warning("#{frame_type}: unknown frame type")
     end
 
     {:ok, state}
@@ -38,8 +34,17 @@ defmodule Nostr.Client.Server do
 
   @impl true
   def handle_frame(x, state) do
-    IO.inspect(x, label: "unknown type of frame")
+    Logger.warning(x, label: "unknown frame type")
 
     {:ok, state}
+  end
+
+  defp handle_text_frame(frame, client_pid) do
+    with {:ok, data} <- Jason.decode(frame),
+         {:ok, item} <- FrameDispatcher.dispatch(data) do
+      send(client_pid, item)
+    else
+      {:error, _} -> Logger.warning("cannot parse frame: #{frame}")
+    end
   end
 end
