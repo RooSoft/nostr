@@ -30,6 +30,10 @@ defmodule NostrApp do
     GenServer.cast(__MODULE__, {:send, note})
   end
 
+  def contacts(pubkey) do
+    GenServer.cast(__MODULE__, {:contacts, pubkey})
+  end
+
   @impl true
   def handle_cast(
         {:send, note},
@@ -41,12 +45,22 @@ defmodule NostrApp do
   end
 
   @impl true
+  def handle_cast(
+        {:contacts, pubkey},
+        %{nostr_client_pid: nostr_client_pid} = socket
+      ) do
+    Client.get_contacts(nostr_client_pid, pubkey)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(
         :connected,
         %{nostr_client_pid: nostr_client_pid, public_key: public_key} = socket
       ) do
     _request_id =
-      Nostr.Client.subscribe_author(
+      Client.subscribe_author(
         nostr_client_pid,
         public_key,
         10
