@@ -12,6 +12,7 @@ defmodule Nostr.Event.Types.ContactsEvent do
   def parse(body) do
     event = Event.parse(body)
 
+    IO.inspect(event.tags)
     contacts = Enum.map(event.tags, &parse_contact/1)
 
     case event.kind do
@@ -32,13 +33,23 @@ defmodule Nostr.Event.Types.ContactsEvent do
     end
   end
 
-  def parse_contact(["p" | [pubkey | []]]), do: %Client{pubkey: pubkey}
+  def parse_contact(["p" | [hex_pubkey | []]]) do
+    pubkey = Binary.from_hex(hex_pubkey)
 
-  def parse_contact(["p" | [pubkey | [main_relay | []]]]),
-    do: %Client{pubkey: pubkey, main_relay: main_relay}
+    %Client{pubkey: pubkey}
+  end
 
-  def parse_contact(["p" | [pubkey | [main_relay | [petname]]]]),
-    do: %Client{pubkey: pubkey, main_relay: main_relay, petname: petname}
+  def parse_contact(["p" | [hex_pubkey | [main_relay | []]]]) do
+    pubkey = Binary.from_hex(hex_pubkey)
+
+    %Client{pubkey: pubkey, main_relay: main_relay}
+  end
+
+  def parse_contact(["p" | [hex_pubkey | [main_relay | [petname]]]]) do
+    pubkey = Binary.from_hex(hex_pubkey)
+
+    %Client{pubkey: pubkey, main_relay: main_relay, petname: petname}
+  end
 
   def parse_contact(data), do: %{unknown_content_type: data}
 end
