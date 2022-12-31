@@ -1,10 +1,10 @@
-defimpl Inspect, for: Nostr.Models.Client do
+defimpl Inspect, for: Nostr.Models.Contact do
   alias Nostr.Formatting.HexBinary
 
-  def inspect(%Nostr.Models.Client{} = client, opts) do
+  def inspect(%Nostr.Models.Contact{} = contact, opts) do
     %{
-      client
-      | pubkey: %HexBinary{data: client.pubkey}
+      contact
+      | pubkey: %HexBinary{data: contact.pubkey}
     }
     |> Inspect.Any.inspect(opts)
   end
