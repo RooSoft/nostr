@@ -1,4 +1,4 @@
-defmodule Nostr.Client.SubscribeRequest do
+defmodule Nostr.Client.Requests.SubscribeRequest do
   alias Nostr.Util
 
   def author(pubkey, limit \\ 10) do

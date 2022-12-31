@@ -7,7 +7,8 @@ defmodule Nostr.Client do
 
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
-  alias Nostr.Client.{SubscribeRequest, SendRequest, Contacts}
+  alias Nostr.Client.{SendRequest}
+  alias Nostr.Client.Requests.{SubscribeRequest, Contacts}
   alias K256.Schnorr
 
   @default_relay "wss://relay.nostr.pro"

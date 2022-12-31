@@ -1,4 +1,4 @@
-defmodule Nostr.Client.Contacts do
+defmodule Nostr.Client.Requests.Contacts do
   alias Nostr.Util
 
   def get(pubkey) do
