@@ -1,11 +1,11 @@
 defimpl Inspect, for: Nostr.Event do
-  alias Nostr.Formatting
+  alias Nostr.Formatting.HexBinary
 
   def inspect(%Nostr.Event{} = event, opts) do
     %{
       event
-      | pubkey: Formatting.to_hex(event.pubkey),
-        sig: Formatting.to_hex(event.sig)
+      | pubkey: %HexBinary{data: event.pubkey},
+        sig: %HexBinary{data: event.sig}
     }
     |> Inspect.Any.inspect(opts)
   end
