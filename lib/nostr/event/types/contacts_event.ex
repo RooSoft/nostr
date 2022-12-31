@@ -1,11 +1,11 @@
 defmodule Nostr.Event.Types.ContactsEvent do
   require Logger
 
-  defstruct event: %Nostr.Event{}, contacts: []
+  #defstruct event: %Nostr.Event{}, contacts: []
 
   alias Nostr.Event
-  alias Nostr.Event.Types.ContactsEvent
-  alias Nostr.Models.Contact
+  #alias Nostr.Event.Types.ContactsEvent
+  alias Nostr.Models.{Contact, ContactList}
 
   @kind 3
 
@@ -16,13 +16,7 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
     case event.kind do
       @kind ->
-        {
-          :ok,
-          %ContactsEvent{
-            event: event,
-            contacts: contacts
-          }
-        }
+        {:ok, create_contact_list(event, contacts)}
 
       kind ->
         {
@@ -32,23 +26,32 @@ defmodule Nostr.Event.Types.ContactsEvent do
     end
   end
 
-  def parse_contact(["p" | [hex_pubkey | []]]) do
+  defp parse_contact(["p" | [hex_pubkey | []]]) do
     pubkey = Binary.from_hex(hex_pubkey)
 
     %Contact{pubkey: pubkey}
   end
 
-  def parse_contact(["p" | [hex_pubkey | [main_relay | []]]]) do
+  defp parse_contact(["p" | [hex_pubkey | [main_relay | []]]]) do
     pubkey = Binary.from_hex(hex_pubkey)
 
     %Contact{pubkey: pubkey, main_relay: main_relay}
   end
 
-  def parse_contact(["p" | [hex_pubkey | [main_relay | [petname]]]]) do
+  defp parse_contact(["p" | [hex_pubkey | [main_relay | [petname]]]]) do
     pubkey = Binary.from_hex(hex_pubkey)
 
     %Contact{pubkey: pubkey, main_relay: main_relay, petname: petname}
   end
 
-  def parse_contact(data), do: %{unknown_content_type: data}
+  defp parse_contact(data), do: %{unknown_content_type: data}
+
+  defp create_contact_list(event, contacts) do
+    %ContactList{
+      id: event.id,
+      pubkey: event.pubkey,
+      created_at: event.created_at,
+      contacts: contacts
+    }
+  end
 end
