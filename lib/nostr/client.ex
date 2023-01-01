@@ -8,7 +8,7 @@ defmodule Nostr.Client do
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.{SendRequest}
-  alias Nostr.Client.Requests.{SubscribeRequest, Contacts}
+  alias Nostr.Client.Requests.{SubscribeRequest, Contacts, Profile}
   alias K256.Schnorr
 
   @default_relay "wss://relay.nostr.pro"
@@ -47,6 +47,18 @@ defmodule Nostr.Client do
   @spec get_contacts(pid(), <<_::256>>) :: binary()
   def get_contacts(pid, pubkey) do
     {request_id, request} = Contacts.get(pubkey)
+
+    WebSockex.cast(pid, {:send_message, request})
+
+    request_id
+  end
+
+  @doc """
+  Get an author's profile
+  """
+  @spec get_profile(pid(), <<_::256>>) :: binary()
+  def get_profile(pid, pubkey) do
+    {request_id, request} = Profile.get(pubkey)
 
     WebSockex.cast(pid, {:send_message, request})
 

@@ -42,6 +42,16 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast(
+        {:profile, pubkey},
+        %{nostr_client_pid: nostr_client_pid} = socket
+      ) do
+    Client.get_profile(nostr_client_pid, pubkey)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(
         :connected,
         %{nostr_client_pid: nostr_client_pid, public_key: public_key} = socket
