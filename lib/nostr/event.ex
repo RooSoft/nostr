@@ -63,8 +63,8 @@ defmodule Nostr.Event do
         sig: nil
       }
   """
-  @spec create(binary(), <<_::256>>) :: %Event{}
-  def create(content, <<_::256>> = pubkey) do
+  @spec create(binary(), K256.Schnorr.verifying_key()) :: %Event{}
+  def create(content, pubkey) do
     %Event{
       pubkey: pubkey,
       created_at: DateTime.utc_now(),

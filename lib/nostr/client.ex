@@ -68,11 +68,10 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  # TODO: must fix the k256 lib so we can remove this dialyzer nowarn statement
-  @dialyzer {:nowarn_function, send_note: 3}
-  @spec send_note(pid(), String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
+  @spec send_note(pid(), String.t(), K256.Schnorr.signing_key()) ::
+          :ok | {:error, binary() | atom()}
   def send_note(pid, note, privkey) do
-    with {:ok, <<_::256>> = pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
+    with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
          text_event = TextEvent.create(note, pubkey),
          {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
          :ok <- Validator.validate_event(signed_event) do
