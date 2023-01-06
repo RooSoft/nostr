@@ -51,7 +51,7 @@ defmodule Nostr.RelaySocket do
 
   @impl true
   def handle_cast({:profile, pubkey, subscriber}, state) do
-    {id, json} = Nostr.Client.Requests.Profile.get(pubkey)
+    {id, json} = Nostr.Client.Request.profile(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 
@@ -65,7 +65,7 @@ defmodule Nostr.RelaySocket do
 
   @impl true
   def handle_cast({:contacts, pubkey, subscriber}, state) do
-    {id, json} = Nostr.Client.Requests.Contacts.get(pubkey)
+    {id, json} = Nostr.Client.Request.contacts(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 
