@@ -9,6 +9,10 @@ defmodule Nostr.Client.Request do
     get([pubkey], [3])
   end
 
+  def notes(pubkey) do
+    get([pubkey], [1])
+  end
+
   def get(pubkeys, kinds) do
     id = Util.generate_random_id()
     json = request(id, pubkeys, kinds)

@@ -11,7 +11,7 @@ defmodule Nostr.Client do
   alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.{SendRequest}
   alias Nostr.Client.Requests.{SubscribeRequest}
-  alias Nostr.Client.Subscriptions.{ProfileSubscription, ContactsSubscription}
+  alias Nostr.Client.Subscriptions.{ProfileSubscription, ContactsSubscription, NotesSubscription}
   alias K256.Schnorr
 
   @default_config {}
@@ -77,6 +77,17 @@ defmodule Nostr.Client do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
       {ContactsSubscription, [relay_pids(), pubkey, self()]}
+    )
+  end
+
+  @doc """
+  Get an author's contacts
+  """
+  @spec subscribe_notes(<<_::256>>) :: binary()
+  def subscribe_notes(pubkey) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {NotesSubscription, [relay_pids(), pubkey, self()]}
     )
   end
 

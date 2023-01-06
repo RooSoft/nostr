@@ -49,6 +49,10 @@ defmodule Nostr.RelaySocket do
     GenServer.cast(pid, {:contacts, pubkey, self()})
   end
 
+  def subscribe_notes(pid, pubkey) do
+    GenServer.cast(pid, {:notes, pubkey, self()})
+  end
+
   @impl true
   def handle_cast({:profile, pubkey, subscriber}, state) do
     {id, json} = Nostr.Client.Request.profile(pubkey)
@@ -66,6 +70,20 @@ defmodule Nostr.RelaySocket do
   @impl true
   def handle_cast({:contacts, pubkey, subscriber}, state) do
     {id, json} = Nostr.Client.Request.contacts(pubkey)
+
+    {:ok, state} = send_frame(state, {:text, json})
+
+    atom_id = id |> String.to_atom()
+
+    {
+      :noreply,
+      %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
+    }
+  end
+
+  @impl true
+  def handle_cast({:notes, pubkey, subscriber}, state) do
+    {id, json} = Nostr.Client.Request.notes(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 

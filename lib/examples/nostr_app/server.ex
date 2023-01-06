@@ -57,6 +57,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:notes, pubkey}, socket) do
+    Client.subscribe_notes(pubkey)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:timeline, _pubkey}, socket) do
     # Subscriptions.timeline(nostr_client_pid, pubkey)
 
