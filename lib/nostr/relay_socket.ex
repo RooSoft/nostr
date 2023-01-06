@@ -47,7 +47,7 @@ defmodule Nostr.RelaySocket do
     GenServer.cast(pid, {:contacts, pubkey, self()})
   end
 
-  def subscribe_notes(pid, pubkey) do
-    GenServer.cast(pid, {:notes, pubkey, self()})
+  def subscribe_notes(pid, pubkeys) when is_list(pubkeys) do
+    GenServer.cast(pid, {:notes, pubkeys, self()})
   end
 end

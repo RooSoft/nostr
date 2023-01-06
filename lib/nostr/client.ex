@@ -9,7 +9,14 @@ defmodule Nostr.Client do
 
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
-  alias Nostr.Client.Subscriptions.{ProfileSubscription, ContactsSubscription, NotesSubscription}
+
+  alias Nostr.Client.Subscriptions.{
+    ProfileSubscription,
+    ContactsSubscription,
+    NotesSubscription,
+    TimelineSubscription
+  }
+
   alias Nostr.RelaySocket
   alias K256.Schnorr
 
@@ -75,6 +82,17 @@ defmodule Nostr.Client do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
       {NotesSubscription, [relay_pids(), pubkey, self()]}
+    )
+  end
+
+  @doc """
+  Get an author's realtime timeline including notes from everyone the author follows
+  """
+  @spec subscribe_timeline(<<_::256>>) :: binary()
+  def subscribe_timeline(pubkey) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {TimelineSubscription, [relay_pids(), pubkey, self()]}
     )
   end
 
