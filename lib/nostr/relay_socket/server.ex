@@ -99,7 +99,7 @@ defmodule Nostr.RelaySocket.Server do
 
     path = "/"
 
-    with {:ok, conn} <- Mint.HTTP.connect(http_scheme, uri.host, uri.port),
+    with {:ok, conn} <- Mint.HTTP.connect(http_scheme, uri.host, uri.port, protocols: [:http1]),
          {:ok, conn, ref} <- Mint.WebSocket.upgrade(ws_scheme, conn, path, []) do
       {:ok, %{conn: conn, request_ref: ref}}
     else
