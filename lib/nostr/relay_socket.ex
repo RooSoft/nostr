@@ -35,6 +35,10 @@ defmodule Nostr.RelaySocket do
     }
   end
 
+  def send_event(pid, event) do
+    GenServer.cast(pid, {:send_event, event})
+  end
+
   def subscribe_profile(pid, pubkey) do
     GenServer.cast(pid, {:profile, pubkey, self()})
   end

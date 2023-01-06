@@ -9,10 +9,15 @@ defmodule Nostr.RelaySocket.FrameHandler do
           :ok
 
         atom_id ->
-          subscriber = Keyword.get(subscriptions, atom_id)
-          {_id, event} = item
+          case Keyword.get(subscriptions, atom_id) do
+            nil ->
+              :ok
 
-          send(subscriber, event)
+            subscriber ->
+              {_id, event} = item
+
+              send(subscriber, event)
+          end
       end
     else
       {:error, _} -> Logger.warning("cannot parse frame: #{frame}")

@@ -6,12 +6,22 @@ defmodule Nostr.RelaySocket.Server do
 
   alias Nostr.RelaySocket
   alias Nostr.RelaySocket.FrameHandler
+  alias Nostr.Client.{SendRequest}
 
   @impl true
   def init(%{relay_url: relay_url}) do
     {:ok, %{conn: conn, request_ref: ref}} = connect(relay_url)
 
     {:ok, %{%RelaySocket{} | conn: conn, request_ref: ref}}
+  end
+
+  @impl true
+  def handle_cast({:send_event, event}, state) do
+    json_request = SendRequest.event(event)
+
+    {:ok, state} = send_frame(state, {:text, json_request})
+
+    {:noreply, state}
   end
 
   @impl true

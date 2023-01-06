@@ -7,11 +7,11 @@ defmodule Nostr.Client do
 
   require Logger
 
-  # alias Nostr.Event.{Signer, Validator}
-  # alias Nostr.Event.Types.{TextEvent}
-  # alias Nostr.Client.{SendRequest}
+  alias Nostr.Event.{Signer, Validator}
+  alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.Subscriptions.{ProfileSubscription, ContactsSubscription, NotesSubscription}
-  # alias K256.Schnorr
+  alias Nostr.RelaySocket
+  alias K256.Schnorr
 
   @default_config {}
 
@@ -78,21 +78,19 @@ defmodule Nostr.Client do
     )
   end
 
-  # @doc """
-  # Sends a note to the relay
-  # """
-  # @spec send_note(pid(), String.t(), K256.Schnorr.signing_key()) ::
-  #         :ok | {:error, binary() | atom()}
-  # def send_note(pid, note, privkey) do
-  #   with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
-  #        text_event = TextEvent.create(note, pubkey),
-  #        {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
-  #        :ok <- Validator.validate_event(signed_event) do
-  #     request = SendRequest.event(signed_event)
-
-  #     WebSockex.cast(pid, {:send_message, request})
-  #   else
-  #     {:error, message} -> {:error, message}
-  #   end
-  # end
+  @doc """
+  Sends a note to the relay
+  """
+  @spec send_note(String.t(), K256.Schnorr.signing_key()) ::
+          :ok | {:error, binary() | atom()}
+  def send_note(note, privkey) do
+    with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
+         text_event = TextEvent.create(note, pubkey),
+         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
+         :ok <- Validator.validate_event(signed_event) do
+      for relay_pid <- relay_pids(), do: RelaySocket.send_event(relay_pid, signed_event)
+    else
+      {:error, message} -> {:error, message}
+    end
+  end
 end
