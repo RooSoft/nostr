@@ -4,7 +4,16 @@ defmodule Nostr.RelaySocket do
   require Logger
   require Mint.HTTP
 
-  defstruct [:conn, :websocket, :request_ref, :caller, :status, :resp_headers, :closing?]
+  defstruct [
+    :conn,
+    :websocket,
+    :request_ref,
+    :caller,
+    :status,
+    :resp_headers,
+    :closing?,
+    subscriptions: []
+  ]
 
   @doc """
   Creates a socket to a relay
@@ -32,15 +41,24 @@ defmodule Nostr.RelaySocket do
     GenServer.cast(pid, {:profile, pubkey})
   end
 
+  def subscribe_profile(pid, pubkey) do
+    GenServer.cast(pid, {:profile, pubkey, self()})
+  end
+
   @impl true
-  def handle_cast({:profile, pubkey}, state) do
+  def handle_cast({:profile, pubkey, subscriber}, state) do
     IO.puts("requesting profile for #{pubkey |> Binary.to_hex()}")
 
-    {_id, json} = Nostr.Client.Requests.Profile.get(pubkey)
+    {id, json} = Nostr.Client.Requests.Profile.get(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 
-    {:noreply, state}
+    atom_id = id |> String.to_atom()
+
+    {
+      :noreply,
+      %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
+    }
   end
 
   @impl true
@@ -151,7 +169,7 @@ defmodule Nostr.RelaySocket do
     end
   end
 
-  def handle_frames(state, frames) do
+  def handle_frames(%{subscriptions: subscriptions} = state, frames) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
@@ -163,8 +181,7 @@ defmodule Nostr.RelaySocket do
         %{state | closing?: true}
 
       {:text, text}, state ->
-        Logger.debug("Received: #{inspect(text)}, sending back the reverse")
-        {:ok, state} = send_frame(state, {:text, String.reverse(text)})
+        handle_text_frame(text, subscriptions)
         state
 
       frame, state ->
@@ -184,5 +201,31 @@ defmodule Nostr.RelaySocket do
   defp reply(state, response) do
     if state.caller, do: GenServer.reply(state.caller, response)
     put_in(state.caller, nil)
+  end
+
+  defp handle_text_frame(frame, subscriptions) do
+    with {:ok, data} <- Jason.decode(frame),
+         {:ok, item} <- Nostr.Client.Server.FrameDispatcher.dispatch(data) do
+      case get_atom_id(item) do
+        nil ->
+          :ok
+
+        atom_id ->
+          subscriber = Keyword.get(subscriptions, atom_id)
+          {_id, event} = item
+
+          send(subscriber, event)
+      end
+    else
+      {:error, _} -> Logger.warning("cannot parse frame: #{frame}")
+    end
+  end
+
+  defp get_atom_id({id, _}) do
+    String.to_atom(id)
+  end
+
+  defp get_atom_id(_) do
+    nil
   end
 end

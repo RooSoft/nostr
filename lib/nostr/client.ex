@@ -3,15 +3,17 @@ defmodule Nostr.Client do
   Connects to a relay through websockets
   """
 
+  use Supervisor
+
   require Logger
 
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
   alias Nostr.Client.{SendRequest}
-  alias Nostr.Client.Requests.{SubscribeRequest, Contacts, Profile}
+  alias Nostr.Client.Requests.{SubscribeRequest, Contacts}
+  alias Nostr.Client.Subscriptions.{ProfileSubscription}
   alias K256.Schnorr
 
-  @default_relay "wss://relay.nostr.pro"
   @default_config {}
 
   @doc """
@@ -20,13 +22,28 @@ defmodule Nostr.Client do
   ## Examples
     iex> Nostr.Client.start_link("wss://relay.nostr.pro")
   """
-  @spec start_link(String.t(), tuple()) :: {:ok, pid()} | {:error, binary()}
-  def start_link(relay_url \\ @default_relay, config \\ @default_config) do
-    WebSockex.start_link(
-      relay_url,
-      Nostr.Client.Server,
-      %{client_pid: self(), config: config}
-    )
+  @spec start_link(tuple()) :: Supervisor.on_start()
+  def start_link(config \\ @default_config) do
+    Supervisor.start_link(__MODULE__, config, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_config) do
+    children = [
+      {DynamicSupervisor, name: Nostr.RelaySockets, strategy: :one_for_one},
+      {DynamicSupervisor, name: Nostr.Subscriptions, strategy: :one_for_one}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  def add_relay(relay_url) do
+    DynamicSupervisor.start_child(Nostr.RelaySockets, {Nostr.RelaySocket, relay_url})
+  end
+
+  def relay_pids do
+    DynamicSupervisor.which_children(Nostr.RelaySockets)
+    |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -56,13 +73,12 @@ defmodule Nostr.Client do
   @doc """
   Get an author's profile
   """
-  @spec get_profile(pid(), <<_::256>>) :: binary()
-  def get_profile(pid, pubkey) do
-    {request_id, request} = Profile.get(pubkey)
-
-    WebSockex.cast(pid, {:send_message, request})
-
-    request_id
+  @spec subscribe_profile(<<_::256>>) :: binary()
+  def subscribe_profile(pubkey) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {ProfileSubscription, [relay_pids(), pubkey, self()]}
+    )
   end
 
   @doc """
