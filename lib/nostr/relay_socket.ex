@@ -23,22 +23,14 @@ defmodule Nostr.RelaySocket do
   """
   @spec start_link(String.t()) :: {:ok, pid()} | {:error, binary()}
   def start_link(relay_url) do
-    IO.puts("starting a relay socket #{relay_url}")
-
     GenServer.start_link(__MODULE__, %{relay_url: relay_url})
   end
 
   @impl true
   def init(%{relay_url: relay_url}) do
-    IO.inspect(relay_url, label: "from RelaySocket.init")
-
     {:ok, %{conn: conn, request_ref: ref}} = connect(relay_url)
 
     {:ok, %{%__MODULE__{} | conn: conn, request_ref: ref}}
-  end
-
-  def profile(pid, pubkey) do
-    GenServer.cast(pid, {:profile, pubkey})
   end
 
   def subscribe_profile(pid, pubkey) do
@@ -188,8 +180,6 @@ defmodule Nostr.RelaySocket do
   defp handle_responses(state, []), do: state
 
   defp send_frame(state, frame) do
-    IO.inspect(frame, label: "sending frame")
-
     with {:ok, websocket, data} <- Mint.WebSocket.encode(state.websocket, frame),
          state = put_in(state.websocket, websocket),
          {:ok, conn} <- Mint.WebSocket.stream_request_body(state.conn, state.request_ref, data) do
