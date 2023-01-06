@@ -4,6 +4,8 @@ defmodule Nostr.RelaySocket do
   require Logger
   require Mint.HTTP
 
+  alias Nostr.RelaySocket.FrameHandler
+
   defstruct [
     :conn,
     :websocket,
@@ -205,7 +207,7 @@ defmodule Nostr.RelaySocket do
         %{state | closing?: true}
 
       {:text, text}, state ->
-        handle_text_frame(text, subscriptions)
+        FrameHandler.handle_text_frame(text, subscriptions)
         state
 
       frame, state ->
@@ -225,31 +227,5 @@ defmodule Nostr.RelaySocket do
   defp reply(state, response) do
     if state.caller, do: GenServer.reply(state.caller, response)
     put_in(state.caller, nil)
-  end
-
-  defp handle_text_frame(frame, subscriptions) do
-    with {:ok, data} <- Jason.decode(frame),
-         {:ok, item} <- Nostr.Client.FrameDispatcher.dispatch(data) do
-      case get_atom_id(item) do
-        nil ->
-          :ok
-
-        atom_id ->
-          subscriber = Keyword.get(subscriptions, atom_id)
-          {_id, event} = item
-
-          send(subscriber, event)
-      end
-    else
-      {:error, _} -> Logger.warning("cannot parse frame: #{frame}")
-    end
-  end
-
-  defp get_atom_id({id, _}) do
-    String.to_atom(id)
-  end
-
-  defp get_atom_id(_) do
-    nil
   end
 end
