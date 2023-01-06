@@ -203,7 +203,7 @@ defmodule Nostr.RelaySocket do
     end
   end
 
-  def handle_frames(%{subscriptions: subscriptions} = state, frames) do
+  defp handle_frames(%{subscriptions: subscriptions} = state, frames) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
