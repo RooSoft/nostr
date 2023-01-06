@@ -45,11 +45,27 @@ defmodule Nostr.RelaySocket do
     GenServer.cast(pid, {:profile, pubkey, self()})
   end
 
+  def subscribe_contacts(pid, pubkey) do
+    GenServer.cast(pid, {:contacts, pubkey, self()})
+  end
+
   @impl true
   def handle_cast({:profile, pubkey, subscriber}, state) do
-    IO.puts("requesting profile for #{pubkey |> Binary.to_hex()}")
-
     {id, json} = Nostr.Client.Requests.Profile.get(pubkey)
+
+    {:ok, state} = send_frame(state, {:text, json})
+
+    atom_id = id |> String.to_atom()
+
+    {
+      :noreply,
+      %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
+    }
+  end
+
+  @impl true
+  def handle_cast({:contacts, pubkey, subscriber}, state) do
+    {id, json} = Nostr.Client.Requests.Contacts.get(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 

@@ -5,7 +5,7 @@ defmodule NostrApp.Server do
 
   alias Nostr.Client
   alias Nostr.Event.Types.MetadataEvent
-  
+
   @default_relay "wss://relay.nostr.pro"
 
   @impl true
@@ -43,8 +43,8 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:contacts, _pubkey}, socket) do
-    #    Client.get_contacts(nostr_client_pid, pubkey)
+  def handle_cast({:contacts, pubkey}, socket) do
+    Client.subscribe_contacts(pubkey)
 
     {:noreply, socket}
   end
