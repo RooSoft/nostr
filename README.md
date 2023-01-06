@@ -22,7 +22,7 @@ iex -S mix
 ```
 
 ```elixir
-K256.Schnorr.generate_random_signing_key
+Nostr.Keys.PrivateKey.create()
 ```
 
 ## Use the example app
