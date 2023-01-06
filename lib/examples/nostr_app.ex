@@ -22,4 +22,8 @@ defmodule NostrApp do
   def notes(pubkey) do
     GenServer.cast(Server, {:notes, pubkey})
   end
+
+  def timeline(pubkey) do
+    GenServer.cast(Server, {:timeline, pubkey})
+  end
 end

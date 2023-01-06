@@ -16,7 +16,7 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
     relay_pids
     |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_notes(relay_pid, pubkey)
+      RelaySocket.subscribe_notes(relay_pid, [pubkey])
     end)
 
     {:ok, state}

@@ -9,10 +9,16 @@ defmodule NostrApp.Server do
   @default_relay "wss://relay.nostr.pro"
 
   @impl true
-  def init(%{private_key: private_key} = args) do
+  def init(%{relay: relay, private_key: private_key} = args) do
     with {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(private_key),
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
-      Client.add_relay(@default_relay)
+      relay =
+        case relay do
+          nil -> @default_relay
+          relay -> relay
+        end
+
+      Client.add_relay(relay)
 
       {
         :ok,
@@ -64,8 +70,8 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:timeline, _pubkey}, socket) do
-    # Subscriptions.timeline(nostr_client_pid, pubkey)
+  def handle_cast({:timeline, pubkey}, socket) do
+    Client.subscribe_timeline(pubkey)
 
     {:noreply, socket}
   end

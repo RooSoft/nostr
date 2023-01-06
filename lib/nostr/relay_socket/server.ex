@@ -53,8 +53,8 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
-  def handle_cast({:notes, pubkey, subscriber}, state) do
-    {id, json} = Nostr.Client.Request.notes(pubkey)
+  def handle_cast({:notes, pubkeys, subscriber}, state) do
+    {id, json} = Nostr.Client.Request.notes(pubkeys)
 
     {:ok, state} = send_frame(state, {:text, json})
 

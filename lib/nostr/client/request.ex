@@ -9,8 +9,8 @@ defmodule Nostr.Client.Request do
     get([pubkey], [3])
   end
 
-  def notes(pubkey) do
-    get([pubkey], [1])
+  def notes(pubkeys) when is_list(pubkeys) do
+    get(pubkeys, [1])
   end
 
   def get(pubkeys, kinds) do
