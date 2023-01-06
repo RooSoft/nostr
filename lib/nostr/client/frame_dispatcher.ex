@@ -1,4 +1,4 @@
-defmodule Nostr.Client.Server.FrameDispatcher do
+defmodule Nostr.Client.FrameDispatcher do
   alias Nostr.Event
   alias Nostr.Event.Types.EndOfStoredEvents
 

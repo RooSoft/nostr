@@ -7,12 +7,11 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{TextEvent}
-  alias Nostr.Client.{SendRequest}
-  alias Nostr.Client.Requests.{SubscribeRequest}
+  # alias Nostr.Event.{Signer, Validator}
+  # alias Nostr.Event.Types.{TextEvent}
+  # alias Nostr.Client.{SendRequest}
   alias Nostr.Client.Subscriptions.{ProfileSubscription, ContactsSubscription, NotesSubscription}
-  alias K256.Schnorr
+  # alias K256.Schnorr
 
   @default_config {}
 
@@ -47,18 +46,6 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Subscribes to an author's events
-  """
-  @spec subscribe_author(pid(), <<_::256>>, integer()) :: binary()
-  def subscribe_author(pid, pubkey, max_messages \\ 100) do
-    {request_id, request} = SubscribeRequest.author(pubkey, max_messages)
-
-    WebSockex.cast(pid, {:send_message, request})
-
-    request_id
-  end
-
-  @doc """
   Get an author's profile
   """
   @spec subscribe_profile(<<_::256>>) :: binary()
@@ -72,7 +59,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's contacts
   """
-  @spec subscribe_profile(<<_::256>>) :: binary()
+  @spec subscribe_contacts(<<_::256>>) :: binary()
   def subscribe_contacts(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -81,7 +68,7 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Get an author's contacts
+  Get an author's notes
   """
   @spec subscribe_notes(<<_::256>>) :: binary()
   def subscribe_notes(pubkey) do
@@ -91,21 +78,21 @@ defmodule Nostr.Client do
     )
   end
 
-  @doc """
-  Sends a note to the relay
-  """
-  @spec send_note(pid(), String.t(), K256.Schnorr.signing_key()) ::
-          :ok | {:error, binary() | atom()}
-  def send_note(pid, note, privkey) do
-    with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
-         text_event = TextEvent.create(note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
-         :ok <- Validator.validate_event(signed_event) do
-      request = SendRequest.event(signed_event)
+  # @doc """
+  # Sends a note to the relay
+  # """
+  # @spec send_note(pid(), String.t(), K256.Schnorr.signing_key()) ::
+  #         :ok | {:error, binary() | atom()}
+  # def send_note(pid, note, privkey) do
+  #   with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
+  #        text_event = TextEvent.create(note, pubkey),
+  #        {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
+  #        :ok <- Validator.validate_event(signed_event) do
+  #     request = SendRequest.event(signed_event)
 
-      WebSockex.cast(pid, {:send_message, request})
-    else
-      {:error, message} -> {:error, message}
-    end
-  end
+  #     WebSockex.cast(pid, {:send_message, request})
+  #   else
+  #     {:error, message} -> {:error, message}
+  #   end
+  # end
 end

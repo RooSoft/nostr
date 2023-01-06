@@ -239,7 +239,7 @@ defmodule Nostr.RelaySocket do
 
   defp handle_text_frame(frame, subscriptions) do
     with {:ok, data} <- Jason.decode(frame),
-         {:ok, item} <- Nostr.Client.Server.FrameDispatcher.dispatch(data) do
+         {:ok, item} <- Nostr.Client.FrameDispatcher.dispatch(data) do
       case get_atom_id(item) do
         nil ->
           :ok

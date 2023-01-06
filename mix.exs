@@ -51,7 +51,6 @@ defmodule Nostr.MixProject do
       {:ex_doc, "~> 0.29.1", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:websockex, "~> 0.4.3"},
       {:mint_web_socket, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:k256, "~> 0.0.6"},

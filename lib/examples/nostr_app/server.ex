@@ -70,21 +70,6 @@ defmodule NostrApp.Server do
     {:noreply, socket}
   end
 
-  # @impl true
-  # def handle_info(
-  #       :connected,
-  #       %{nostr_client_pid: nostr_client_pid, public_key: public_key} = socket
-  #     ) do
-  #   _request_id =
-  #     Client.subscribe_author(
-  #       nostr_client_pid,
-  #       public_key,
-  #       10
-  #     )
-
-  #   {:noreply, socket}
-  # end
-
   @impl true
   def handle_info(%MetadataEvent{} = event, socket) do
     Logger.info("Got a profile: #{inspect(event)}")
