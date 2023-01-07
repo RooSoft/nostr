@@ -33,6 +33,10 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
       contacts
       |> Enum.map(& &1.pubkey)
 
+    # TODO
+    # ["CLOSE", <subscription_id>]
+    # if such a subscription exists
+    # before doing this
     relay_pids
     |> Enum.map(fn relay_pid ->
       RelaySocket.subscribe_notes(relay_pid, pubkeys, 1)

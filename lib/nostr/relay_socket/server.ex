@@ -22,6 +22,15 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
+  def handle_cast({:close_subscription, subscription_id}, state) do
+    json_request = SendRequest.close(subscription_id)
+
+    {:ok, state} = send_frame(state, {:text, json_request})
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_cast({:send_event, event}, state) do
     json_request = SendRequest.event(event)
 
