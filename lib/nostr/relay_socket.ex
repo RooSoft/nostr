@@ -35,8 +35,8 @@ defmodule Nostr.RelaySocket do
     }
   end
 
-  def close_request(pid, subscription_id) do
-    GenServer.cast(pid, {:close_subscription, subscription_id})
+  def unsubscribe(pid, subscription_id) do
+    GenServer.cast(pid, {:unsubscribe, subscription_id})
   end
 
   def send_event(pid, event) do

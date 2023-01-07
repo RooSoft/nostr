@@ -21,7 +21,11 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
       RelaySocket.subscribe_contacts(relay_pid, pubkey)
     end)
 
-    {:ok, state}
+    {
+      :ok,
+      state
+      |> set_note_subscriptions([])
+    }
   end
 
   @impl true
@@ -33,16 +37,16 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
       contacts
       |> Enum.map(& &1.pubkey)
 
-    # TODO
-    # ["CLOSE", <subscription_id>]
-    # if such a subscription exists
-    # before doing this
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_notes(relay_pid, pubkeys, 1)
-    end)
+    unsubscribe_all_notes(state)
 
-    {:noreply, state}
+    new_subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        subscription_id = RelaySocket.subscribe_notes(relay_pid, pubkeys, 1)
+        {relay_pid, subscription_id}
+      end)
+
+    {:noreply, state |> set_note_subscriptions(new_subscriptions)}
   end
 
   @impl true
@@ -57,5 +61,15 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
     ## nothing to do
 
     {:noreply, state}
+  end
+
+  defp unsubscribe_all_notes(%{subscriptions: subscriptions}) do
+    for {relay_pid, subscription_id} <- subscriptions do
+      RelaySocket.unsubscribe(relay_pid, subscription_id)
+    end
+  end
+
+  defp set_note_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end
