@@ -43,6 +43,11 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call({:subscriptions}, _from, %{subscriptions: subscriptions} = state) do
+    {:reply, subscriptions, state}
+  end
+
+  @impl true
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
     {id, json} = Nostr.Client.Request.profile(pubkey)
     atom_subscription_id = id |> String.to_atom()
@@ -52,7 +57,7 @@ defmodule Nostr.RelaySocket.Server do
     {
       :reply,
       atom_subscription_id,
-      %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
+      state |> add_subscription(atom_subscription_id, subscriber)
     }
   end
 
@@ -64,7 +69,7 @@ defmodule Nostr.RelaySocket.Server do
     state =
       case send_frame(state, {:text, json}) do
         {:ok, state} ->
-          %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
+          state |> add_subscription(atom_subscription_id, subscriber)
 
         {:error, _socket, error} ->
           Logger.error("#{inspect(error)}")
@@ -233,13 +238,11 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   defp add_subscription(state, atom_subscription_id, subscriber) do
-    %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
+    %{state | subscriptions: [{atom_subscription_id, subscriber}] ++ state.subscriptions}
   end
 
   defp remove_subscription(%{subscriptions: subscriptions} = state, atom_subscription_id) do
-    new_subscriptions =
-      subscriptions
-      |> Enum.filter(&(elem(&1, 0) != atom_subscription_id))
+    new_subscriptions = subscriptions |> Keyword.delete(atom_subscription_id)
 
     %{state | subscriptions: new_subscriptions}
   end

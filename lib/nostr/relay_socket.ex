@@ -35,6 +35,10 @@ defmodule Nostr.RelaySocket do
     }
   end
 
+  def subscriptions(pid) do
+    GenServer.call(pid, {:subscriptions})
+  end
+
   def unsubscribe(pid, subscription_id) do
     GenServer.cast(pid, {:unsubscribe, subscription_id})
   end
