@@ -35,7 +35,7 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
 
     relay_pids
     |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_notes(relay_pid, pubkeys)
+      RelaySocket.subscribe_notes(relay_pid, pubkeys, 1)
     end)
 
     {:noreply, state}
