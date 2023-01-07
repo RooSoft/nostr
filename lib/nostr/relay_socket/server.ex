@@ -9,10 +9,16 @@ defmodule Nostr.RelaySocket.Server do
   alias Nostr.Client.{SendRequest}
 
   @impl true
-  def init(%{relay_url: relay_url}) do
-    {:ok, %{conn: conn, request_ref: ref}} = connect(relay_url)
+  def init(%{relay_url: relay_url, owner_pid: owner_pid}) do
+    case connect(relay_url) do
+      {:ok, %{conn: conn, request_ref: ref}} ->
+        send(owner_pid, {:connection, relay_url, :ok})
+        {:ok, %{%RelaySocket{} | conn: conn, request_ref: ref}}
 
-    {:ok, %{%RelaySocket{} | conn: conn, request_ref: ref}}
+      {:error, message} ->
+        send(owner_pid, {:connection, relay_url, :error, message})
+        {:stop, message}
+    end
   end
 
   @impl true
@@ -42,14 +48,18 @@ defmodule Nostr.RelaySocket.Server do
   def handle_cast({:contacts, pubkey, subscriber}, state) do
     {id, json} = Nostr.Client.Request.contacts(pubkey)
 
-    {:ok, state} = send_frame(state, {:text, json})
+    state =
+      case send_frame(state, {:text, json}) do
+        {:ok, state} ->
+          atom_id = id |> String.to_atom()
+          %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
 
-    atom_id = id |> String.to_atom()
+        {:error, _socket, error} ->
+          Logger.error("#{inspect(error)}")
+          state
+      end
 
-    {
-      :noreply,
-      %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
-    }
+    {:noreply, state}
   end
 
   @impl true
@@ -104,9 +114,11 @@ defmodule Nostr.RelaySocket.Server do
       {:ok, %{conn: conn, request_ref: ref}}
     else
       {:error, reason} ->
+        Logger.error(reason)
         {:error, reason}
 
       {:error, _conn, reason} ->
+        Logger.error(reason)
         {:error, reason}
     end
   end
@@ -172,10 +184,11 @@ defmodule Nostr.RelaySocket.Server do
     end
   end
 
-  defp handle_frames(%{subscriptions: subscriptions} = state, frames) do
+  defp handle_frames(%{conn: conn, subscriptions: subscriptions} = state, frames) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
+        IO.puts("PING")
         {:ok, state} = send_frame(state, {:pong, data})
         state
 
@@ -184,7 +197,7 @@ defmodule Nostr.RelaySocket.Server do
         %{state | closing?: true}
 
       {:text, text}, state ->
-        FrameHandler.handle_text_frame(text, subscriptions)
+        FrameHandler.handle_text_frame(text, subscriptions, conn)
         state
 
       frame, state ->

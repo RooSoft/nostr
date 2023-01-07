@@ -44,7 +44,7 @@ defmodule Nostr.Client do
   end
 
   def add_relay(relay_url) do
-    DynamicSupervisor.start_child(Nostr.RelaySockets, {Nostr.RelaySocket, relay_url})
+    DynamicSupervisor.start_child(Nostr.RelaySockets, {Nostr.RelaySocket, [relay_url, self()]})
   end
 
   def relay_pids do

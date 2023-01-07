@@ -77,8 +77,23 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info(%MetadataEvent{} = event, socket) do
-    Logger.info("Got a profile: #{inspect(event)}")
+  def handle_info({:connection, _relay_url, :error, _message} = message, socket) do
+    IO.inspect(message)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({relay, %MetadataEvent{} = event}, socket) do
+    Logger.info("From #{relay}, got a profile: #{inspect(event)}")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({relay, event}, socket) do
+    IO.puts("from #{relay}")
+    IO.inspect(event)
 
     {:noreply, socket}
   end
@@ -89,40 +104,4 @@ defmodule NostrApp.Server do
 
     {:noreply, socket}
   end
-
-  # @impl true
-  # def handle_info({request_id, %TextEvent{event: event}}, socket) do
-  #   IO.puts("TEXT EVENT")
-  #   IO.inspect(event, label: "#{request_id}")
-  #   IO.inspect(Nostr.Event.Validator.validate_event(event))
-
-  #   #  IO.puts("is there a timeline?")
-  #   #  IO.inspect(Registry.lookup(Registry.Subscriptions, "timeline"))
-
-  #   {:noreply, socket}
-  # end
-
-  # @impl true
-  # def handle_info({request_id, %EncryptedDirectMessageEvent{event: event}}, socket) do
-  #   IO.puts("ENCRYPTED DM EVENT")
-  #   IO.inspect(event, label: "#{request_id}")
-  #   IO.inspect(Nostr.Event.Validator.validate_event(event))
-
-  #   {:noreply, socket}
-  # end
-
-  # @impl true
-  # def handle_info({request_id, event}, socket) do
-  #   IO.inspect(event, label: "#{request_id}")
-
-  #   {:noreply, socket}
-  # end
-
-  # @impl true
-  # def handle_info({:timeline, :note, note}, socket) do
-  #   IO.puts("Got a note")
-  #   IO.inspect(note)
-
-  #   {:noreply, socket}
-  # end
 end

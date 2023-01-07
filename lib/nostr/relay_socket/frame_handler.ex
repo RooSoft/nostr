@@ -1,7 +1,7 @@
 defmodule Nostr.RelaySocket.FrameHandler do
   require Logger
 
-  def handle_text_frame(frame, subscriptions) do
+  def handle_text_frame(frame, subscriptions, conn) do
     with {:ok, data} <- Jason.decode(frame),
          {:ok, item} <- Nostr.Client.FrameDispatcher.dispatch(data) do
       case get_atom_id(item) do
@@ -16,7 +16,7 @@ defmodule Nostr.RelaySocket.FrameHandler do
             subscriber ->
               {_id, event} = item
 
-              send(subscriber, event)
+              send(subscriber, {conn.host, event})
           end
       end
     else

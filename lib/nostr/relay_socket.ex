@@ -21,8 +21,8 @@ defmodule Nostr.RelaySocket do
     iex> Nostr.RelaySocket.start_link("wss://relay.nostr.pro")
   """
   @spec start_link(String.t()) :: {:ok, pid()} | {:error, binary()}
-  def start_link(relay_url) do
-    GenServer.start_link(Server, %{relay_url: relay_url})
+  def start_link([relay_url, owner_pid]) do
+    GenServer.start_link(Server, %{relay_url: relay_url, owner_pid: owner_pid})
   end
 
   def child_spec(opts) do
