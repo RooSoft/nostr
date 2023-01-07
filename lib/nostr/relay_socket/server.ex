@@ -42,33 +42,33 @@ defmodule Nostr.RelaySocket.Server do
   @impl true
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
     {id, json} = Nostr.Client.Request.profile(pubkey)
-    atom_id = id |> String.to_atom()
+    atom_subscription_id = id |> String.to_atom()
 
     {:ok, state} = send_frame(state, {:text, json})
 
     {
       :reply,
-      atom_id,
-      %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
+      atom_subscription_id,
+      %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
     }
   end
 
   @impl true
   def handle_call({:contacts, pubkey, limit, subscriber}, _from, state) do
     {id, json} = Nostr.Client.Request.contacts(pubkey, limit)
-    atom_id = id |> String.to_atom()
+    atom_subscription_id = id |> String.to_atom()
 
     state =
       case send_frame(state, {:text, json}) do
         {:ok, state} ->
-          %{state | subscriptions: [{atom_id, subscriber} | state.subscriptions]}
+          %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
 
         {:error, _socket, error} ->
           Logger.error("#{inspect(error)}")
           state
       end
 
-    {:reply, atom_id, state}
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -77,12 +77,12 @@ defmodule Nostr.RelaySocket.Server do
 
     {:ok, state} = send_frame(state, {:text, json})
 
-    atom_request_id = request_id |> String.to_atom()
+    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
-      atom_request_id,
-      %{state | subscriptions: [{atom_request_id, subscriber} | state.subscriptions]}
+      atom_subscription_id,
+      %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
     }
   end
 
