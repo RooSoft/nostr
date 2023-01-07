@@ -25,7 +25,10 @@ defmodule Nostr.RelaySocket.Server do
   def handle_cast({:unsubscribe, subscription_id}, state) do
     json_request = SendRequest.close(subscription_id)
 
-    {:ok, state} = send_frame(state, {:text, json_request})
+    {:ok, state} =
+      state
+      |> remove_subscription(subscription_id)
+      |> send_frame({:text, json_request})
 
     {:noreply, state}
   end
@@ -82,7 +85,7 @@ defmodule Nostr.RelaySocket.Server do
     {
       :reply,
       atom_subscription_id,
-      %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
+      state |> add_subscription(atom_subscription_id, subscriber)
     }
   end
 
@@ -227,5 +230,17 @@ defmodule Nostr.RelaySocket.Server do
   defp reply(state, response) do
     if state.caller, do: GenServer.reply(state.caller, response)
     put_in(state.caller, nil)
+  end
+
+  defp add_subscription(state, atom_subscription_id, subscriber) do
+    %{state | subscriptions: [{atom_subscription_id, subscriber} | state.subscriptions]}
+  end
+
+  defp remove_subscription(%{subscriptions: subscriptions} = state, atom_subscription_id) do
+    new_subscriptions =
+      subscriptions
+      |> Enum.filter(&(elem(&1, 0) != atom_subscription_id))
+
+    %{state | subscriptions: new_subscriptions}
   end
 end
