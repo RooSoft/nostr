@@ -32,10 +32,14 @@ retrieves your own notes and stuff. The easiest way to use it is to create a `.i
 file and paste that in
 
 ```elixir
-relay = "wss://relay.nostr.pro" ## here's a list of relays: https://nostr-registry.netlify.app
+relays = [
+  "wss://relay.nostr.bg",
+  "wss://relay.nostr.pro"
+]
+
 private_key = <<>> ### here goes your private key
 
-NostrApp.start_link(relay, private_key)
+NostrApp.start_link(relays, private_key)
 ```
 
 and start iex
@@ -46,8 +50,13 @@ iex -S mix
 
 ## Now what?
 
-You'll receive past and live events into the console, and are now able to send messages with
-that identity.
+```elixir
+Nostr.Keys.PublicKey.from_private(private_key)
+|> NostrApp.timeline()
+```
+
+You'll receive past and live events from all your followed contacts into the console, 
+and are now able to send messages with that identity.
 
 ```elixir
 NostrApp.send("aren't you entertained?")
