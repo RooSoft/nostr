@@ -9,16 +9,12 @@ defmodule NostrApp.Server do
   @default_relay "wss://relay.nostr.pro"
 
   @impl true
-  def init(%{relay: relay, private_key: private_key} = args) do
+  def init(%{relays: relays, private_key: private_key} = args) do
     with {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(private_key),
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
-      relay =
-        case relay do
-          nil -> @default_relay
-          relay -> relay
-        end
-
-      Client.add_relay(relay)
+      for relay <- relays do
+        Client.add_relay(relay)
+      end
 
       {
         :ok,

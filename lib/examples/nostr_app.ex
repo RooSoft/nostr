@@ -1,8 +1,8 @@
 defmodule NostrApp do
   alias NostrApp.Server
 
-  def start_link(relay, <<_::256>> = private_key) do
-    args = %{relay: relay, private_key: private_key}
+  def start_link(relays, <<_::256>> = private_key) do
+    args = %{relays: relays, private_key: private_key}
 
     GenServer.start_link(Server, args, name: Server)
   end
