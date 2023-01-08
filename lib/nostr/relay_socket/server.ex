@@ -206,7 +206,7 @@ defmodule Nostr.RelaySocket.Server do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
-        IO.puts("PING")
+        IO.puts("PING #{conn.host}")
         {:ok, state} = send_frame(state, {:pong, data})
         state
 

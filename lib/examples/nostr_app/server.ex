@@ -6,15 +6,11 @@ defmodule NostrApp.Server do
   alias Nostr.Client
   alias Nostr.Event.Types.MetadataEvent
 
-  @default_relay "wss://relay.nostr.pro"
-
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do
     with {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(private_key),
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
-      for relay <- relays do
-        Client.add_relay(relay)
-      end
+      connect_to_relays(relays)
 
       {
         :ok,
@@ -99,5 +95,11 @@ defmodule NostrApp.Server do
     IO.inspect(event)
 
     {:noreply, socket}
+  end
+
+  defp connect_to_relays(relays) do
+    for relay <- relays do
+      Client.add_relay(relay)
+    end
   end
 end
