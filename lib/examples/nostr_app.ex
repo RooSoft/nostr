@@ -23,6 +23,10 @@ defmodule NostrApp do
     GenServer.cast(Server, {:notes, pubkey})
   end
 
+  def reposts(pubkeys) when is_list(pubkeys) do
+    GenServer.cast(Server, {:reposts, pubkeys})
+  end
+
   def reactions(pubkeys) when is_list(pubkeys) do
     GenServer.cast(Server, {:reactions, pubkeys})
   end

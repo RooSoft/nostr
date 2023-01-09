@@ -69,6 +69,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:reposts, pubkeys}, socket) do
+    Client.subscribe_reposts(pubkeys)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:timeline, pubkey}, socket) do
     Client.subscribe_timeline(pubkey)
 

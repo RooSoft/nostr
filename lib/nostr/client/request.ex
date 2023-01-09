@@ -1,20 +1,30 @@
 defmodule Nostr.Client.Request do
   alias Nostr.Util
 
+  @metadata_kind 0
+  @text_kind 1
+  @contacts_kind 3
+  @repost_kind 6
+  @reaction_kind 7
+
   def profile(pubkey) do
-    get([pubkey], [0], nil)
+    get([pubkey], [@metadata_kind], nil)
   end
 
   def contacts(pubkey, limit) do
-    get([pubkey], [3], limit)
+    get([pubkey], [@contacts_kind], limit)
   end
 
   def notes(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [1], limit)
+    get(pubkeys, [@text_kind], limit)
   end
 
   def reactions(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [7], limit)
+    get(pubkeys, [@reaction_kind], limit)
+  end
+
+  def reposts(pubkeys, limit \\ 10) when is_list(pubkeys) do
+    get(pubkeys, [@repost_kind], limit)
   end
 
   defp get(pubkeys, kinds, limit) do

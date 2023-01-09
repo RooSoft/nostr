@@ -64,4 +64,9 @@ defmodule Nostr.RelaySocket do
   def subscribe_reactions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reactions, pubkeys, limit, self()})
   end
+
+  @spec subscribe_reposts(pid(), list(), integer()) :: atom()
+  def subscribe_reposts(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
+    GenServer.call(pid, {:reposts, pubkeys, limit, self()})
+  end
 end

@@ -15,6 +15,7 @@ defmodule Nostr.Client do
     ContactsSubscription,
     NotesSubscription,
     ReactionsSubscription,
+    RepostsSubscription,
     TimelineSubscription
   }
 
@@ -87,13 +88,24 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Get an author's notes
+  Get an author's reactions
   """
   @spec subscribe_reactions(list()) :: binary()
   def subscribe_reactions(pubkeys) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
       {ReactionsSubscription, [relay_pids(), pubkeys, self()]}
+    )
+  end
+
+  @doc """
+  Get an author's reposts
+  """
+  @spec subscribe_reposts(list()) :: binary()
+  def subscribe_reposts(pubkeys) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {RepostsSubscription, [relay_pids(), pubkeys, self()]}
     )
   end
 
