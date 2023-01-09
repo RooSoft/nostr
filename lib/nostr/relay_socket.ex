@@ -55,8 +55,13 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:contacts, pubkey, limit, self()})
   end
 
-  @spec subscribe_notes(pid(), K256.Schnorr.verifying_key(), integer()) :: atom()
+  @spec subscribe_notes(pid(), list(), integer()) :: atom()
   def subscribe_notes(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:notes, pubkeys, limit, self()})
+  end
+
+  @spec subscribe_reactions(pid(), list(), integer()) :: atom()
+  def subscribe_reactions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
+    GenServer.call(pid, {:reactions, pubkeys, limit, self()})
   end
 end

@@ -95,6 +95,21 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call({:reactions, pubkeys, limit, subscriber}, _from, state) do
+    {request_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
+
+    {:ok, state} = send_frame(state, {:text, json})
+
+    atom_subscription_id = request_id |> String.to_atom()
+
+    {
+      :reply,
+      atom_subscription_id,
+      state |> add_subscription(atom_subscription_id, subscriber)
+    }
+  end
+
+  @impl true
   def handle_info(message, %{conn: conn} = state) do
     case Mint.WebSocket.stream(conn, message) do
       {:ok, conn, responses} ->

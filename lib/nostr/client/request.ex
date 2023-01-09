@@ -13,6 +13,10 @@ defmodule Nostr.Client.Request do
     get(pubkeys, [1], limit)
   end
 
+  def reactions(pubkeys, limit \\ 10) when is_list(pubkeys) do
+    get(pubkeys, [7], limit)
+  end
+
   defp get(pubkeys, kinds, limit) do
     id = Util.generate_random_id()
     filter = filter(pubkeys, kinds, limit)
