@@ -62,8 +62,8 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:reactions, pubkeys}, socket) do
-    Client.subscribe_reactions(pubkeys)
+  def handle_cast({:deletions, pubkeys}, socket) do
+    Client.subscribe_deletions(pubkeys)
 
     {:noreply, socket}
   end
@@ -71,6 +71,13 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:reposts, pubkeys}, socket) do
     Client.subscribe_reposts(pubkeys)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:reactions, pubkeys}, socket) do
+    Client.subscribe_reactions(pubkeys)
 
     {:noreply, socket}
   end

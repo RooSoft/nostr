@@ -4,6 +4,7 @@ defmodule Nostr.Client.Request do
   @metadata_kind 0
   @text_kind 1
   @contacts_kind 3
+  @deletion_kind 5
   @repost_kind 6
   @reaction_kind 7
 
@@ -19,12 +20,16 @@ defmodule Nostr.Client.Request do
     get(pubkeys, [@text_kind], limit)
   end
 
-  def reactions(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [@reaction_kind], limit)
+  def deletions(pubkeys, limit \\ 10) when is_list(pubkeys) do
+    get(pubkeys, [@deletion_kind], limit)
   end
 
   def reposts(pubkeys, limit \\ 10) when is_list(pubkeys) do
     get(pubkeys, [@repost_kind], limit)
+  end
+
+  def reactions(pubkeys, limit \\ 10) when is_list(pubkeys) do
+    get(pubkeys, [@reaction_kind], limit)
   end
 
   defp get(pubkeys, kinds, limit) do
