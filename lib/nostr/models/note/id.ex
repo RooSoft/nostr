@@ -5,6 +5,18 @@ defmodule Nostr.Models.Note.Id do
 
   @hrp "note"
 
+  @doc """
+  Converts a note binary id into a bech32 format
+
+  ## Examples
+      iex> <<0x2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2::256>>
+      ...> |> Nostr.Models.Note.Id.to_bech32()
+      "note19e93faw4ffqepsqsrwrnstd3ee00nmzakwwuyfjm43dankgummfqms4p6q"
+
+      iex> "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"
+      ...> |> Nostr.Models.Note.Id.to_bech32()
+      "note19e93faw4ffqepsqsrwrnstd3ee00nmzakwwuyfjm43dankgummfqms4p6q"
+  """
   @spec to_bech32(<<_::256>>) :: binary()
   def to_bech32(<<_::256>> = note_id) do
     Bech32.encode(@hrp, note_id)
