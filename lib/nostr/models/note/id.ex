@@ -74,6 +74,14 @@ defmodule Nostr.Models.Note.Id do
     end
   end
 
+  @doc """
+  Converts a bech32 note id into a hex string format
+
+  ## Examples
+      iex> "note19e93faw4ffqepsqsrwrnstd3ee00nmzakwwuyfjm43dankgummfqms4p6q"
+      ...> |> Nostr.Models.Note.Id.from_bech32_to_hex
+      {:ok, "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"}
+  """
   @spec from_bech32_to_hex(binary()) :: <<_::512>>
   def from_bech32_to_hex(@hrp <> _ = bech32_note_id) do
     case from_bech32(bech32_note_id) do
