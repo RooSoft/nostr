@@ -34,7 +34,7 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:send, note}, %{private_key: private_key} = socket) do
+  def handle_cast({:send_note, note}, %{private_key: private_key} = socket) do
     Client.send_note(note, private_key)
 
     {:noreply, socket}

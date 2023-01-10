@@ -7,8 +7,8 @@ defmodule NostrApp do
     GenServer.start_link(Server, args, name: Server)
   end
 
-  def send(note) do
-    GenServer.cast(Server, {:send, note})
+  def send_note(note) do
+    GenServer.cast(Server, {:send_note, note})
   end
 
   def profile(pubkey) do
