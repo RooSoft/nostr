@@ -30,23 +30,25 @@ defmodule Nostr.Models.Note.Id do
   ## Examples
       iex> <<0x2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2::256>>
       ...> |> Nostr.Models.Note.Id.to_hex()
-      "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"
+      {:ok, "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"}
 
       iex> "note19e93faw4ffqepsqsrwrnstd3ee00nmzakwwuyfjm43dankgummfqms4p6q"
-      ...> |> Nostr.Models.Note.Id.to_hex
+      ...> |> Nostr.Models.Note.Id.to_hex()
       {:ok, "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"}
   """
   @spec to_hex(<<_::256>> | binary()) :: {:ok, <<_::512>>} | {:error, binary()}
-  def to_hex(<<_::256>> = note_id) do
-    Event.Id.to_hex(note_id)
-  end
-
   def to_hex(@hrp <> _ = bech32_note_id) do
     case Event.Id.to_hex(bech32_note_id) do
       {:ok, @hrp, id} -> {:ok, id}
       {:ok, type, _id} -> {:error, "tried to convert a bech32 #{type} id into a note"}
       {:error, message} -> {:error, message}
     end
+  end
+
+  def to_hex(note_id) do
+    {:ok, _, hex} = Event.Id.to_hex(note_id)
+
+    {:ok, hex}
   end
 
   @doc """
