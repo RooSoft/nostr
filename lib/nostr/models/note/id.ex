@@ -28,6 +28,14 @@ defmodule Nostr.Models.Note.Id do
     |> to_bech32()
   end
 
+  @doc """
+  Converts a note binary id into a hex format
+
+  ## Examples
+      iex> <<0x2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2::256>>
+      ...> |> Nostr.Models.Note.Id.to_hex()
+      "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"
+  """
   @spec to_hex(<<_::256>>) :: <<_::512>>
   def to_hex(<<_::256>> = note_id) do
     Binary.to_hex(note_id)
