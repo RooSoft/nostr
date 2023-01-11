@@ -55,6 +55,11 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:contacts, pubkey, limit, self()})
   end
 
+  @spec subscribe_notes(pid(), binary()) :: atom()
+  def subscribe_note(pid, note_id) do
+    GenServer.call(pid, {:note, note_id, self()})
+  end
+
   @spec subscribe_notes(pid(), list(), integer()) :: atom()
   def subscribe_notes(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:notes, pubkeys, limit, self()})

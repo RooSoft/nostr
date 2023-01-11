@@ -80,6 +80,23 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call({:note, note_id, subscriber}, _from, state) do
+    {request_id, json} =
+      Nostr.Client.Request.note(note_id)
+      |> IO.inspect(label: "the request.............")
+
+    {:ok, state} = send_frame(state, {:text, json})
+
+    atom_subscription_id = request_id |> String.to_atom()
+
+    {
+      :reply,
+      atom_subscription_id,
+      state |> add_subscription(atom_subscription_id, subscriber)
+    }
+  end
+
+  @impl true
   def handle_call({:notes, pubkeys, limit, subscriber}, _from, state) do
     {request_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
 

@@ -9,38 +9,60 @@ defmodule Nostr.Client.Request do
   @reaction_kind 7
 
   def profile(pubkey) do
-    get([pubkey], [@metadata_kind], nil)
+    get_by_authors([pubkey], [@metadata_kind], nil)
   end
 
   def contacts(pubkey, limit) do
-    get([pubkey], [@contacts_kind], limit)
+    get_by_authors([pubkey], [@contacts_kind], limit)
+  end
+
+  def note(id) do
+    get_by_ids([id], @text_kind)
   end
 
   def notes(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [@text_kind], limit)
+    get_by_authors(pubkeys, [@text_kind], limit)
   end
 
   def deletions(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [@deletion_kind], limit)
+    get_by_authors(pubkeys, [@deletion_kind], limit)
   end
 
   def reposts(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [@repost_kind], limit)
+    get_by_authors(pubkeys, [@repost_kind], limit)
   end
 
   def reactions(pubkeys, limit \\ 10) when is_list(pubkeys) do
-    get(pubkeys, [@reaction_kind], limit)
+    get_by_authors(pubkeys, [@reaction_kind], limit)
   end
 
-  defp get(pubkeys, kinds, limit) do
-    id = Util.generate_random_id()
-    filter = filter(pubkeys, kinds, limit)
-    json = request(id, filter)
+  defp get_by_ids(ids, kind) do
+    request_id = Util.generate_random_id()
+    filter = filter_by_ids(ids, kind, 1)
+    json = request(request_id, filter)
 
-    {id, json}
+    {request_id, json}
   end
 
-  defp filter(pubkeys, kinds, limit) when is_integer(limit) do
+  defp get_by_authors(pubkeys, kinds, limit) do
+    request_id = Util.generate_random_id()
+    filter = filter_by_authors(pubkeys, kinds, limit)
+    json = request(request_id, filter)
+
+    {request_id, json}
+  end
+
+  defp filter_by_ids(ids, kind, limit) do
+    hex_ids = Enum.map(ids, &Binary.to_hex(&1))
+
+    %{
+      ids: hex_ids,
+      kinds: [kind],
+      limit: limit
+    }
+  end
+
+  defp filter_by_authors(pubkeys, kinds, limit) when is_integer(limit) do
     hex_pubkeys = Enum.map(pubkeys, &Binary.to_hex(&1))
 
     %{
@@ -50,7 +72,7 @@ defmodule Nostr.Client.Request do
     }
   end
 
-  defp filter(pubkeys, kinds, _) do
+  defp filter_by_authors(pubkeys, kinds, _) do
     hex_pubkeys = Enum.map(pubkeys, &Binary.to_hex(&1))
 
     %{
