@@ -41,6 +41,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:react, note_id}, %{private_key: private_key} = socket) do
+    Client.react(note_id, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:contacts, pubkey}, socket) do
     Client.subscribe_contacts(pubkey)
 

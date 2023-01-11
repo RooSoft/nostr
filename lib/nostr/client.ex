@@ -20,6 +20,8 @@ defmodule Nostr.Client do
     TimelineSubscription
   }
 
+  alias Nostr.Client.Workflows.SendReaction
+
   alias Nostr.RelaySocket
   alias K256.Schnorr
 
@@ -146,5 +148,10 @@ defmodule Nostr.Client do
     else
       {:error, message} -> {:error, message}
     end
+  end
+
+  def react(note_id, privkey, content \\ "+") do
+    relay_pids()
+    |> SendReaction.start_link(note_id, privkey, content)
   end
 end

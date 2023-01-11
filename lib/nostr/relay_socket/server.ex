@@ -81,9 +81,7 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:note, note_id, subscriber}, _from, state) do
-    {request_id, json} =
-      Nostr.Client.Request.note(note_id)
-      |> IO.inspect(label: "the request.............")
+    {request_id, json} = Nostr.Client.Request.note(note_id)
 
     {:ok, state} = send_frame(state, {:text, json})
 
