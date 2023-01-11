@@ -37,7 +37,7 @@ relays = [
   "wss://relay.nostr.pro"
 ]
 
-private_key = <<>> ### here goes your private key
+private_key = Nostr.Keys.PrivateKey.create
 
 NostrApp.start_link(relays, private_key)
 ```
