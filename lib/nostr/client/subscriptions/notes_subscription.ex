@@ -23,8 +23,8 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   end
 
   @impl true
-  def handle_info(profile, %{subscriber: subscriber} = state) do
-    send(subscriber, profile)
+  def handle_info(note, %{subscriber: subscriber} = state) do
+    send(subscriber, note)
 
     {:noreply, state}
   end
