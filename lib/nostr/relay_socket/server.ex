@@ -13,7 +13,7 @@ defmodule Nostr.RelaySocket.Server do
     case connect(relay_url) do
       {:ok, %{conn: conn, request_ref: ref}} ->
         send(owner_pid, {:connection, relay_url, :ok})
-        {:ok, %{%RelaySocket{} | conn: conn, request_ref: ref}}
+        {:ok, %{%RelaySocket{} | url: relay_url, conn: conn, request_ref: ref}}
 
       {:error, message} ->
         send(owner_pid, {:connection, relay_url, :error, message})
