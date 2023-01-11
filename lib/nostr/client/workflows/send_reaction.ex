@@ -30,7 +30,11 @@ defmodule Nostr.Client.Workflows.SendReaction do
   def handle_info(:unsubscribe, %{subscriptions: subscriptions} = state) do
     unsubscribe(subscriptions)
 
-    {:noreply, state}
+    {
+      :noreply,
+      state
+      |> Map.put(:subscriptions, [])
+    }
   end
 
   def handle_info({:react, note}, %{privkey: privkey, content: content} = state) do
@@ -79,8 +83,14 @@ defmodule Nostr.Client.Workflows.SendReaction do
     end)
   end
 
-  defp unsubscribe(_subscriptions) do
+  defp unsubscribe(subscriptions) do
     Logger.info("unsubscribing...")
+
+    IO.inspect(subscriptions)
+
+    for {relaysocket_pid, subscription_id} <- subscriptions do
+      RelaySocket.unsubscribe(relaysocket_pid, subscription_id)
+    end
   end
 
   defp react(note, _privkey, content) do

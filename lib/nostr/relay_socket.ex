@@ -4,6 +4,7 @@ defmodule Nostr.RelaySocket do
   alias Nostr.RelaySocket.Server
 
   defstruct [
+    :url,
     :conn,
     :websocket,
     :request_ref,
@@ -39,6 +40,10 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:subscriptions})
   end
 
+  @doc """
+  Revokes a subscription from a relay
+  """
+  @spec unsubscribe(pid(), atom()) :: :ok
   def unsubscribe(pid, subscription_id) do
     GenServer.cast(pid, {:unsubscribe, subscription_id})
   end
