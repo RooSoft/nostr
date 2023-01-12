@@ -26,6 +26,10 @@ end
 defimpl Inspect, for: Nostr.Formatting.HexBinary do
   @byte 8
 
+  def inspect(%Nostr.Formatting.HexBinary{data: nil}, _opts) do
+    "nil"
+  end
+
   def inspect(%Nostr.Formatting.HexBinary{} = binary, _opts) do
     print_compact_bitstring(binary.data)
   end
