@@ -13,6 +13,7 @@ defmodule Nostr.Client do
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
     ContactsSubscription,
+    NoteSubscription,
     NotesSubscription,
     DeletionsSubscription,
     RepostsSubscription,
@@ -76,6 +77,17 @@ defmodule Nostr.Client do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
       {ContactsSubscription, [relay_pids(), pubkey, self()]}
+    )
+  end
+
+  @doc """
+  Get a note by id
+  """
+  @spec subscribe_note(<<_::256>>) :: binary()
+  def subscribe_note(note_id) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {NoteSubscription, [relay_pids(), note_id, self()]}
     )
   end
 

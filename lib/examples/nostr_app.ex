@@ -23,6 +23,10 @@ defmodule NostrApp do
     GenServer.cast(Server, {:contacts, pubkey})
   end
 
+  def note(note_id) do
+    GenServer.cast(Server, {:note, note_id})
+  end
+
   def notes(pubkey) do
     GenServer.cast(Server, {:notes, pubkey})
   end

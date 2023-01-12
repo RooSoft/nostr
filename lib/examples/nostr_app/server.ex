@@ -62,6 +62,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:note, note_id}, socket) do
+    Client.subscribe_note(note_id)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:notes, pubkey}, socket) do
     Client.subscribe_notes(pubkey)
 
