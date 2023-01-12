@@ -4,7 +4,8 @@ defmodule Nostr.Client.Workflows.SendReaction do
   require Logger
 
   alias Nostr.RelaySocket
-  alias Nostr.Event.Types.EndOfStoredEvents
+  alias Nostr.Event.{Signer, Validator}
+  alias Nostr.Event.Types.{ReactionEvent, EndOfStoredEvents}
 
   def start_link(relay_pids, note_id, privkey, content \\ "+") do
     GenServer.start(__MODULE__, %{
@@ -37,25 +38,25 @@ defmodule Nostr.Client.Workflows.SendReaction do
     }
   end
 
-  def handle_info({:react, note}, %{privkey: privkey, content: content} = state) do
-    react(note, privkey, content)
+  def handle_info(
+        {:react, note},
+        %{privkey: privkey, content: content, relay_pids: relay_pids} = state
+      ) do
+    react(note, privkey, content, relay_pids)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({relay, %EndOfStoredEvents{}}, state) do
+  def handle_info({_relay, %EndOfStoredEvents{}}, state) do
     ## nothing to do
-    Logger.info("#{relay}: done")
 
     {:noreply, state}
   end
 
   @impl true
   # when we first get the note, time to react on it
-  def handle_info({relay, note}, %{treated: false} = state) do
-    Logger.info("found #{note.event.id} note on #{relay}")
-
+  def handle_info({_relay, note}, %{treated: false} = state) do
     send(self(), {:react, note})
     send(self(), :unsubscribe)
 
@@ -68,9 +69,7 @@ defmodule Nostr.Client.Workflows.SendReaction do
 
   @impl true
   # when the note has already been reacted on
-  def handle_info({relay, note}, %{treated: true} = state) do
-    Logger.info("passing #{relay} #{note.event.id}...")
-
+  def handle_info({_relay, _note}, %{treated: true} = state) do
     {:noreply, state}
   end
 
@@ -84,16 +83,23 @@ defmodule Nostr.Client.Workflows.SendReaction do
   end
 
   defp unsubscribe(subscriptions) do
-    Logger.info("unsubscribing...")
-
-    IO.inspect(subscriptions)
-
     for {relaysocket_pid, subscription_id} <- subscriptions do
       RelaySocket.unsubscribe(relaysocket_pid, subscription_id)
     end
   end
 
-  defp react(note, _privkey, content) do
-    Logger.info("reacting to #{note.event.id} with #{content}")
+  defp react(note, privkey, content, relay_pids) do
+    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+
+    {:ok, signed_event} =
+      note
+      |> ReactionEvent.create_event(content, pubkey)
+      |> Signer.sign_event(privkey)
+
+    Validator.validate_event(signed_event)
+
+    for relay_pid <- relay_pids do
+      RelaySocket.send_event(relay_pid, signed_event)
+    end
   end
 end

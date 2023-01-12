@@ -20,7 +20,7 @@ defmodule Nostr.Event do
             created_at: created_at,
             kind: kind,
             sig: sig,
-            tags: _tags,
+            tags: tags,
             content: content
           },
           opts
@@ -35,7 +35,7 @@ defmodule Nostr.Event do
           "pubkey" => hex_pubkey,
           "created_at" => timestamp,
           "kind" => kind,
-          "tags" => [],
+          "tags" => tags,
           "content" => content,
           "sig" => hex_sig
         },

@@ -4,9 +4,24 @@ defmodule Nostr.Event.Types.ReactionEvent do
   defstruct event: %Nostr.Event{}
 
   alias Nostr.Event
-  alias Nostr.Event.Types.ReactionEvent
+  alias Nostr.Event.Types.{TextEvent, ReactionEvent}
 
   @kind 7
+
+  def create_event(%TextEvent{event: %Event{id: note_id, pubkey: note_pubkey}}, content, pubkey) do
+    tags = [
+      ["e", note_id],
+      ["p", note_pubkey |> Binary.to_hex()]
+    ]
+
+    %{
+      Event.create(content, pubkey)
+      | kind: @kind,
+        tags: tags,
+        created_at: DateTime.utc_now()
+    }
+    |> Event.add_id()
+  end
 
   def parse(body) do
     event = Event.parse(body)
