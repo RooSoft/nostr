@@ -155,17 +155,22 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
-  def handle_info(message, %{conn: conn} = state) do
+  def handle_info(message, %{conn: conn, url: url} = state) do
     case Mint.WebSocket.stream(conn, message) do
       {:ok, conn, responses} ->
         state = put_in(state.conn, conn) |> handle_responses(responses)
         if state.closing?, do: do_close(state), else: {:noreply, state}
 
+      {:error, _conn, %Mint.TransportError{reason: :closed}, _responses} ->
+        {:stop, "#{url} has closed the connection", state}
+
       {:error, conn, reason, _responses} ->
+        Logger.error("in relay_socket some error handle_info happened: #{reason}")
         state = put_in(state.conn, conn) |> reply({:error, reason})
         {:noreply, state}
 
       :unknown ->
+        Logger.error("in relay_socket some :unknown handle_info happened")
         {:noreply, state}
     end
   end
@@ -237,6 +242,8 @@ defmodule Nostr.RelaySocket.Server do
         |> handle_responses(rest)
 
       {:error, websocket, reason} ->
+        Logger.error("error parsing websocket data: #{reason}")
+
         put_in(state.websocket, websocket)
         |> reply({:error, reason})
     end
@@ -255,9 +262,13 @@ defmodule Nostr.RelaySocket.Server do
       {:ok, put_in(state.conn, conn)}
     else
       {:error, %Mint.WebSocket{} = websocket, reason} ->
+        Logger.debug("error while sending to websocket: #{reason}")
+
         {:error, put_in(state.websocket, websocket), reason}
 
       {:error, conn, reason} ->
+        Logger.debug("error while sending to websocket #{reason}")
+
         {:error, put_in(state.conn, conn), reason}
     end
   end
@@ -266,7 +277,7 @@ defmodule Nostr.RelaySocket.Server do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
-        IO.puts("PING #{conn.host}")
+        Logger.debug("PING #{conn.host}")
         {:ok, state} = send_frame(state, {:pong, data})
         state
 

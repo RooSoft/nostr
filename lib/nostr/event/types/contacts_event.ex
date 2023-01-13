@@ -1,13 +1,31 @@
 defmodule Nostr.Event.Types.ContactsEvent do
   require Logger
 
-  #defstruct event: %Nostr.Event{}, contacts: []
-
   alias Nostr.Event
-  #alias Nostr.Event.Types.ContactsEvent
   alias Nostr.Models.{Contact, ContactList}
 
   @kind 3
+  @empty_content ""
+  @empty_petname ""
+
+  def create_event(%ContactList{
+        pubkey: pubkey,
+        contacts: contacts
+      }) do
+    tags =
+      contacts
+      |> Enum.map(fn %Contact{pubkey: pubkey} ->
+        ["p", Binary.to_hex(pubkey), @empty_petname]
+      end)
+
+    %{
+      Event.create(@empty_content, pubkey)
+      | kind: @kind,
+        tags: tags,
+        created_at: DateTime.utc_now()
+    }
+    |> Event.add_id()
+  end
 
   def parse(body) do
     event = Event.parse(body)
