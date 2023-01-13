@@ -13,7 +13,7 @@ defmodule Nostr.MixProject do
       deps: deps(),
 
       # Docs
-      name: "nostr",
+      name: "Nostr",
       source_url: "https://github.com/RooSoft/nostr",
       homepage_url: "https://github.com/RooSoft/nostr",
       package: package(),
@@ -31,10 +31,17 @@ defmodule Nostr.MixProject do
 
   defp docs do
     [
-      main: "nostr",
+      main: "Nostr",
+      extras: docs_extras(),
       assets: "/guides/assets",
       source_ref: @version,
       source_url: "https://github.com/RooSoft/nostr"
+    ]
+  end
+
+  def docs_extras do
+    [
+      "README.md"
     ]
   end
 
