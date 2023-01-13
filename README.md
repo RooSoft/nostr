@@ -86,6 +86,14 @@ This is a bit rough around the edges still, but will be simplified soon
 |> NostrApp.follow()
 ```
 
+### Unfollow someone
+
+```elixir
+"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
+|> Nostr.Keys.PublicKey.from_npub!()
+|> NostrApp.unfollow()
+```
+
 ### See who someone is currently following
 
 Could be yourself or anybody...
