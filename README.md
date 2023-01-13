@@ -50,6 +50,8 @@ iex -S mix
 
 ## Now what?
 
+### Subscribe to a timeline
+
 ```elixir
 Nostr.Keys.PublicKey.from_private(private_key)
 |> NostrApp.timeline()
@@ -58,6 +60,29 @@ Nostr.Keys.PublicKey.from_private(private_key)
 You'll receive past and live events from all your followed contacts into the console, 
 and are now able to send messages with that identity.
 
+
+### Send a message
+
 ```elixir
 NostrApp.send("aren't you entertained?")
+```
+
+### Follow someone
+
+This is a bit rough around the edges still, but will be simplified soon
+
+```elixir
+"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
+|> Nostr.Keys.PublicKey.from_npub!()
+|> NostrApp.follow()
+```
+
+### See who someone is currently following
+
+Could be yourself or anybody...
+
+```elixir
+"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
+|> Nostr.Keys.PublicKey.from_npub!()
+|> NostrApp.contacts 
 ```
