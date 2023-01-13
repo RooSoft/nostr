@@ -8,6 +8,15 @@ defmodule Nostr.Event.Types.MetadataEvent do
 
   @kind 0
 
+  def create_event(pubkey) do
+    %{
+      Event.create(nil, pubkey)
+      | kind: @kind,
+        tags: [],
+        created_at: DateTime.utc_now()
+    }
+  end
+
   def parse(body) do
     event = Event.parse(body)
 
