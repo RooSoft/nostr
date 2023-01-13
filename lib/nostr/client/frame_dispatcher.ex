@@ -1,4 +1,6 @@
 defmodule Nostr.Client.FrameDispatcher do
+  require Logger
+
   alias Nostr.Event
   alias Nostr.Event.Types.EndOfStoredEvents
 
@@ -14,14 +16,20 @@ defmodule Nostr.Client.FrameDispatcher do
   end
 
   def dispatch(["NOTICE", message]) do
+    Logger.debug("NOTICE: #{message}")
+
     {:ok, {"", "NOTICE #{message}"}}
   end
 
   def dispatch(["OK", request_id, ok?, message]) do
+    Logger.debug("OK: #{message}")
+
     {:ok, {request_id, "OK #{request_id}, #{ok?}, #{message}"}}
   end
 
   def dispatch([type | _remaining]) do
+    Logger.debug("UNKNOWN FRAME TYPE: #{type}")
+
     {:error, "unknown frame type: #{type}"}
   end
 end
