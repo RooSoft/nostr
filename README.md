@@ -5,7 +5,9 @@
 
 Communicate with any participant, be it relays or clients, with elixir 
 
-**DISCLAMER** This library is in the process of being built in the wild. It should at the moment be considered
+## DISCLAMER
+
+This library is in the process of being built in the wild. It should at the moment be considered
 alpha quality. Function names and what they return will most probably be improved in the near future, so
 don't expect to write production code on top of it just yet. This is for education purposes only.
 
