@@ -15,7 +15,7 @@ defmodule NostrApp do
     GenServer.cast(Server, {:react, note_id})
   end
 
-  def profile(pubkey) do
+  def profile(pubkey \\ nil) do
     GenServer.cast(Server, {:profile, pubkey})
   end
 

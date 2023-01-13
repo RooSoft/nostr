@@ -4,6 +4,7 @@ defmodule NostrApp.Server do
   require Logger
 
   alias Nostr.Client
+  alias Nostr.Keys.PublicKey
   alias Nostr.Event.Types.MetadataEvent
 
   @impl true
@@ -64,6 +65,15 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:unfollow, contact_pubkey}, %{private_key: private_key} = socket) do
     Client.unfollow(contact_pubkey, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:profile, nil}, %{private_key: private_key} = socket) do
+    pubkey = PublicKey.from_private_key!(private_key)
+
+    Client.subscribe_profile(pubkey)
 
     {:noreply, socket}
   end
