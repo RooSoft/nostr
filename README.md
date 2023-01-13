@@ -9,6 +9,9 @@ Communicate with any participant, be it relays or clients, with elixir
 alpha quality. Function names and what they return will most probably be improved in the near future, so
 don't expect to write production code on top of it just yet. This is for education purposes only.
 
+The current goal is to get feature complete with the most common NIPs, and will then be refined so it's
+as easy to use as can be.
+
 ## Installation
 
 ```elixir
