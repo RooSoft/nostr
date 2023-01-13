@@ -62,6 +62,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:unfollow, contact_pubkey}, %{private_key: private_key} = socket) do
+    Client.unfollow(contact_pubkey, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:profile, pubkey}, socket) do
     Client.subscribe_profile(pubkey)
 

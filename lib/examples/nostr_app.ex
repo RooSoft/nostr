@@ -27,6 +27,10 @@ defmodule NostrApp do
     GenServer.cast(Server, {:follow, pubkey})
   end
 
+  def unfollow(pubkey) do
+    GenServer.cast(Server, {:unfollow, pubkey})
+  end
+
   def note(note_id) do
     GenServer.cast(Server, {:note, note_id})
   end

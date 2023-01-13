@@ -10,4 +10,14 @@ defmodule Nostr.Models.ContactList do
 
     %{contact_list | contacts: new_contacts}
   end
+
+  def remove(%ContactList{contacts: contacts} = contact_list, pubkey_to_remove) do
+    new_contacts =
+      contacts
+      |> Enum.filter(fn %Contact{pubkey: contact_pubkey} ->
+        pubkey_to_remove != contact_pubkey
+      end)
+
+    %{contact_list | contacts: new_contacts}
+  end
 end

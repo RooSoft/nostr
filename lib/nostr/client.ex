@@ -21,7 +21,7 @@ defmodule Nostr.Client do
     TimelineSubscription
   }
 
-  alias Nostr.Client.Workflows.{Follow, SendReaction}
+  alias Nostr.Client.Workflows.{Follow, Unfollow, SendReaction}
 
   alias Nostr.RelaySocket
   alias K256.Schnorr
@@ -87,6 +87,15 @@ defmodule Nostr.Client do
   def follow(pubkey, privkey) do
     relay_pids()
     |> Follow.start_link(pubkey, privkey)
+  end
+
+  @doc """
+  Unfollow from a contact
+  """
+  @spec unfollow(<<_::256>>, <<_::256>>) :: :ok
+  def unfollow(pubkey, privkey) do
+    relay_pids()
+    |> Unfollow.start_link(pubkey, privkey)
   end
 
   @doc """
