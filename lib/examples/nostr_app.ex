@@ -49,6 +49,18 @@ defmodule NostrApp do
     GenServer.cast(Server, {:unfollow, pubkey})
   end
 
+  def delete(event_ids, note \\ "")
+
+  ### NIP-09
+  def delete(event_id, note) when is_binary(event_id) do
+    delete([event_id], note)
+  end
+
+  ### NIP-09
+  def delete(event_ids, note) when is_list(event_ids) do
+    GenServer.cast(Server, {:delete, event_ids, note})
+  end
+
   ### NIP-09
   def deletions(pubkeys) when is_list(pubkeys) do
     GenServer.cast(Server, {:deletions, pubkeys})

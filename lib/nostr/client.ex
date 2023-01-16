@@ -25,6 +25,7 @@ defmodule Nostr.Client do
   alias Nostr.Client.Workflows.{
     Follow,
     Unfollow,
+    DeleteEvents,
     SendReaction,
     SendRepost,
     UpdateProfile
@@ -134,6 +135,14 @@ defmodule Nostr.Client do
       Nostr.Subscriptions,
       {NotesSubscription, [relay_pids(), pubkey, self()]}
     )
+  end
+
+  @doc """
+  Deletes events
+  """
+  def delete_events(note_id, note, privkey) do
+    relay_pids()
+    |> DeleteEvents.start_link(note_id, note, privkey)
   end
 
   @doc """

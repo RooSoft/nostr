@@ -108,6 +108,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
+    Client.delete_events(event_ids, note, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:deletions, pubkeys}, socket) do
     Client.subscribe_deletions(pubkeys)
 

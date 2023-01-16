@@ -3,7 +3,6 @@ defmodule Nostr.Event.Types.RepostEvent do
 
   defstruct event: %Nostr.Event{}
 
-  alias Nostr.Keys.PublicKey
   alias Nostr.Event
   alias Nostr.Event.Types.{RepostEvent, TextEvent}
 
