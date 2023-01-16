@@ -70,6 +70,12 @@ profile = %Nostr.Models.Profile{
 |> NostrApp.update_profile()
 ```
 
+### Subscribe to your profile... will send the current version and any subsequent changes
+
+```elixir
+NostrApp.profile
+```
+
 ### Subscribe to a timeline
 
 ```elixir
