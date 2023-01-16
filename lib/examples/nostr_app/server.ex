@@ -115,6 +115,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:repost, note_id}, %{private_key: private_key} = socket) do
+    Client.repost(note_id, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:reposts}, %{public_key: public_key} = socket) do
     Client.subscribe_reposts([public_key])
 

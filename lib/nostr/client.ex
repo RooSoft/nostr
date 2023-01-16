@@ -22,7 +22,13 @@ defmodule Nostr.Client do
     TimelineSubscription
   }
 
-  alias Nostr.Client.Workflows.{Follow, Unfollow, SendReaction, UpdateProfile}
+  alias Nostr.Client.Workflows.{
+    Follow,
+    Unfollow,
+    SendReaction,
+    SendRepost,
+    UpdateProfile
+  }
 
   alias Nostr.RelaySocket
   alias K256.Schnorr
@@ -139,6 +145,14 @@ defmodule Nostr.Client do
       Nostr.Subscriptions,
       {DeletionsSubscription, [relay_pids(), pubkeys, self()]}
     )
+  end
+
+  @doc """
+  Reposts a note
+  """
+  def repost(note_id, privkey) do
+    relay_pids()
+    |> SendRepost.start_link(note_id, privkey)
   end
 
   @doc """

@@ -55,6 +55,11 @@ defmodule NostrApp do
   end
 
   ### NIP-18
+  def repost(note_id) do
+    GenServer.cast(Server, {:repost, note_id})
+  end
+
+  ### NIP-18
   def reposts() do
     GenServer.cast(Server, {:reposts})
   end
