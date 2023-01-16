@@ -4,6 +4,7 @@ defmodule Nostr.Event.Types.MetadataEvent do
   defstruct event: %Nostr.Event{}
 
   alias Nostr.Event
+  alias Nostr.Models.Profile
   alias Nostr.Event.Types.MetadataEvent
 
   @kind 0
@@ -15,6 +16,27 @@ defmodule Nostr.Event.Types.MetadataEvent do
         tags: [],
         created_at: DateTime.utc_now()
     }
+    |> Event.add_id()
+  end
+
+  @spec create_event(%Profile{}, <<_::256>>) :: {:ok, %Event{}} | {:error, binary()}
+  def create_event(%Profile{} = profile, pubkey) do
+    case Jason.encode(profile) do
+      {:ok, json_profile} ->
+        event =
+          %{
+            Event.create(json_profile, pubkey)
+            | kind: @kind,
+              tags: [],
+              created_at: DateTime.utc_now()
+          }
+          |> Event.add_id()
+
+        {:ok, event}
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   def parse(body) do

@@ -9,6 +9,7 @@ defmodule Nostr.Client do
 
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{TextEvent}
+  alias Nostr.Models.{Profile}
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
@@ -21,7 +22,7 @@ defmodule Nostr.Client do
     TimelineSubscription
   }
 
-  alias Nostr.Client.Workflows.{Follow, Unfollow, SendReaction}
+  alias Nostr.Client.Workflows.{Follow, Unfollow, SendReaction, UpdateProfile}
 
   alias Nostr.RelaySocket
   alias K256.Schnorr
@@ -67,6 +68,15 @@ defmodule Nostr.Client do
       Nostr.Subscriptions,
       {ProfileSubscription, [relay_pids(), pubkey, self()]}
     )
+  end
+
+  @doc """
+  Update the profile that's linked to the private key
+  """
+  @spec follow(<<_::256>>, <<_::256>>) :: :ok
+  def update_profile(%Profile{} = profile, privkey) do
+    relay_pids()
+    |> UpdateProfile.start_link(profile, privkey)
   end
 
   @doc """

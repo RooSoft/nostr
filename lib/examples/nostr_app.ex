@@ -1,6 +1,8 @@
 defmodule NostrApp do
   alias NostrApp.Server
 
+  alias Nostr.Models.Profile
+
   def start_link(relays, <<_::256>> = private_key) do
     args = %{relays: relays, private_key: private_key}
 
@@ -17,6 +19,10 @@ defmodule NostrApp do
 
   def profile(pubkey \\ nil) do
     GenServer.cast(Server, {:profile, pubkey})
+  end
+
+  def update_profile(%Profile{} = profile) do
+    GenServer.cast(Server, {:update_profile, profile})
   end
 
   def contacts(pubkey) do

@@ -6,6 +6,7 @@ defmodule NostrApp.Server do
   alias Nostr.Client
   alias Nostr.Keys.PublicKey
   alias Nostr.Event.Types.MetadataEvent
+  alias Nostr.Models.{Profile}
 
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do
@@ -81,6 +82,13 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:profile, pubkey}, socket) do
     Client.subscribe_profile(pubkey)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:update_profile, %Profile{} = profile}, %{private_key: private_key} = socket) do
+    Client.update_profile(profile, private_key)
 
     {:noreply, socket}
   end
