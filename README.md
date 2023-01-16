@@ -92,6 +92,14 @@ and are now able to send messages with that identity.
 NostrApp.send("aren't you entertained?")
 ```
 
+### Repost a message
+
+```elixir
+"note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
+|> Nostr.Models.Note.Id.from_bech32()
+|> NostrApp.repost()
+```
+
 ### Follow someone
 
 This is a bit rough around the edges still, but will be simplified soon
