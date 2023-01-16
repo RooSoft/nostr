@@ -11,7 +11,7 @@ defmodule Nostr.Event.Dispatcher do
     TextEvent,
     ContactsEvent,
     EncryptedDirectMessageEvent,
-    BoostEvent,
+    RepostEvent,
     ReactionEvent
   }
 
@@ -75,7 +75,7 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(%{"kind" => 6} = content) do
-    BoostEvent.parse(content)
+    RepostEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 7} = content) do
