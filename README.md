@@ -59,6 +59,17 @@ iex -S mix
 
 ## Now what?
 
+### Edit your profile
+
+```elixir
+profile = %Nostr.Models.Profile{
+  about: "Instance of https://github.com/RooSoft/nostr being tested in the wild",
+  name: "roosoft_test_bot",
+  picture: "https://nostr.build/i/p/5158p.jpg"
+}
+NostrApp.update_profile(profile)
+```
+
 ### Subscribe to a timeline
 
 ```elixir
@@ -68,7 +79,6 @@ Nostr.Keys.PublicKey.from_private(private_key)
 
 You'll receive past and live events from all your followed contacts into the console, 
 and are now able to send messages with that identity.
-
 
 ### Send a message
 
