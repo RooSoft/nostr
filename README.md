@@ -67,7 +67,7 @@ profile = %Nostr.Models.Profile{
   name: "roosoft_test_bot",
   picture: "https://nostr.build/i/p/5158p.jpg"
 }
-NostrApp.update_profile(profile)
+|> NostrApp.update_profile()
 ```
 
 ### Subscribe to a timeline
