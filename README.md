@@ -100,6 +100,14 @@ NostrApp.send("aren't you entertained?")
 |> NostrApp.repost()
 ```
 
+### Delete a message
+
+```elixir
+"note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
+|> Nostr.Models.Note.Id.from_bech32()
+|> NostrApp.delete()
+```
+
 ### Follow someone
 
 This is a bit rough around the edges still, but will be simplified soon
