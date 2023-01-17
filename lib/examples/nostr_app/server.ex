@@ -85,6 +85,16 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast(
+        {:send_encrypted_direct_messages, pubkey, message},
+        %{private_key: private_key} = socket
+      ) do
+    Client.send_encrypted_direct_messages(pubkey, message, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:profile, nil}, %{private_key: private_key} = socket) do
     pubkey = PublicKey.from_private_key!(private_key)
 

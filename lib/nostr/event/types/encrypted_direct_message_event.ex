@@ -8,6 +8,18 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
 
   @kind 4
 
+  @spec create(binary(), K256.Schnorr.verifying_key(), K256.Schnorr.verifying_key()) ::
+          %EncryptedDirectMessageEvent{}
+  def create(content, local_pubkey, remote_pubkey) do
+    tags = [["p", remote_pubkey |> Binary.to_hex()]]
+
+    event =
+      %{Event.create(content, local_pubkey) | kind: @kind, tags: tags}
+      |> Event.add_id()
+
+    %EncryptedDirectMessageEvent{event: event}
+  end
+
   def parse(%{"content" => content} = body) do
     event = %{Event.parse(body) | content: content}
 

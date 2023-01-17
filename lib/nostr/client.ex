@@ -8,7 +8,7 @@ defmodule Nostr.Client do
   require Logger
 
   alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{TextEvent}
+  alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile}
 
   alias Nostr.Client.Subscriptions.{
@@ -32,6 +32,7 @@ defmodule Nostr.Client do
     UpdateProfile
   }
 
+  alias Nostr.Crypto.AES256CBC
   alias Nostr.RelaySocket
   alias K256.Schnorr
 
@@ -125,6 +126,28 @@ defmodule Nostr.Client do
       Nostr.Subscriptions,
       {EncryptedDirectMessagesSubscription, [relay_pids(), private_key, self()]}
     )
+  end
+
+  @doc """
+  Sends an encrypted direct message
+  """
+  @spec send_encrypted_direct_messages(
+          K256.Schnorr.verifying_key(),
+          String.t(),
+          K256.Schnorr.signing_key()
+        ) ::
+          :ok | {:error, binary() | atom()}
+  def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
+    with {:ok, local_pubkey} <- Schnorr.verifying_key_from_signing_key(private_key),
+         encrypted_message <- AES256CBC.encrypt(message, private_key, remote_pubkey),
+         dm_event =
+           EncryptedDirectMessageEvent.create(encrypted_message, local_pubkey, remote_pubkey),
+         {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
+         :ok <- Validator.validate_event(signed_event) do
+      for relay_pid <- relay_pids(), do: RelaySocket.send_event(relay_pid, signed_event)
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """
