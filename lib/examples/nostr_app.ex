@@ -49,6 +49,16 @@ defmodule NostrApp do
     GenServer.cast(Server, {:unfollow, pubkey})
   end
 
+  ## NIP-04
+  def encrypted_direct_messages() do
+    GenServer.cast(Server, {:encrypted_direct_messages})
+  end
+
+  ## NIP-04
+  def encrypted_direct_messages(pubkey) do
+    GenServer.cast(Server, {:encrypted_direct_messages, pubkey})
+  end
+
   def delete(event_ids, note \\ "")
 
   ### NIP-09

@@ -19,7 +19,8 @@ defmodule Nostr.Client do
     DeletionsSubscription,
     RepostsSubscription,
     ReactionsSubscription,
-    TimelineSubscription
+    TimelineSubscription,
+    EncryptedDirectMessagesSubscription
   }
 
   alias Nostr.Client.Workflows.{
@@ -113,6 +114,17 @@ defmodule Nostr.Client do
   def unfollow(pubkey, privkey) do
     relay_pids()
     |> Unfollow.start_link(pubkey, privkey)
+  end
+
+  @doc """
+  Unfollow from a contact
+  """
+  @spec encrypted_direct_messages(<<_::256>>) :: :ok
+  def encrypted_direct_messages(pubkey) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {EncryptedDirectMessagesSubscription, [relay_pids(), pubkey, self()]}
+    )
   end
 
   @doc """

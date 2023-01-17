@@ -84,4 +84,9 @@ defmodule Nostr.RelaySocket do
   def subscribe_reactions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reactions, pubkeys, limit, self()})
   end
+
+  @spec subscribe_encrypted_direct_messages(pid(), binary(), integer()) :: atom()
+  def subscribe_encrypted_direct_messages(pid, pubkey, limit \\ 10) do
+    GenServer.call(pid, {:encrypted_direct_messages, pubkey, limit, self()})
+  end
 end

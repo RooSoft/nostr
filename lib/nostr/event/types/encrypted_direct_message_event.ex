@@ -8,8 +8,8 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
 
   @kind 4
 
-  def parse(body) do
-    event = Event.parse(body)
+  def parse(%{"content" => content} = body) do
+    event = %{Event.parse(body) | content: content}
 
     case event.kind do
       @kind ->
