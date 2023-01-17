@@ -71,15 +71,15 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:encrypted_direct_messages}, %{public_key: pubkey} = socket) do
-    Client.encrypted_direct_messages(pubkey)
+  def handle_cast({:encrypted_direct_messages}, %{private_key: private_key} = socket) do
+    Client.encrypted_direct_messages(private_key)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_cast({:encrypted_direct_messages, pubkey}, socket) do
-    Client.encrypted_direct_messages(pubkey)
+  def handle_cast({:encrypted_direct_messages, private_key}, socket) do
+    Client.encrypted_direct_messages(private_key)
 
     {:noreply, socket}
   end

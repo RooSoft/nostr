@@ -1,7 +1,7 @@
 defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
   require Logger
 
-  defstruct event: %Nostr.Event{}
+  defstruct [:decrypted, :decryption_error, event: %Nostr.Event{}]
 
   alias Nostr.Event
   alias Nostr.Event.Types.EncryptedDirectMessageEvent

@@ -117,13 +117,13 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Unfollow from a contact
+  Get encrypted direct messages
   """
   @spec encrypted_direct_messages(<<_::256>>) :: :ok
-  def encrypted_direct_messages(pubkey) do
+  def encrypted_direct_messages(private_key) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
-      {EncryptedDirectMessagesSubscription, [relay_pids(), pubkey, self()]}
+      {EncryptedDirectMessagesSubscription, [relay_pids(), private_key, self()]}
     )
   end
 
