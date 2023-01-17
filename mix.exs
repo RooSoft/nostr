@@ -31,7 +31,7 @@ defmodule Nostr.MixProject do
 
   defp docs do
     [
-      main: "Nostr",
+      main: "readme",
       extras: docs_extras(),
       assets: "/guides/assets",
       source_ref: @version,

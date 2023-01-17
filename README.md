@@ -1,6 +1,6 @@
 # nostr
 
-![nostr](https://raw.githubusercontent.com/RooSoft/nostr/main/guides/assets/images/nostr.jpeg)&nbsp;&nbsp;
+![nostr](https://raw.githubusercontent.com/RooSoft/nostr/main/guides/assets/images/nostr.jpeg)
 ![Elixir](https://raw.githubusercontent.com/RooSoft/nostr/main/guides/assets/images/elixir-with-name.svg)
 
 Communicate with any participant, be it relays or clients, with elixir 
