@@ -132,14 +132,15 @@ defmodule Nostr.Client do
   Sends an encrypted direct message
   """
   @spec send_encrypted_direct_messages(
-          K256.Schnorr.verifying_key(),
+          K256.Schnorr.verifying_key() | <<_::256>>,
           String.t(),
-          K256.Schnorr.signing_key()
+          K256.Schnorr.signing_key() | <<_::256>>
         ) ::
           :ok | {:error, binary() | atom()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
+    encrypted_message = AES256CBC.encrypt(message, private_key, remote_pubkey)
+
     with {:ok, local_pubkey} <- Schnorr.verifying_key_from_signing_key(private_key),
-         encrypted_message <- AES256CBC.encrypt(message, private_key, remote_pubkey),
          dm_event =
            EncryptedDirectMessageEvent.create(encrypted_message, local_pubkey, remote_pubkey),
          {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
