@@ -56,7 +56,7 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:profile, pubkey, self()})
   end
 
-  @spec subscribe_contacts(pid(), <<_::256>>) :: atom()
+  @spec subscribe_contacts(pid(), <<_::256>> | K256.Schnorr.verifying_key()) :: atom()
   def subscribe_contacts(pid, pubkey, limit \\ 10) do
     GenServer.call(pid, {:contacts, pubkey, limit, self()})
   end
