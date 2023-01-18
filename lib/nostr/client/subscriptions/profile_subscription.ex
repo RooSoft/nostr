@@ -14,14 +14,16 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_profile(relay_pid, pubkey)
-    end)
+    subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        RelaySocket.subscribe_profile(relay_pid, pubkey)
+      end)
 
     {
       :ok,
       state
+      |> set_profile_subscriptions(subscriptions)
       |> Map.put(:found, false)
     }
   end
@@ -31,7 +33,7 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
         {_relay_url, %Nostr.Event.Types.EndOfStoredEvents{}},
         %{found: false, pubkey: pubkey, subscriber: subscriber} = state
       ) do
-    empty_event = MetadataEvent.create_event(pubkey)
+    empty_event = MetadataEvent.create_empty_event(pubkey)
 
     send(subscriber, empty_event)
 
@@ -56,5 +58,9 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
       :noreply,
       %{state | found: true}
     }
+  end
+
+  defp set_profile_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end

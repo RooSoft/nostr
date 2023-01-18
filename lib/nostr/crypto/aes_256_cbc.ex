@@ -1,5 +1,9 @@
 defmodule Nostr.Crypto.AES256CBC do
-  @spec encrypt(String.t(), <<_::256>>, <<_::256>>) :: String.t()
+  @spec encrypt(
+          String.t(),
+          K256.Schnorr.signing_key() | <<_::256>>,
+          K256.Schnorr.verifying_key() | <<_::256>>
+        ) :: String.t()
   def encrypt(message, seckey, pubkey) do
     iv = :crypto.strong_rand_bytes(16)
 

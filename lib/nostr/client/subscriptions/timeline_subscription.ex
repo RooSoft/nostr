@@ -16,15 +16,16 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_contacts(relay_pid, pubkey)
-    end)
+    subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        RelaySocket.subscribe_contacts(relay_pid, pubkey)
+      end)
 
     {
       :ok,
       state
-      |> set_note_subscriptions([])
+      |> set_note_subscriptions(subscriptions)
     }
   end
 
