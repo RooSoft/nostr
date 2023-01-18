@@ -1,4 +1,8 @@
 defmodule Nostr.Crypto.AES256CBC do
+  @moduledoc """
+  Algorithm that encrypts and decrypts direct messages
+  """
+
   @spec encrypt(
           String.t(),
           K256.Schnorr.signing_key() | <<_::256>>,

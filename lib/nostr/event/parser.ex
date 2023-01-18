@@ -1,4 +1,8 @@
 defmodule Nostr.Event.Parser do
+  @moduledoc """
+  Turns raw events from JSON websocket messages into elixir structs
+  """
+
   alias Nostr.Event
 
   def parse(%{

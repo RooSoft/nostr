@@ -1,4 +1,8 @@
 defmodule Nostr.Event.Signer do
+  @moduledoc """
+  Signs events, making sure they're going to be accepted on the nostr network as the user's own
+  """
+
   alias Nostr.Event
   alias K256.Schnorr
 

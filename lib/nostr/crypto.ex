@@ -1,4 +1,8 @@
 defmodule Nostr.Crypto do
+  @moduledoc """
+  Crypto algorithms needed to communicate on the nostr network
+  """
+
   @doc """
   Computes [SHA256](https://en.wikipedia.org/wiki/SHA-2) on a binary and returns it as a binary
   ## Examples

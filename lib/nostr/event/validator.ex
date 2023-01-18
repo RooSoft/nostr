@@ -1,4 +1,8 @@
 defmodule Nostr.Event.Validator do
+  @moduledoc """
+  Makes sure a signature is valid
+  """
+
   alias K256.Schnorr
   alias Nostr.Event
 
