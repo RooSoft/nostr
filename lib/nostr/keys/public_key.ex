@@ -78,4 +78,17 @@ defmodule Nostr.Keys.PublicKey do
   def to_npub(<<_::256>> = public_key) do
     Bech32.encode("npub", public_key)
   end
+
+  @doc """
+  Converts a public key into a string containing hex characters
+
+  ## Examples
+      iex> public_key = <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>
+      ...> Nostr.Keys.PublicKey.to_hex(public_key)
+      "6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1"
+  """
+  @spec to_hex(K256.Schnorr.verifying_key()) :: String.t()
+  def to_hex(pubkey) do
+    Binary.to_hex(pubkey)
+  end
 end
