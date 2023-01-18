@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Workflows.SendReaction do
+  @moduledoc """
+  A process that's responsible to subscribe and listen to relays so
+  it can properly enable a user's to send a reaction
+  """
+
   use GenServer
 
   require Logger

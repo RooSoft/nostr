@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Workflows.Unfollow do
+  @moduledoc """
+  A process that's responsible to subscribe and listen to relays so
+  it can properly enable a user's to unfollow a current contact
+  """
+
   use GenServer
 
   alias Nostr.RelaySocket

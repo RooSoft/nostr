@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Workflows.DeleteEvents do
+  @moduledoc """
+  A process that's responsible to subscribe and listen to relays so
+  it can properly delete a bunch of events
+  """
+
   use GenServer
 
   require Logger
