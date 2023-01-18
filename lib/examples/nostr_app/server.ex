@@ -182,6 +182,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_info({:connection, _relay_url, :error, _message} = message, socket) do
+    # credo:disable-for-next-line
     IO.inspect(message)
 
     {:noreply, socket}
@@ -196,7 +197,9 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_info({relay, event}, socket) do
+    # credo:disable-for-next-line
     IO.puts("from #{relay}")
+    # credo:disable-for-next-line
     IO.inspect(event)
 
     {:noreply, socket}
@@ -204,6 +207,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_info(event, socket) do
+    # credo:disable-for-next-line
     IO.inspect(event)
 
     {:noreply, socket}
