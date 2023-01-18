@@ -1,4 +1,8 @@
 defmodule Nostr.Models.Profile do
+  @moduledoc """
+  Represents a user's profile
+  """
+
   defstruct [:about, :banner, :display_name, :lud16, :name, :nip05, :picture, :website]
 
   alias Nostr.Models.Profile

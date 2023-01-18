@@ -1,4 +1,8 @@
 defmodule Nostr.Models.ContactList do
+  @moduledoc """
+  Represents a nostr user's contact list
+  """
+
   defstruct [:id, :pubkey, :created_at, :contacts]
 
   alias Nostr.Models.{Contact, ContactList}
