@@ -15,12 +15,11 @@ defmodule Nostr.Event.Id do
       ...> |> Nostr.Event.Id.to_bech32("note")
       "note19e93faw4ffqepsqsrwrnstd3ee00nmzakwwuyfjm43dankgummfqms4p6q"
   """
-  @spec to_bech32(<<_::256>>, binary()) :: binary()
+  @spec to_bech32(<<_::256>> | String.t(), String.t()) :: String.t()
   def to_bech32(<<_::256>> = event_id, hrp) do
     Bech32.encode(hrp, event_id)
   end
 
-  @spec to_bech32(binary(), binary()) :: binary()
   def to_bech32(hex_id, hrp) do
     Binary.from_hex(hex_id)
     |> to_bech32(hrp)
@@ -38,7 +37,7 @@ defmodule Nostr.Event.Id do
       ...> |> Nostr.Event.Id.to_hex
       {:ok, "note", "2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2"}
   """
-  @spec to_hex(<<_::256>> | binary()) :: {:ok, binary(), <<_::512>>} | {:error, binary()}
+  @spec to_hex(<<_::256>> | binary()) :: {:ok, binary(), <<_::512>>} | {:error, atom()}
   def to_hex(<<_::256>> = event_id) do
     {:ok, nil, Binary.to_hex(event_id)}
   end
@@ -72,7 +71,7 @@ defmodule Nostr.Event.Id do
       ...> |> Nostr.Event.Id.from_bech32
       {:ok, "note", <<0x2e4b14f5d54a4190c0101b87382db1ce5ef9ec5db39dc2265bac5bd9d91cded2::256>>}
   """
-  @spec from_bech32(binary()) :: {:ok, binary(), <<_::256>>} | {:error, binary()}
+  @spec from_bech32(binary()) :: {:ok, binary(), binary()} | {:error, atom()}
   def from_bech32(bech32_event_id) do
     case Bech32.decode(bech32_event_id) do
       {:ok, hrp, event_id} -> {:ok, hrp, event_id}

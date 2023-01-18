@@ -71,7 +71,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's profile
   """
-  @spec subscribe_profile(<<_::256>>) :: binary()
+  @spec subscribe_profile(K256.Schnorr.verifying_key()) :: DynamicSupervisor.on_start_child()
   def subscribe_profile(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -82,7 +82,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec follow(<<_::256>>, <<_::256>>) :: :ok
+  @spec follow(%Profile{}, K256.Schnorr.signing_key()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)
@@ -91,7 +91,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's contacts
   """
-  @spec subscribe_contacts(<<_::256>>) :: binary()
+  @spec subscribe_contacts(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_contacts(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -111,7 +111,7 @@ defmodule Nostr.Client do
   @doc """
   Unfollow from a contact
   """
-  @spec unfollow(<<_::256>>, <<_::256>>) :: :ok
+  @spec unfollow(<<_::256>>, <<_::256>>) :: GenServer.on_start()
   def unfollow(pubkey, privkey) do
     relay_pids()
     |> Unfollow.start_link(pubkey, privkey)
@@ -120,7 +120,7 @@ defmodule Nostr.Client do
   @doc """
   Get encrypted direct messages
   """
-  @spec encrypted_direct_messages(<<_::256>>) :: :ok
+  @spec encrypted_direct_messages(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def encrypted_direct_messages(private_key) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -153,7 +153,7 @@ defmodule Nostr.Client do
   @doc """
   Get a note by id
   """
-  @spec subscribe_note(<<_::256>>) :: binary()
+  @spec subscribe_note(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -164,7 +164,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's notes
   """
-  @spec subscribe_notes(<<_::256>>) :: binary()
+  @spec subscribe_notes(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_notes(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -183,7 +183,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's deletions
   """
-  @spec subscribe_deletions(list()) :: binary()
+  @spec subscribe_deletions(list()) :: DynamicSupervisor.on_start_child()
   def subscribe_deletions(pubkeys) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -202,7 +202,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's reposts
   """
-  @spec subscribe_reposts(list()) :: binary()
+  @spec subscribe_reposts(list()) :: DynamicSupervisor.on_start_child()
   def subscribe_reposts(pubkeys) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -213,7 +213,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's reactions
   """
-  @spec subscribe_reactions(list()) :: binary()
+  @spec subscribe_reactions(list()) :: DynamicSupervisor.on_start_child()
   def subscribe_reactions(pubkeys) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -224,7 +224,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's realtime timeline including notes from everyone the author follows
   """
-  @spec subscribe_timeline(<<_::256>>) :: binary()
+  @spec subscribe_timeline(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_timeline(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,

@@ -5,13 +5,16 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
 
   alias Nostr.Event
   alias Nostr.Event.Types.EncryptedDirectMessageEvent
+  alias Nostr.Keys.PublicKey
 
   @kind 4
 
-  @spec create(binary(), K256.Schnorr.verifying_key(), K256.Schnorr.verifying_key()) ::
+  @spec create(String.t() | nil, K256.Schnorr.verifying_key(), <<_::256>>) ::
           %EncryptedDirectMessageEvent{}
   def create(content, local_pubkey, remote_pubkey) do
-    tags = [["p", remote_pubkey |> Binary.to_hex()]]
+    hex_pubkey = PublicKey.to_hex(remote_pubkey)
+
+    tags = [["p", hex_pubkey]]
 
     event =
       %{Event.create(content, local_pubkey) | kind: @kind, tags: tags}

@@ -21,7 +21,7 @@ defmodule Nostr.RelaySocket do
   ## Examples
     iex> Nostr.RelaySocket.start_link("wss://relay.nostr.pro")
   """
-  @spec start_link(String.t()) :: {:ok, pid()} | {:error, binary()}
+  @spec start_link(list()) :: GenServer.on_start()
   def start_link([relay_url, owner_pid]) do
     GenServer.start_link(Server, %{relay_url: relay_url, owner_pid: owner_pid})
   end
@@ -60,32 +60,33 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:contacts, pubkey, limit, self()})
   end
 
-  @spec subscribe_notes(pid(), binary()) :: atom()
+  @spec subscribe_note(pid(), <<_::256>>) :: atom()
   def subscribe_note(pid, note_id) do
     GenServer.call(pid, {:note, note_id, self()})
   end
 
-  @spec subscribe_notes(pid(), list(), integer()) :: atom()
+  @spec subscribe_notes(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
   def subscribe_notes(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:notes, pubkeys, limit, self()})
   end
 
-  @spec subscribe_deletions(pid(), list(), integer()) :: atom()
+  @spec subscribe_deletions(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
   def subscribe_deletions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:deletions, pubkeys, limit, self()})
   end
 
-  @spec subscribe_reposts(pid(), list(), integer()) :: atom()
+  @spec subscribe_reposts(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
   def subscribe_reposts(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reposts, pubkeys, limit, self()})
   end
 
-  @spec subscribe_reactions(pid(), list(), integer()) :: atom()
+  @spec subscribe_reactions(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
   def subscribe_reactions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reactions, pubkeys, limit, self()})
   end
 
-  @spec subscribe_encrypted_direct_messages(pid(), binary(), integer()) :: atom()
+  @spec subscribe_encrypted_direct_messages(pid(), K256.Schnorr.verifying_key(), integer()) ::
+          atom()
   def subscribe_encrypted_direct_messages(pid, pubkey, limit \\ 10) do
     GenServer.call(pid, {:encrypted_direct_messages, pubkey, limit, self()})
   end

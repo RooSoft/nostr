@@ -1,5 +1,5 @@
 defmodule Nostr.Crypto.AES256CBC do
-  @spec encrypt(String.t(), binary(), binary()) :: binary()
+  @spec encrypt(String.t(), <<_::256>>, <<_::256>>) :: String.t()
   def encrypt(message, seckey, pubkey) do
     iv = :crypto.strong_rand_bytes(16)
 
@@ -17,7 +17,8 @@ defmodule Nostr.Crypto.AES256CBC do
     "#{b64_cypher_text}?iv=#{b64_iv}"
   end
 
-  @spec decrypt(binary(), binary(), binary()) :: String.t()
+  @spec decrypt(String.t(), K256.Schnorr.signing_key(), K256.Schnorr.verifying_key()) ::
+          {:ok, String.t()} | {:error, atom() | String.t()}
   def decrypt(message, seckey, pubkey) do
     [message, iv] = String.split(message, "?iv=")
 
@@ -34,6 +35,7 @@ defmodule Nostr.Crypto.AES256CBC do
       {:ok, decrypted}
     else
       {:error, message} -> {:error, message}
+      :error -> {:error, "cannot decode iv, which should be in base64"}
     end
   end
 

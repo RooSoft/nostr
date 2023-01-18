@@ -87,7 +87,7 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.to_hex(public_key)
       "6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1"
   """
-  @spec to_hex(K256.Schnorr.verifying_key()) :: String.t()
+  @spec to_hex(<<_::256>>) :: String.t()
   def to_hex(pubkey) do
     Binary.to_hex(pubkey)
   end

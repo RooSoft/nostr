@@ -9,6 +9,7 @@ defmodule Nostr.Event.Types.MetadataEvent do
 
   @kind 0
 
+  @spec create_event(<<_::256>>) :: Event.t()
   def create_event(pubkey) do
     %{
       Event.create(nil, pubkey)

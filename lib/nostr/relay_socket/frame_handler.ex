@@ -27,8 +27,4 @@ defmodule Nostr.RelaySocket.FrameHandler do
   defp get_atom_id({id, _}) do
     String.to_atom(id)
   end
-
-  defp get_atom_id(_) do
-    nil
-  end
 end
