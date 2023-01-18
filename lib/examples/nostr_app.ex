@@ -107,6 +107,11 @@ defmodule NostrApp do
   end
 
   ### Combination of multiple NIPs
+  def timeline() do
+    GenServer.cast(Server, {:timeline})
+  end
+
+  ### Combination of multiple NIPs
   def timeline(pubkey) do
     GenServer.cast(Server, {:timeline, pubkey})
   end

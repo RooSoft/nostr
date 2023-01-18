@@ -174,6 +174,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:timeline}, %{public_key: public_key} = socket) do
+    Client.subscribe_timeline(public_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:timeline, pubkey}, socket) do
     Client.subscribe_timeline(pubkey)
 
