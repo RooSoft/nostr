@@ -1,4 +1,8 @@
 defmodule NostrApp.Server do
+  @moduledoc """
+  The server part of the NostrApp, which is an example of an app
+  """
+
   use GenServer
 
   require Logger

@@ -1,4 +1,8 @@
 defmodule Nostr.RelaySocket.FrameHandler do
+  @moduledoc """
+  Websocket frames are first sent here to be decoded and then sent to the frame dispatcher
+  """
+
   require Logger
 
   def handle_text_frame(frame, subscriptions, conn) do

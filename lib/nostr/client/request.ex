@@ -1,4 +1,8 @@
 defmodule Nostr.Client.Request do
+  @moduledoc """
+  Transforms simple functions into JSON requests that relays can interpret
+  """
+
   alias Nostr.Util
 
   @metadata_kind 0

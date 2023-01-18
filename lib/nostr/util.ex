@@ -1,4 +1,8 @@
 defmodule Nostr.Util do
+  @moduledoc """
+  Functions that have no home for now but that are meant to be reusable
+  """
+
   @default_size 16
 
   @doc """

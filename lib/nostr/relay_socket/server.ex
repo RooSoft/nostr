@@ -1,4 +1,8 @@
 defmodule Nostr.RelaySocket.Server do
+  @moduledoc """
+  The process handling all of the RelaySocket commands
+  """
+
   use GenServer
 
   require Logger

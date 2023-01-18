@@ -1,4 +1,9 @@
 defmodule Nostr.Client.FrameDispatcher do
+  @moduledoc """
+  Raw websocket frames are sent to this module so they end up being
+  dispatched to the right module depending on their types
+  """
+
   require Logger
 
   alias Nostr.Event

@@ -1,4 +1,9 @@
 defmodule NostrApp do
+  @moduledoc """
+  An example of an app enabling pretty much every raw commands this
+  lib has to offer
+  """
+
   alias NostrApp.Server
 
   alias Nostr.Models.Profile
