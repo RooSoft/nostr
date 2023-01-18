@@ -19,15 +19,17 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
   def init(%{relay_pids: relay_pids, private_key: private_key} = state) do
     case PublicKey.from_private_key(private_key) do
       {:ok, public_key} ->
-        relay_pids
-        |> Enum.map(fn relay_pid ->
-          RelaySocket.subscribe_encrypted_direct_messages(relay_pid, public_key)
-        end)
+        subscriptions =
+          relay_pids
+          |> Enum.map(fn relay_pid ->
+            RelaySocket.subscribe_encrypted_direct_messages(relay_pid, public_key)
+          end)
 
         {
           :ok,
           state
           |> Map.put(:public_key, public_key)
+          |> set_encrypted_direct_messages_subscriptions(subscriptions)
         }
 
       {:error, message} ->
@@ -59,5 +61,9 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
     ## nothing to do
 
     {:noreply, state}
+  end
+
+  defp set_encrypted_direct_messages_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end

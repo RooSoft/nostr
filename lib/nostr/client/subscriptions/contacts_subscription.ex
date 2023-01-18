@@ -14,12 +14,17 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_contacts(relay_pid, pubkey)
-    end)
+    subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        RelaySocket.subscribe_contacts(relay_pid, pubkey)
+      end)
 
-    {:ok, state}
+    {
+      :ok,
+      state
+      |> set_contract_subscriptions(subscriptions)
+    }
   end
 
   @impl true
@@ -34,5 +39,9 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
     ## nothing to do
 
     {:noreply, state}
+  end
+
+  defp set_contract_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end

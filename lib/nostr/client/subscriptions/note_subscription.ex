@@ -14,12 +14,17 @@ defmodule Nostr.Client.Subscriptions.NoteSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, note_id: note_id} = state) do
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_note(relay_pid, note_id)
-    end)
+    subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        RelaySocket.subscribe_note(relay_pid, note_id)
+      end)
 
-    {:ok, state}
+    {
+      :ok,
+      state
+      |> set_note_subscriptions(subscriptions)
+    }
   end
 
   @impl true
@@ -34,5 +39,9 @@ defmodule Nostr.Client.Subscriptions.NoteSubscription do
     ## nothing to do
 
     {:noreply, state}
+  end
+
+  defp set_note_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end

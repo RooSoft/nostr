@@ -14,12 +14,17 @@ defmodule Nostr.Client.Subscriptions.ReactionsSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkeys: pubkeys} = state) do
-    relay_pids
-    |> Enum.map(fn relay_pid ->
-      RelaySocket.subscribe_reactions(relay_pid, pubkeys)
-    end)
+    subscriptions =
+      relay_pids
+      |> Enum.map(fn relay_pid ->
+        RelaySocket.subscribe_reactions(relay_pid, pubkeys)
+      end)
 
-    {:ok, state}
+    {
+      :ok,
+      state
+      |> set_reactions_subscriptions(subscriptions)
+    }
   end
 
   @impl true
@@ -34,5 +39,9 @@ defmodule Nostr.Client.Subscriptions.ReactionsSubscription do
     ## nothing to do
 
     {:noreply, state}
+  end
+
+  defp set_reactions_subscriptions(state, subscriptions) do
+    Map.put(state, :subscriptions, subscriptions)
   end
 end
