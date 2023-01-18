@@ -1,4 +1,8 @@
 defmodule Nostr.Event.Types.ContactsEvent do
+  @moduledoc """
+  Contacts event management, including event creation and parsing
+  """
+
   require Logger
 
   alias Nostr.Event

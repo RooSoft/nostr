@@ -1,4 +1,11 @@
 defmodule Nostr.Event.Types.DeleteEvent do
+  @moduledoc """
+  Delete event management, including event creation and parsing
+
+  A delete event doen't delete anything, it's an event that might end up
+  masking another one, hence the "creation of a delete event"
+  """
+
   require Logger
 
   defstruct event: %Nostr.Event{}

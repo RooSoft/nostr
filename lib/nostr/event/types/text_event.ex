@@ -1,4 +1,10 @@
 defmodule Nostr.Event.Types.TextEvent do
+  @moduledoc """
+  Text event management, including event creation and parsing
+
+  Represents messages sent through the nostr protocol intented for display in clients
+  """
+
   require Logger
 
   defstruct event: %Nostr.Event{}

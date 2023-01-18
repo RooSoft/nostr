@@ -1,4 +1,10 @@
 defmodule Nostr.Event.Types.MetadataEvent do
+  @moduledoc """
+  Metadata event management, including event creation and parsing
+
+  This represents mainly a user's profile at the time of this writing
+  """
+
   require Logger
 
   defstruct event: %Nostr.Event{}

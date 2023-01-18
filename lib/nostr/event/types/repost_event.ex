@@ -1,4 +1,13 @@
 defmodule Nostr.Event.Types.RepostEvent do
+  @moduledoc """
+  Repost event management, including event creation and parsing
+
+  Note that this kind of event has been officially removed by fiatjaf from
+  the official specification, so kind 6 doesn't exist anymore at the moment
+  of this writing. Clients are still using it so it will remain by the time
+  being.
+  """
+
   require Logger
 
   defstruct event: %Nostr.Event{}

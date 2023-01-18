@@ -1,4 +1,8 @@
 defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
+  @moduledoc """
+  Encrypted direct message event management, including event creation and parsing
+  """
+
   require Logger
 
   defstruct [:decrypted, :decryption_error, event: %Nostr.Event{}]

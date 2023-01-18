@@ -1,4 +1,10 @@
 defmodule Nostr.Event.Types.ReactionEvent do
+  @moduledoc """
+  Reaction event management, including event creation and parsing
+
+  This thing is similar to a Facebook or Twitter like
+  """
+
   require Logger
 
   defstruct event: %Nostr.Event{}
