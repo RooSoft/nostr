@@ -20,8 +20,8 @@ defmodule Nostr.Event.Types.MetadataEvent do
     |> Event.add_id()
   end
 
-  @spec create_event(%Profile{}, K256.Schnorr.verifying_key() | <<_::256>>) ::
-          {:ok, %Event{}} | {:error, binary()}
+  @spec create_event(Profile.t(), K256.Schnorr.verifying_key() | <<_::256>>) ::
+          {:ok, Event.t()} | {:error, binary()}
   def create_event(%Profile{} = profile, pubkey) do
     case Jason.encode(profile) do
       {:ok, json_profile} ->

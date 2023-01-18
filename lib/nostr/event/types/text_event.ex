@@ -6,9 +6,11 @@ defmodule Nostr.Event.Types.TextEvent do
   alias Nostr.Event
   alias Nostr.Event.Types.TextEvent
 
+  @type t :: %TextEvent{}
+
   @kind 1
 
-  @spec create(binary(), K256.Schnorr.verifying_key()) :: %TextEvent{}
+  @spec create(binary(), K256.Schnorr.verifying_key()) :: TextEvent.t()
   def create(content, pubkey) do
     event =
       %{Event.create(content, pubkey) | kind: @kind}

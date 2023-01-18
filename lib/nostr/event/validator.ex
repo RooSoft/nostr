@@ -2,7 +2,7 @@ defmodule Nostr.Event.Validator do
   alias K256.Schnorr
   alias Nostr.Event
 
-  @spec(validate_event(%Event{}) :: :ok, {:error, message})
+  @spec(validate_event(Event.t()) :: :ok, {:error, message})
   def validate_event(%Event{} = event) do
     with :ok <- validate_id(event),
          :ok <- validate_signature(event) do
@@ -12,6 +12,7 @@ defmodule Nostr.Event.Validator do
     end
   end
 
+  @spec(validate_id(Event.t()) :: :ok, {:error, message})
   def validate_id(%Event{id: id} = event) do
     case id == Event.create_id(event) do
       true -> :ok

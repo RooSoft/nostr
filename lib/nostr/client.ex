@@ -82,7 +82,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec follow(%Profile{}, K256.Schnorr.signing_key()) :: GenServer.on_start()
+  @spec follow(Profile.t(), K256.Schnorr.signing_key()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)

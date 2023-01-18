@@ -11,6 +11,8 @@ defmodule Nostr.Event do
   alias Nostr.Event.Parser
   alias Nostr.Crypto
 
+  @type t :: %Event{}
+
   # This thing is needed so that the Jason library knows how to serialize the events
   defimpl Jason.Encoder do
     def encode(
@@ -63,7 +65,7 @@ defmodule Nostr.Event do
         sig: nil
       }
   """
-  @spec create(String.t() | nil, K256.Schnorr.verifying_key() | <<_::256>>) :: %Event{}
+  @spec create(String.t() | nil, K256.Schnorr.verifying_key() | <<_::256>>) :: Event.t()
   def create(content, pubkey) do
     %Event{
       pubkey: pubkey,
@@ -73,7 +75,7 @@ defmodule Nostr.Event do
     }
   end
 
-  @spec parse(map()) :: %Event{}
+  @spec parse(map()) :: Event.t()
   def parse(body) do
     Parser.parse(body)
   end

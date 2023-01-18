@@ -6,6 +6,8 @@ defmodule Nostr.Event.Types.RepostEvent do
   alias Nostr.Event
   alias Nostr.Event.Types.{RepostEvent, TextEvent}
 
+  @type t :: %RepostEvent{}
+
   @kind 6
   @text_event_kind 1
 
@@ -30,7 +32,7 @@ defmodule Nostr.Event.Types.RepostEvent do
     |> Event.add_id()
   end
 
-  @spec parse(map()) :: {:ok, %RepostEvent{}} | {:error, binary()}
+  @spec parse(map()) :: {:ok, RepostEvent.t()} | {:error, binary()}
   def parse(body) do
     event = Event.parse(body)
 

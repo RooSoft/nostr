@@ -3,6 +3,8 @@ defmodule Nostr.Models.Profile do
 
   alias Nostr.Models.Profile
 
+  @type t :: %Profile{}
+
   # This thing is needed so that the Jason library knows how to serialize the events
   defimpl Jason.Encoder do
     def encode(
