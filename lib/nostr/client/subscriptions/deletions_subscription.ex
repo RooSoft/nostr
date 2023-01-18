@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Subscriptions.DeletionsSubscription do
+  @moduledoc """
+  A process creating and managing a live subscription to a user's deletion events
+  on a bunch of relays
+  """
+
   use GenServer
 
   alias Nostr.RelaySocket

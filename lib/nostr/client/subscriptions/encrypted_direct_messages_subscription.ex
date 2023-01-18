@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
+  @moduledoc """
+  A process creating and managing a live subscription to a user's encrypted
+  direct messages on a bunch of relays
+  """
+
   use GenServer
 
   alias Nostr.RelaySocket

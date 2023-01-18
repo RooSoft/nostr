@@ -1,4 +1,9 @@
 defmodule Nostr.Client.Subscriptions.ContactsSubscription do
+  @moduledoc """
+  A process creating and managing a live subscription to a user's contact list
+  on a bunch of relays
+  """
+
   use GenServer
 
   alias Nostr.RelaySocket

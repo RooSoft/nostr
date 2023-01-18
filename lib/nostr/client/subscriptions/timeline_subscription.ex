@@ -1,4 +1,8 @@
 defmodule Nostr.Client.Subscriptions.TimelineSubscription do
+  @moduledoc """
+  A process creating and managing a live timeline subscription on a bunch of relays
+  """
+
   use GenServer
 
   alias Nostr.RelaySocket
