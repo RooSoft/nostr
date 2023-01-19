@@ -9,8 +9,7 @@ defmodule Nostr.RelaySocket.Server do
   require Mint.HTTP
 
   alias Nostr.RelaySocket
-  alias Nostr.RelaySocket.FrameHandler
-  alias Nostr.RelaySocket.Server.Sender
+  alias Nostr.RelaySocket.{FrameHandler, Sender}
   alias Nostr.Client.{SendRequest}
 
   @impl true
