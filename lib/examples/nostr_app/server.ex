@@ -129,6 +129,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:notes}, %{public_key: public_key} = socket) do
+    Client.subscribe_notes(public_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:notes, pubkey}, socket) do
     Client.subscribe_notes(pubkey)
 
