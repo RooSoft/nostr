@@ -10,8 +10,8 @@ defmodule Nostr.RelaySocket.Sender do
     send_frame(state, {:pong, data})
   end
 
-  @spec send_request(map(), atom(), String.t(), pid()) :: map()
-  def send_request(state, atom_subscription_id, json, subscriber) do
+  @spec send_subscription_request(map(), atom(), String.t(), pid()) :: map()
+  def send_subscription_request(state, atom_subscription_id, json, subscriber) do
     case send_to_websocket(state, atom_subscription_id, json, subscriber) do
       {:ok, state} ->
         state
