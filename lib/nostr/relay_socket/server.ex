@@ -55,13 +55,9 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.profile(pubkey)
 
-    {:ok, state} = send_frame(state, {:text, json})
+    state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -77,13 +73,9 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:note, note_id, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.note(note_id)
 
-    {:ok, state} = send_frame(state, {:text, json})
+    state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -105,11 +97,7 @@ defmodule Nostr.RelaySocket.Server do
 
     state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -118,11 +106,7 @@ defmodule Nostr.RelaySocket.Server do
 
     state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -131,11 +115,7 @@ defmodule Nostr.RelaySocket.Server do
 
     state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -144,11 +124,7 @@ defmodule Nostr.RelaySocket.Server do
 
     state = Sender.send_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
