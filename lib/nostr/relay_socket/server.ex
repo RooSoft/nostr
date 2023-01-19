@@ -10,6 +10,7 @@ defmodule Nostr.RelaySocket.Server do
 
   alias Nostr.RelaySocket
   alias Nostr.RelaySocket.FrameHandler
+  alias Nostr.RelaySocket.Server.Sender
   alias Nostr.Client.{SendRequest}
 
   @impl true
@@ -54,7 +55,8 @@ defmodule Nostr.RelaySocket.Server do
   @impl true
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
     {id, json} = Nostr.Client.Request.profile(pubkey)
-    atom_subscription_id = id |> String.to_atom()
+
+    atom_subscription_id = String.to_atom(id)
 
     {:ok, state} = send_frame(state, {:text, json})
 
@@ -68,15 +70,16 @@ defmodule Nostr.RelaySocket.Server do
   @impl true
   def handle_call({:contacts, pubkey, limit, subscriber}, _from, state) do
     {id, json} = Nostr.Client.Request.contacts(pubkey, limit)
-    atom_subscription_id = id |> String.to_atom()
+
+    atom_subscription_id = String.to_atom(id)
 
     state =
-      case send_frame(state, {:text, json}) do
+      case Sender.send(state, atom_subscription_id, json, subscriber) do
         {:ok, state} ->
-          state |> add_subscription(atom_subscription_id, subscriber)
+          state
 
-        {:error, _socket, error} ->
-          Logger.error("#{inspect(error)}")
+        {:error, state, reason} ->
+          Logger.error(reason)
           state
       end
 
