@@ -45,6 +45,11 @@ defmodule NostrApp do
   end
 
   ### NIP-02
+  def contacts() do
+    GenServer.cast(Server, {:contacts})
+  end
+
+  ### NIP-02
   def contacts(pubkey) do
     GenServer.cast(Server, {:contacts, pubkey})
   end
