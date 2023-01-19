@@ -3,13 +3,37 @@ defmodule Nostr.RelaySocket.Sender do
   Responsible for sending frames through the websocket connection
   """
 
+  require Logger
+
   @spec send_pong(map(), String.t()) :: {:ok, map()} | {:error, map(), any()}
   def send_pong(state, data) do
     send_frame(state, {:pong, data})
   end
 
-  @spec send(map(), atom(), String.t(), pid()) :: {:ok, map()} | {:error, map(), any()}
-  def send(state, atom_subscription_id, json, subscriber) do
+  @spec send_request(map(), atom(), String.t(), pid()) :: map()
+  def send_request(state, atom_subscription_id, json, subscriber) do
+    case send_to_websocket(state, atom_subscription_id, json, subscriber) do
+      {:ok, state} ->
+        state
+
+      {:error, state, reason} ->
+        Logger.error(reason)
+        state
+    end
+  end
+
+  @spec close(map()) :: Mint.HTTP.t()
+  def close(%{conn: conn} = state) do
+    _ = send_frame(state, :close)
+
+    {:ok, conn} = Mint.HTTP.close(conn)
+
+    conn
+  end
+
+  @spec send_to_websocket(map(), atom(), String.t(), pid()) ::
+          {:ok, map()} | {:error, map(), any()}
+  defp send_to_websocket(state, atom_subscription_id, json, subscriber) do
     case send_frame(state, {:text, json}) do
       {:ok, state} ->
         {
@@ -21,15 +45,6 @@ defmodule Nostr.RelaySocket.Sender do
       {:error, state, message} ->
         {:error, state, message}
     end
-  end
-
-  @spec close(map()) :: Mint.HTTP.t()
-  def close(%{conn: conn} = state) do
-    _ = send_frame(state, :close)
-
-    {:ok, conn} = Mint.HTTP.close(conn)
-
-    conn
   end
 
   @spec send_frame(map(), any()) :: {:ok, map()} | {:error, map(), any()}
