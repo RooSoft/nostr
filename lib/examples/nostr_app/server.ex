@@ -171,6 +171,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:reactions}, %{public_key: public_key} = socket) do
+    Client.subscribe_reactions([public_key])
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:reactions, pubkeys}, socket) do
     Client.subscribe_reactions(pubkeys)
 

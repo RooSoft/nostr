@@ -107,6 +107,11 @@ defmodule NostrApp do
   end
 
   ### NIP-25
+  def reactions() do
+    GenServer.cast(Server, {:reactions})
+  end
+
+  ### NIP-25
   def reactions(pubkeys) when is_list(pubkeys) do
     GenServer.cast(Server, {:reactions, pubkeys})
   end
