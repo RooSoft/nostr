@@ -6,8 +6,8 @@ defmodule Nostr.RelaySocket.Server do
   use GenServer
 
   require Logger
-  require Mint.HTTP
 
+  alias Mint.{HTTP, WebSocket}
   alias Nostr.RelaySocket
   alias Nostr.RelaySocket.{FrameHandler, Sender}
   alias Nostr.Client.{SendRequest}
@@ -127,7 +127,7 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_info(message, %{conn: conn, url: url} = state) do
-    case Mint.WebSocket.stream(conn, message) do
+    case WebSocket.stream(conn, message) do
       {:ok, conn, responses} ->
         state = put_in(state.conn, conn) |> handle_responses(responses)
         if state.closing?, do: do_close(state), else: {:noreply, state}
@@ -163,8 +163,8 @@ defmodule Nostr.RelaySocket.Server do
 
     path = "/"
 
-    with {:ok, conn} <- Mint.HTTP.connect(http_scheme, uri.host, uri.port, protocols: [:http1]),
-         {:ok, conn, ref} <- Mint.WebSocket.upgrade(ws_scheme, conn, path, []) do
+    with {:ok, conn} <- HTTP.connect(http_scheme, uri.host, uri.port, protocols: [:http1]),
+         {:ok, conn, ref} <- WebSocket.upgrade(ws_scheme, conn, path, []) do
       {:ok, %{conn: conn, request_ref: ref}}
     else
       {:error, reason} ->
@@ -190,7 +190,7 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   defp handle_responses(%{request_ref: ref} = state, [{:done, ref} | rest]) do
-    case Mint.WebSocket.new(state.conn, ref, state.status, state.resp_headers) do
+    case WebSocket.new(state.conn, ref, state.status, state.resp_headers) do
       {:ok, conn, websocket} ->
         %{state | conn: conn, websocket: websocket, status: nil, resp_headers: nil}
         |> reply({:ok, :connected})
@@ -206,7 +206,7 @@ defmodule Nostr.RelaySocket.Server do
          {:data, ref, data} | rest
        ])
        when websocket != nil do
-    case Mint.WebSocket.decode(websocket, data) do
+    case WebSocket.decode(websocket, data) do
       {:ok, websocket, frames} ->
         put_in(state.websocket, websocket)
         |> handle_frames(frames)
