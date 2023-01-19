@@ -28,12 +28,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_cast({:unsubscribe, subscription_id}, state) do
-    json_request = SendRequest.close(subscription_id)
-
     state =
       state
-      |> remove_subscription(subscription_id)
-      |> Sender.send_text(json_request)
+      |> Sender.send_close_message(subscription_id)
 
     {:noreply, state}
   end
@@ -129,11 +126,5 @@ defmodule Nostr.RelaySocket.Server do
   @impl true
   def handle_info(message, state) do
     MessageDispatcher.dispatch(message, state)
-  end
-
-  defp remove_subscription(%{subscriptions: subscriptions} = state, atom_subscription_id) do
-    new_subscriptions = subscriptions |> Keyword.delete(atom_subscription_id)
-
-    %{state | subscriptions: new_subscriptions}
   end
 end

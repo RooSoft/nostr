@@ -5,6 +5,9 @@ defmodule Nostr.RelaySocket.Sender do
 
   require Logger
 
+  alias Nostr.Client.{SendRequest}
+  alias Mint.{HTTP, WebSocket}
+
   @spec send_pong(map(), String.t()) :: {:ok, map()} | {:error, map(), any()}
   def send_pong(state, data) do
     send_frame(state, {:pong, data})
@@ -24,7 +27,7 @@ defmodule Nostr.RelaySocket.Sender do
 
   @spec send_subscription_request(map(), atom(), String.t(), pid()) :: map()
   def send_subscription_request(state, atom_subscription_id, json, subscriber) do
-    case send_to_websocket(state, atom_subscription_id, json, subscriber) do
+    case send_subscription_to_websocket(state, atom_subscription_id, json, subscriber) do
       {:ok, state} ->
         state
 
@@ -34,11 +37,14 @@ defmodule Nostr.RelaySocket.Sender do
     end
   end
 
-  @spec send_close(map(), atom(), String.t(), pid()) :: map()
-  def send_close(state, atom_subscription_id, json, subscriber) do
-    case send_to_websocket(state, atom_subscription_id, json, subscriber) do
+  @spec send_close_message(map(), pid()) :: map()
+  def send_close_message(state, subscription_id) do
+    json_request = SendRequest.close(subscription_id)
+
+    case send_frame(state, {:text, json_request}) do
       {:ok, state} ->
         state
+        |> remove_subscription(subscription_id)
 
       {:error, state, reason} ->
         Logger.error(reason)
@@ -46,18 +52,18 @@ defmodule Nostr.RelaySocket.Sender do
     end
   end
 
-  @spec close(map()) :: Mint.HTTP.t()
+  @spec close(map()) :: HTTP.t()
   def close(%{conn: conn} = state) do
     _ = send_frame(state, :close)
 
-    {:ok, conn} = Mint.HTTP.close(conn)
+    {:ok, conn} = HTTP.close(conn)
 
     conn
   end
 
-  @spec send_to_websocket(map(), atom(), String.t(), pid()) ::
+  @spec send_subscription_to_websocket(map(), atom(), String.t(), pid()) ::
           {:ok, map()} | {:error, map(), any()}
-  defp send_to_websocket(state, atom_subscription_id, json, subscriber) do
+  defp send_subscription_to_websocket(state, atom_subscription_id, json, subscriber) do
     case send_frame(state, {:text, json}) do
       {:ok, state} ->
         {
@@ -73,12 +79,12 @@ defmodule Nostr.RelaySocket.Sender do
 
   @spec send_frame(map(), any()) :: {:ok, map()} | {:error, map(), any()}
   defp send_frame(state, frame) do
-    with {:ok, websocket, data} <- Mint.WebSocket.encode(state.websocket, frame),
+    with {:ok, websocket, data} <- WebSocket.encode(state.websocket, frame),
          state = put_in(state.websocket, websocket),
-         {:ok, conn} <- Mint.WebSocket.stream_request_body(state.conn, state.request_ref, data) do
+         {:ok, conn} <- WebSocket.stream_request_body(state.conn, state.request_ref, data) do
       {:ok, put_in(state.conn, conn)}
     else
-      {:error, %Mint.WebSocket{} = websocket, reason} ->
+      {:error, %WebSocket{} = websocket, reason} ->
         {:error, put_in(state.websocket, websocket), reason}
 
       {:error, conn, reason} ->
@@ -88,5 +94,11 @@ defmodule Nostr.RelaySocket.Sender do
 
   defp add_subscription(state, atom_subscription_id, subscriber) do
     %{state | subscriptions: [{atom_subscription_id, subscriber}] ++ state.subscriptions}
+  end
+
+  defp remove_subscription(%{subscriptions: subscriptions} = state, atom_subscription_id) do
+    new_subscriptions = subscriptions |> Keyword.delete(atom_subscription_id)
+
+    %{state | subscriptions: new_subscriptions}
   end
 end
