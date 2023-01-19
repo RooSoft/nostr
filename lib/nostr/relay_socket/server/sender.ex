@@ -1,0 +1,39 @@
+defmodule Nostr.RelaySocket.Server.Sender do
+  @moduledoc """
+  Responsible for sending frames through the websocket connection
+  """
+
+  @spec send(map(), atom(), String.t(), pid()) :: {:ok, map()} | {:error, map(), any()}
+  def send(state, atom_subscription_id, json, subscriber) do
+    case send_frame(state, {:text, json}) do
+      {:ok, state} ->
+        {
+          :ok,
+          state
+          |> add_subscription(atom_subscription_id, subscriber)
+        }
+
+      {:error, state, message} ->
+        {:error, state, message}
+    end
+  end
+
+  @spec send_frame(map(), {atom(), String.t()}) :: {:ok, map()} | {:error, map(), any()}
+  defp send_frame(state, frame) do
+    with {:ok, websocket, data} <- Mint.WebSocket.encode(state.websocket, frame),
+         state = put_in(state.websocket, websocket),
+         {:ok, conn} <- Mint.WebSocket.stream_request_body(state.conn, state.request_ref, data) do
+      {:ok, put_in(state.conn, conn)}
+    else
+      {:error, %Mint.WebSocket{} = websocket, reason} ->
+        {:error, put_in(state.websocket, websocket), reason}
+
+      {:error, conn, reason} ->
+        {:error, put_in(state.conn, conn), reason}
+    end
+  end
+
+  defp add_subscription(state, atom_subscription_id, subscriber) do
+    %{state | subscriptions: [{atom_subscription_id, subscriber}] ++ state.subscriptions}
+  end
+end
