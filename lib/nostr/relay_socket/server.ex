@@ -29,10 +29,10 @@ defmodule Nostr.RelaySocket.Server do
   def handle_cast({:unsubscribe, subscription_id}, state) do
     json_request = SendRequest.close(subscription_id)
 
-    {:ok, state} =
+    state =
       state
       |> remove_subscription(subscription_id)
-      |> send_frame({:text, json_request})
+      |> Sender.send_text(json_request)
 
     {:noreply, state}
   end
@@ -41,7 +41,9 @@ defmodule Nostr.RelaySocket.Server do
   def handle_cast({:send_event, event}, state) do
     json_request = SendRequest.event(event)
 
-    {:ok, state} = send_frame(state, {:text, json_request})
+    state =
+      state
+      |> Sender.send_text(json_request)
 
     {:noreply, state}
   end
@@ -84,11 +86,7 @@ defmodule Nostr.RelaySocket.Server do
 
     state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
 
-    {
-      :reply,
-      atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
-    }
+    {:reply, atom_subscription_id, state}
   end
 
   @impl true
@@ -228,24 +226,6 @@ defmodule Nostr.RelaySocket.Server do
 
   defp handle_responses(state, []), do: state
 
-  defp send_frame(state, frame) do
-    with {:ok, websocket, data} <- Mint.WebSocket.encode(state.websocket, frame),
-         state = put_in(state.websocket, websocket),
-         {:ok, conn} <- Mint.WebSocket.stream_request_body(state.conn, state.request_ref, data) do
-      {:ok, put_in(state.conn, conn)}
-    else
-      {:error, %Mint.WebSocket{} = websocket, reason} ->
-        Logger.debug("error while sending to websocket: #{reason}")
-
-        {:error, put_in(state.websocket, websocket), reason}
-
-      {:error, conn, reason} ->
-        Logger.debug("error while sending to websocket #{reason}")
-
-        {:error, put_in(state.conn, conn), reason}
-    end
-  end
-
   defp handle_frames(%{conn: conn, subscriptions: subscriptions} = state, frames) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
@@ -283,10 +263,6 @@ defmodule Nostr.RelaySocket.Server do
   defp reply(state, response) do
     if state.caller, do: GenServer.reply(state.caller, response)
     put_in(state.caller, nil)
-  end
-
-  defp add_subscription(state, atom_subscription_id, subscriber) do
-    %{state | subscriptions: [{atom_subscription_id, subscriber}] ++ state.subscriptions}
   end
 
   defp remove_subscription(%{subscriptions: subscriptions} = state, atom_subscription_id) do

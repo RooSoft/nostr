@@ -10,6 +10,18 @@ defmodule Nostr.RelaySocket.Sender do
     send_frame(state, {:pong, data})
   end
 
+  @spec send_text(map(), String.t()) :: map()
+  def send_text(state, data) do
+    case send_frame(state, {:text, data}) do
+      {:ok, state} ->
+        state
+
+      {:error, state, reason} ->
+        Logger.error(reason)
+        state
+    end
+  end
+
   @spec send_subscription_request(map(), atom(), String.t(), pid()) :: map()
   def send_subscription_request(state, atom_subscription_id, json, subscriber) do
     case send_to_websocket(state, atom_subscription_id, json, subscriber) do
