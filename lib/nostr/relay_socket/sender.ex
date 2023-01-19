@@ -34,6 +34,18 @@ defmodule Nostr.RelaySocket.Sender do
     end
   end
 
+  @spec send_close(map(), atom(), String.t(), pid()) :: map()
+  def send_close(state, atom_subscription_id, json, subscriber) do
+    case send_to_websocket(state, atom_subscription_id, json, subscriber) do
+      {:ok, state} ->
+        state
+
+      {:error, state, reason} ->
+        Logger.error(reason)
+        state
+    end
+  end
+
   @spec close(map()) :: Mint.HTTP.t()
   def close(%{conn: conn} = state) do
     _ = send_frame(state, :close)
