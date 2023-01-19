@@ -150,12 +150,20 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:encrypted_direct_messages, pubkey, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
 
-    {:ok, state} = send_frame(state, {:text, json})
+    state =
+      case Sender.send(state, atom_subscription_id, json, subscriber) do
+        {:ok, state} ->
+          state
+
+        {:error, state, reason} ->
+          Logger.error(reason)
+          state
+      end
 
     {
       :reply,
       atom_subscription_id,
-      state |> add_subscription(atom_subscription_id, subscriber)
+      state
     }
   end
 
