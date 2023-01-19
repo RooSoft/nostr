@@ -9,18 +9,20 @@ defmodule Nostr.RelaySocket.Server do
 
   alias Mint.{WebSocket}
   alias Nostr.RelaySocket
-  alias Nostr.RelaySocket.{Connector, FrameHandler, Sender}
+  alias Nostr.RelaySocket.{Connector, FrameHandler, Publisher, Sender}
   alias Nostr.Client.{SendRequest}
 
   @impl true
   def init(%{relay_url: relay_url, owner_pid: owner_pid}) do
     case Connector.connect(relay_url) do
       {:ok, conn, ref} ->
-        send(owner_pid, {:connection, relay_url, :ok})
+        Publisher.successful_connection(owner_pid, relay_url)
+
         {:ok, %RelaySocket{%RelaySocket{} | url: relay_url, conn: conn, request_ref: ref}}
 
       {:error, message} ->
-        send(owner_pid, {:connection, relay_url, :error, message})
+        Publisher.unsuccessful_connection(owner_pid, relay_url, message)
+
         {:stop, message}
     end
   end
