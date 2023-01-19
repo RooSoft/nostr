@@ -51,7 +51,9 @@ defmodule Nostr.Client.Request do
     filter = filter_by_kind(kind, pubkeys, limit)
     json = request(request_id, filter)
 
-    {request_id, json}
+    atom_request_id = String.to_atom(request_id)
+
+    {atom_request_id, json}
   end
 
   defp get_by_ids(ids, kind) do
@@ -59,7 +61,9 @@ defmodule Nostr.Client.Request do
     filter = filter_by_ids(ids, kind, 1)
     json = request(request_id, filter)
 
-    {request_id, json}
+    atom_request_id = String.to_atom(request_id)
+
+    {atom_request_id, json}
   end
 
   defp get_by_authors(pubkeys, kinds, limit) do
@@ -67,7 +71,9 @@ defmodule Nostr.Client.Request do
     filter = filter_by_authors(pubkeys, kinds, limit)
     json = request(request_id, filter)
 
-    {request_id, json}
+    atom_request_id = String.to_atom(request_id)
+
+    {atom_request_id, json}
   end
 
   defp filter_by_kind(kind, pubkeys, limit) do

@@ -53,9 +53,7 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
-    {id, json} = Nostr.Client.Request.profile(pubkey)
-
-    atom_subscription_id = String.to_atom(id)
+    {atom_subscription_id, json} = Nostr.Client.Request.profile(pubkey)
 
     {:ok, state} = send_frame(state, {:text, json})
 
@@ -68,9 +66,7 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:contacts, pubkey, limit, subscriber}, _from, state) do
-    {id, json} = Nostr.Client.Request.contacts(pubkey, limit)
-
-    atom_subscription_id = String.to_atom(id)
+    {atom_subscription_id, json} = Nostr.Client.Request.contacts(pubkey, limit)
 
     state =
       case Sender.send(state, atom_subscription_id, json, subscriber) do
@@ -87,11 +83,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:note, note_id, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.note(note_id)
+    {atom_subscription_id, json} = Nostr.Client.Request.note(note_id)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
@@ -102,11 +96,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:notes, pubkeys, limit, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
+    {atom_subscription_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
@@ -117,11 +109,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:deletions, pubkeys, limit, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.deletions(pubkeys, limit)
+    {atom_subscription_id, json} = Nostr.Client.Request.deletions(pubkeys, limit)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
@@ -132,11 +122,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:reposts, pubkeys, limit, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.reposts(pubkeys, limit)
+    {atom_subscription_id, json} = Nostr.Client.Request.reposts(pubkeys, limit)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
@@ -147,11 +135,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:reactions, pubkeys, limit, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
+    {atom_subscription_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
@@ -162,11 +148,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def handle_call({:encrypted_direct_messages, pubkey, limit, subscriber}, _from, state) do
-    {request_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
+    {atom_subscription_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
 
     {:ok, state} = send_frame(state, {:text, json})
-
-    atom_subscription_id = request_id |> String.to_atom()
 
     {
       :reply,
