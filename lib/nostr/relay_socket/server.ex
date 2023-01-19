@@ -7,17 +7,17 @@ defmodule Nostr.RelaySocket.Server do
 
   require Logger
 
-  alias Mint.{HTTP, WebSocket}
+  alias Mint.{WebSocket}
   alias Nostr.RelaySocket
-  alias Nostr.RelaySocket.{FrameHandler, Sender}
+  alias Nostr.RelaySocket.{Connector, FrameHandler, Sender}
   alias Nostr.Client.{SendRequest}
 
   @impl true
   def init(%{relay_url: relay_url, owner_pid: owner_pid}) do
-    case connect(relay_url) do
-      {:ok, %{conn: conn, request_ref: ref}} ->
+    case Connector.connect(relay_url) do
+      {:ok, conn, ref} ->
         send(owner_pid, {:connection, relay_url, :ok})
-        {:ok, %{%RelaySocket{} | url: relay_url, conn: conn, request_ref: ref}}
+        {:ok, %RelaySocket{%RelaySocket{} | url: relay_url, conn: conn, request_ref: ref}}
 
       {:error, message} ->
         send(owner_pid, {:connection, relay_url, :error, message})
@@ -143,37 +143,6 @@ defmodule Nostr.RelaySocket.Server do
       :unknown ->
         Logger.error("in relay_socket some :unknown handle_info happened")
         {:noreply, state}
-    end
-  end
-
-  defp connect(relay_url) do
-    uri = URI.parse(relay_url)
-
-    http_scheme =
-      case uri.scheme do
-        "ws" -> :http
-        "wss" -> :https
-      end
-
-    ws_scheme =
-      case uri.scheme do
-        "ws" -> :ws
-        "wss" -> :wss
-      end
-
-    path = "/"
-
-    with {:ok, conn} <- HTTP.connect(http_scheme, uri.host, uri.port, protocols: [:http1]),
-         {:ok, conn, ref} <- WebSocket.upgrade(ws_scheme, conn, path, []) do
-      {:ok, %{conn: conn, request_ref: ref}}
-    else
-      {:error, reason} ->
-        Logger.error(reason)
-        {:error, reason}
-
-      {:error, _conn, reason} ->
-        Logger.error(reason)
-        {:error, reason}
     end
   end
 
