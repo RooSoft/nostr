@@ -319,8 +319,8 @@ defmodule Nostr.RelaySocket.Server do
   defp do_close(state) do
     # Streaming a close frame may fail if the server has already closed
     # for writing.
-    _ = send_frame(state, :close)
-    Mint.HTTP.close(state.conn)
+    Sender.close(state)
+
     {:stop, :normal, state}
   end
 

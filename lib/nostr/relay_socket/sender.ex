@@ -18,7 +18,16 @@ defmodule Nostr.RelaySocket.Sender do
     end
   end
 
-  @spec send_frame(map(), {atom(), String.t()}) :: {:ok, map()} | {:error, map(), any()}
+  @spec close(map()) :: Mint.HTTP.t()
+  def close(%{conn: conn} = state) do
+    _ = send_frame(state, :close)
+
+    {:ok, conn} = Mint.HTTP.close(conn)
+
+    conn
+  end
+
+  @spec send_frame(map(), any()) :: {:ok, map()} | {:error, map(), any()}
   defp send_frame(state, frame) do
     with {:ok, websocket, data} <- Mint.WebSocket.encode(state.websocket, frame),
          state = put_in(state.websocket, websocket),
