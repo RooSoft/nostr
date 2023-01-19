@@ -3,6 +3,11 @@ defmodule Nostr.RelaySocket.Sender do
   Responsible for sending frames through the websocket connection
   """
 
+  @spec send_pong(map(), String.t()) :: {:ok, map()} | {:error, map(), any()}
+  def send_pong(state, data) do
+    send_frame(state, {:pong, data})
+  end
+
   @spec send(map(), atom(), String.t(), pid()) :: {:ok, map()} | {:error, map(), any()}
   def send(state, atom_subscription_id, json, subscriber) do
     case send_frame(state, {:text, json}) do

@@ -299,7 +299,7 @@ defmodule Nostr.RelaySocket.Server do
       # reply to pings with pongs
       {:ping, data}, state ->
         Logger.debug("PING #{conn.host}")
-        {:ok, state} = send_frame(state, {:pong, data})
+        {:ok, state} = Sender.send_pong(state, data)
         state
 
       {:close, _code, reason}, state ->
