@@ -71,7 +71,8 @@ defmodule Nostr.Client do
   @doc """
   Get an author's profile
   """
-  @spec subscribe_profile(K256.Schnorr.verifying_key()) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_profile(Schnorr.verifying_key() | binary()) ::
+          DynamicSupervisor.on_start_child()
   def subscribe_profile(pubkey) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
@@ -82,7 +83,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec follow(Profile.t(), K256.Schnorr.signing_key()) :: GenServer.on_start()
+  @spec follow(Profile.t(), Schnorr.signing_key()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)
@@ -132,9 +133,9 @@ defmodule Nostr.Client do
   Sends an encrypted direct message
   """
   @spec send_encrypted_direct_messages(
-          K256.Schnorr.verifying_key() | <<_::256>>,
+          Schnorr.verifying_key() | <<_::256>>,
           String.t(),
-          K256.Schnorr.signing_key() | <<_::256>>
+          Schnorr.signing_key() | <<_::256>>
         ) ::
           :ok | {:error, binary() | atom()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
@@ -236,7 +237,7 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(String.t(), K256.Schnorr.signing_key()) ::
+  @spec send_note(String.t(), Schnorr.signing_key()) ::
           :ok | {:error, binary() | atom()}
   def send_note(note, privkey) do
     with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
