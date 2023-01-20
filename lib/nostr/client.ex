@@ -133,10 +133,18 @@ defmodule Nostr.Client do
   @doc """
   Unfollow from a contact
   """
-  @spec unfollow(<<_::256>>, <<_::256>>) :: GenServer.on_start()
+  @spec unfollow(<<_::256>> | String.t(), <<_::256>> | String.t()) ::
+          {:ok, GenServer.on_start()} | {:error, binary()}
   def unfollow(pubkey, privkey) do
-    relay_pids()
-    |> Unfollow.start_link(pubkey, privkey)
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, binary_pubkey} <- PublicKey.to_binary(pubkey) do
+      {
+        :ok,
+        Unfollow.start_link(relay_pids(), binary_pubkey, binary_privkey)
+      }
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """

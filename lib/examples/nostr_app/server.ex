@@ -85,7 +85,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:unfollow, contact_pubkey}, %{private_key: private_key} = socket) do
-    Client.unfollow(contact_pubkey, private_key)
+    case Client.unfollow(contact_pubkey, private_key) do
+      {:ok, _} -> Logger.info("successfully unfollowed #{contact_pubkey}")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
