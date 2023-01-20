@@ -8,7 +8,7 @@ defmodule NostrApp do
 
   alias Nostr.Models.Profile
 
-  def start_link(relays, <<_::256>> = private_key) do
+  def start_link(relays, private_key) do
     args = %{relays: relays, private_key: private_key}
 
     GenServer.start_link(Server, args, name: Server)
