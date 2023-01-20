@@ -12,10 +12,12 @@ defmodule NostrApp.Server do
   alias Nostr.Client
   alias Nostr.Event.Types.MetadataEvent
   alias Nostr.Models.{Profile}
+  alias Nostr.Keys.PrivateKey
 
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do
-    with {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(private_key),
+    with {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
+         {:ok, public_key} <- K256.Schnorr.verifying_key_from_signing_key(binary_private_key),
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
       connect_to_relays(relays)
 
