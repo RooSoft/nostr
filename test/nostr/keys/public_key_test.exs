@@ -5,6 +5,15 @@ defmodule Nostr.Keys.PublicKeyTest do
 
   doctest PublicKey
 
+  test "from an nsec private key" do
+    nsec = "nsec1fc3d5s6p3hvngdeuhvu2t2cnqkgerg4n55w9uzm8avfngetfgwuqc25heg"
+
+    {:ok, public_key} = PublicKey.from_private_key(nsec)
+
+    assert <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>> ==
+             public_key
+  end
+
   test "convert an npub with to_binary/1" do
     npub = "npub1hycynfhz23ardfmf9kgwfw4gpyqj2fsh24r2zuehg4x7lx4kn5cqsqv4y3"
 
