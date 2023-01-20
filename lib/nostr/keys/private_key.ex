@@ -26,9 +26,21 @@ defmodule Nostr.Keys.PrivateKey do
 
   def from_nsec("nsec" <> _ = bech32_private_key) do
     case Bech32.decode(bech32_private_key) do
-      {:ok, "nsec", private_key} -> {:ok, private_key}
-      {:ok, _, _} -> {:error, "malformed bech32 private key"}
-      {:error, message} -> {:error, message}
+      {:ok, "nsec", private_key} ->
+        if bit_size(private_key) == 256 do
+          {:ok, private_key}
+        else
+          {:error, "private key is shorter than 256 bits"}
+        end
+
+      {:ok, _, _} ->
+        {:error, "malformed bech32 private key"}
+
+      {:error, message} ->
+        {:error, message}
+
+      anything ->
+        {:error, anything}
     end
   end
 
@@ -100,6 +112,7 @@ defmodule Nostr.Keys.PrivateKey do
   def to_binary!(private_key) do
     case to_binary(private_key) do
       {:ok, binary_private_key} -> binary_private_key
+      {:error, :checksum_failed} -> raise "checkum failed"
       {:error, message} -> raise message
     end
   end
