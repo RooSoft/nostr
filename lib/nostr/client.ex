@@ -7,7 +7,7 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Keys.PublicKey
+  alias Nostr.Keys.{PublicKey, PrivateKey}
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile, Note}
@@ -271,7 +271,14 @@ defmodule Nostr.Client do
   end
 
   def react(note_id, privkey, content \\ "+") do
-    relay_pids()
-    |> SendReaction.start_link(note_id, privkey, content)
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
+      {
+        :ok,
+        SendReaction.start_link(relay_pids(), binary_note_id, binary_privkey, content)
+      }
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 end

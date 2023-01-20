@@ -51,7 +51,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:react, note_id}, %{private_key: private_key} = socket) do
-    Client.react(note_id, private_key)
+    case Client.react(note_id, private_key) do
+      {:ok, _} -> Logger.info("successfully sent a reaction")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
