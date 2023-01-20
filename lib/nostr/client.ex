@@ -114,12 +114,20 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Follow a new contact
+  Follow a new contact using either a binary public key or a npub
   """
-  @spec follow(<<_::256>>, <<_::256>>) :: :ok
+  @spec follow(<<_::256>> | String.t(), <<_::256>> | String.t()) ::
+          {:ok, GenServer.on_start()} | {:error, binary()}
   def follow(pubkey, privkey) do
-    relay_pids()
-    |> Follow.start_link(pubkey, privkey)
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, binary_pubkey} <- PublicKey.to_binary(pubkey) do
+      {
+        :ok,
+        Follow.start_link(relay_pids(), binary_pubkey, binary_privkey)
+      }
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """

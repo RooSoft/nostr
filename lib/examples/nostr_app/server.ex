@@ -75,7 +75,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:follow, contact_pubkey}, %{private_key: private_key} = socket) do
-    Client.follow(contact_pubkey, private_key)
+    case Client.follow(contact_pubkey, private_key) do
+      {:ok, _} -> Logger.info("successfully followed #{contact_pubkey}")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
