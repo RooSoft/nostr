@@ -68,4 +68,23 @@ defmodule Nostr.Keys.PrivateKey do
   def to_nsec(not_a_256_bits_private_key) do
     {:error, "#{not_a_256_bits_private_key} should be a 256 bits private key"}
   end
+
+  @doc """
+  Does its best to convert any private key format to binary, issues an error if it can't
+
+  ## Examples
+      iex> "nsec1fc3d5s6p3hvngdeuhvu2t2cnqkgerg4n55w9uzm8avfngetfgwuqc25heg"
+      ...> |> Nostr.Keys.PrivateKey.to_binary()
+      { :ok, <<0x4e22da43418dd934373cbb38a5ab13059191a2b3a51c5e0b67eb1334656943b8::256>> }
+  """
+  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  def to_binary(<<_::256>> = private_key), do: {:ok, private_key}
+  def to_binary("nsec" <> _ = private_key), do: from_nsec(private_key)
+
+  def to_binary(not_lowercase_nsec) do
+    case String.downcase(not_lowercase_nsec) do
+      "nsec" <> _ = nsec -> from_nsec(nsec)
+      _ -> {:error, "#{not_lowercase_nsec} is not a valid private key"}
+    end
+  end
 end
