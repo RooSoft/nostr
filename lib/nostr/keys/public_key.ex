@@ -3,6 +3,9 @@ defmodule Nostr.Keys.PublicKey do
   Public keys management functions
   """
 
+  alias Nostr.Keys.PrivateKey
+  alias K256.Schnorr
+
   @doc """
   Issues the public key corresponding to a given private key
 
@@ -11,10 +14,16 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.from_private_key(private_key)
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
-  @spec from_private_key(K256.Schnorr.signing_key()) ::
-          {:ok, K256.Schnorr.verifying_key()} | {:error, :signing_key_decoding_failed}
+  @spec from_private_key(Schnorr.signing_key()) ::
+          {:ok, Schnorr.verifying_key()} | {:error, String.t() | :signing_key_decoding_failed}
   def from_private_key(private_key) do
-    K256.Schnorr.verifying_key_from_signing_key(private_key)
+    case PrivateKey.to_binary(private_key) do
+      {:ok, binary_private_key} ->
+        Schnorr.verifying_key_from_signing_key(binary_private_key)
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """
@@ -25,7 +34,7 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.from_private_key!(private_key)
       <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>
   """
-  @spec from_private_key!(K256.Schnorr.signing_key()) :: K256.Schnorr.verifying_key()
+  @spec from_private_key!(Schnorr.signing_key()) :: Schnorr.verifying_key()
   def from_private_key!(private_key) do
     case from_private_key(private_key) do
       {:ok, public_key} -> public_key
