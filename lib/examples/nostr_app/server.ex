@@ -23,7 +23,7 @@ defmodule NostrApp.Server do
 
       {
         :ok,
-        args
+        %{args | private_key: binary_private_key}
         |> Map.put(:supervisor_pid, supervisor_pid)
         |> Map.put(:public_key, public_key)
       }
