@@ -41,7 +41,7 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.from_npub(npub)
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
-  @spec from_npub(binary()) :: {:ok, binary()} | {:error, binary()}
+  @spec from_npub(binary()) :: {:ok, binary()} | {:error, String.t()}
   def from_npub("npub" <> _ = bech32_pubkey) do
     case Bech32.decode(bech32_pubkey) do
       {:ok, "npub", pubkey} -> {:ok, pubkey}
@@ -90,5 +90,22 @@ defmodule Nostr.Keys.PublicKey do
   @spec to_hex(<<_::256>>) :: String.t()
   def to_hex(pubkey) do
     Binary.to_hex(pubkey)
+  end
+
+  @doc """
+  Does its best to convert any public key format to binary, issues an error if it can't
+
+  ## Examples
+      iex> "npub1mxrssnzg8y9zjr6a9g6xqwhxfa23xlvmftluakxqatsrp6ez9gjssu0htc"
+      ...> |> Nostr.Keys.PublicKey.to_binary()
+      { :ok, <<0xd987084c48390a290f5d2a34603ae64f55137d9b4affced8c0eae030eb222a25::256>> }
+  """
+  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  def to_binary(<<_::256>> = public_key), do: {:ok, public_key}
+  def to_binary("npub" <> _ = public_key), do: from_npub(public_key)
+
+  def to_binary(not_lowercase_npub) do
+    String.downcase(not_lowercase_npub)
+    |> from_npub()
   end
 end
