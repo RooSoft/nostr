@@ -253,13 +253,20 @@ defmodule Nostr.Client do
   @spec send_note(String.t(), Schnorr.signing_key()) ::
           :ok | {:error, binary() | atom()}
   def send_note(note, privkey) do
-    with {:ok, pubkey} <- Schnorr.verifying_key_from_signing_key(privkey),
+    IO.puts("start of send_note")
+
+    alias Nostr.Keys.PrivateKey
+
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, pubkey} <- PublicKey.from_private_key(privkey),
          text_event = TextEvent.create(note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(text_event.event, privkey),
+         {:ok, signed_event} <- Signer.sign_event(text_event.event, binary_privkey),
          :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- relay_pids(), do: RelaySocket.send_event(relay_pid, signed_event)
+      for relay_pid <- relay_pids() do
+        RelaySocket.send_event(relay_pid, signed_event)
+      end
     else
-      {:error, message} -> {:error, message}
+      {:error, message} -> {:error, message} |> IO.inspect()
     end
   end
 
