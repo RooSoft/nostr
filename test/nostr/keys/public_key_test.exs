@@ -13,4 +13,12 @@ defmodule Nostr.Keys.PublicKeyTest do
     assert <<0xB93049A6E2547A36A7692D90E4BAA809012526175546A17337454DEF9AB69D30::256>> ==
              binary_public_key
   end
+
+  test "convert a binary to binary with to_binary/1" do
+    public_key = <<0xB93049A6E2547A36A7692D90E4BAA809012526175546A17337454DEF9AB69D30::256>>
+
+    {:ok, binary_public_key} = PublicKey.to_binary(public_key)
+
+    assert public_key == binary_public_key
+  end
 end
