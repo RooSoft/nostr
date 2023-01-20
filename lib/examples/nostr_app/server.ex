@@ -7,8 +7,9 @@ defmodule NostrApp.Server do
 
   require Logger
 
+  alias NostrApp.Subscribe
+
   alias Nostr.Client
-  alias Nostr.Keys.PublicKey
   alias Nostr.Event.Types.MetadataEvent
   alias Nostr.Models.{Profile}
 
@@ -106,20 +107,15 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:profile, nil}, %{private_key: private_key} = socket) do
-    pubkey = PublicKey.from_private_key!(private_key)
-
-    Client.subscribe_profile(pubkey)
+  def handle_cast({:profile, nil}, %{public_key: public_key} = socket) do
+    Subscribe.to_profile(public_key)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_cast({:profile, pubkey}, socket) do
-    case Client.subscribe_profile(pubkey) do
-      {:ok, _} -> Logger.info("Subscribed to #{pubkey}'s profile")
-      {:error, message} -> Logger.warn(message)
-    end
+  def handle_cast({:profile, public_key}, socket) do
+    Subscribe.to_profile(public_key)
 
     {:noreply, socket}
   end
