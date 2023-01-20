@@ -21,4 +21,12 @@ defmodule Nostr.Keys.PublicKeyTest do
 
     assert public_key == binary_public_key
   end
+
+  test "try converting an invalid string to binary with to_binary/1" do
+    invalid_public_key = "this_won't_work"
+
+    {:error, message} = PublicKey.to_binary(invalid_public_key)
+
+    assert message =~ "is not a valid public key"
+  end
 end
