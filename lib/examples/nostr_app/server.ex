@@ -116,7 +116,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:profile, pubkey}, socket) do
-    Client.subscribe_profile(pubkey)
+    case Client.subscribe_profile(pubkey) do
+      {:ok, _} -> Logger.info("Subscribed to #{pubkey}'s profile")
+      {:error, message} -> Logger.warn(message)
+    end
 
     {:noreply, socket}
   end

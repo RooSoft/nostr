@@ -7,6 +7,7 @@ defmodule Nostr.Client do
 
   require Logger
 
+  alias Nostr.Keys.PublicKey
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile}
@@ -72,12 +73,18 @@ defmodule Nostr.Client do
   Get an author's profile
   """
   @spec subscribe_profile(Schnorr.verifying_key() | binary()) ::
-          DynamicSupervisor.on_start_child()
+          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_profile(pubkey) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {ProfileSubscription, [relay_pids(), pubkey, self()]}
-    )
+    case PublicKey.to_binary(pubkey) do
+      {:ok, binary_pubkey} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {ProfileSubscription, [relay_pids(), binary_pubkey, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """

@@ -105,7 +105,9 @@ defmodule Nostr.Keys.PublicKey do
   def to_binary("npub" <> _ = public_key), do: from_npub(public_key)
 
   def to_binary(not_lowercase_npub) do
-    String.downcase(not_lowercase_npub)
-    |> from_npub()
+    case String.downcase(not_lowercase_npub) do
+      "npub" <> _ = npub -> from_npub(npub)
+      _ -> {:error, "#{not_lowercase_npub} is not a valid public key"}
+    end
   end
 end
