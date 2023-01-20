@@ -93,4 +93,23 @@ defmodule Nostr.Models.Note.Id do
   def from_bech32!(@hrp <> _ = bech32_note_id) do
     Event.Id.from_bech32!(bech32_note_id)
   end
+
+  @doc """
+  Does its best to convert any note id format to binary, issues an error if it can't
+
+  ## Examples
+      iex> "note1qkjgra6cm5ms6m88kqdapfjnxm8q50lcurevtpvm4f6pfs8j5sxq90f098"
+      ...> |> Nostr.Models.Note.Id.to_binary()
+      { :ok, <<0x05a481f758dd370d6ce7b01bd0a65336ce0a3ff8e0f2c5859baa7414c0f2a40c::256>> }
+  """
+  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  def to_binary(<<_::256>> = note_id), do: {:ok, note_id}
+  def to_binary("note" <> _ = note_id), do: from_bech32(note_id)
+
+  def to_binary(not_lowercase_bech32_note_id) do
+    case String.downcase(not_lowercase_bech32_note_id) do
+      "note" <> _ = bech32_note_id -> from_bech32(bech32_note_id)
+      _ -> {:error, "#{not_lowercase_bech32_note_id} is not a valid note id"}
+    end
+  end
 end

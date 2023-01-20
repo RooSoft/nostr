@@ -9,4 +9,11 @@ defmodule NostrApp.Subscribe do
       {:error, message} -> Logger.warn(message)
     end
   end
+
+  def to_note(note_id) do
+    case Client.subscribe_note(note_id) do
+      {:ok, _} -> Logger.info("Subscribed to this note: #{note_id}")
+      {:error, message} -> Logger.warn(message)
+    end
+  end
 end

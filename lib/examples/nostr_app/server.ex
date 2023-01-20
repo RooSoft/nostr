@@ -131,7 +131,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:note, note_id}, socket) do
-    Client.subscribe_note(note_id)
+    Subscribe.to_note(note_id)
 
     {:noreply, socket}
   end

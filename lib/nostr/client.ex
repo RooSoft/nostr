@@ -10,7 +10,7 @@ defmodule Nostr.Client do
   alias Nostr.Keys.PublicKey
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
-  alias Nostr.Models.{Profile}
+  alias Nostr.Models.{Profile, Note}
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
@@ -164,10 +164,16 @@ defmodule Nostr.Client do
   """
   @spec subscribe_note(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {NoteSubscription, [relay_pids(), note_id, self()]}
-    )
+    case Note.Id.to_binary(note_id) do
+      {:ok, binary_note_id} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {NoteSubscription, [relay_pids(), binary_note_id, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """
