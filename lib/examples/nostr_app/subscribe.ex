@@ -10,6 +10,13 @@ defmodule NostrApp.Subscribe do
     end
   end
 
+  def to_contacts(public_key) do
+    case Client.subscribe_contacts(public_key) do
+      {:ok, _} -> Logger.info("Subscribed to #{public_key}'s contact list")
+      {:error, message} -> Logger.warn(message)
+    end
+  end
+
   def to_note(note_id) do
     case Client.subscribe_note(note_id) do
       {:ok, _} -> Logger.info("Subscribed to this note: #{note_id}")

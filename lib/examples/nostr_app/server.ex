@@ -61,7 +61,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:contacts}, %{public_key: public_key} = socket) do
-    Client.subscribe_contacts(public_key)
+    Subscribe.to_contacts(public_key)
 
     {:noreply, socket}
   end

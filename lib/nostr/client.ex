@@ -101,10 +101,16 @@ defmodule Nostr.Client do
   """
   @spec subscribe_contacts(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_contacts(pubkey) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {ContactsSubscription, [relay_pids(), pubkey, self()]}
-    )
+    case PublicKey.to_binary(pubkey) do
+      {:ok, binary_pubkey} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {ContactsSubscription, [relay_pids(), binary_pubkey, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """
