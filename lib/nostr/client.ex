@@ -166,16 +166,26 @@ defmodule Nostr.Client do
           String.t(),
           Schnorr.signing_key() | <<_::256>>
         ) ::
-          :ok | {:error, binary() | atom()}
+          {:ok, :ok} | {:error, binary() | atom()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
-    encrypted_message = AES256CBC.encrypt(message, private_key, remote_pubkey)
-
-    with {:ok, local_pubkey} <- Schnorr.verifying_key_from_signing_key(private_key),
+    with {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
+         {:ok, local_pubkey} <- Schnorr.verifying_key_from_signing_key(binary_private_key),
+         {:ok, binary_local_pubkey} <- PublicKey.to_binary(local_pubkey),
+         {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
+         encrypted_message = AES256CBC.encrypt(message, binary_private_key, binary_remote_pubkey),
          dm_event =
-           EncryptedDirectMessageEvent.create(encrypted_message, local_pubkey, remote_pubkey),
+           EncryptedDirectMessageEvent.create(
+             encrypted_message,
+             binary_local_pubkey,
+             binary_remote_pubkey
+           ),
          {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
          :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- relay_pids(), do: RelaySocket.send_event(relay_pid, signed_event)
+      for relay_pid <- relay_pids() do
+        RelaySocket.send_event(relay_pid, signed_event)
+      end
+
+      :ok
     else
       {:error, message} -> {:error, message}
     end

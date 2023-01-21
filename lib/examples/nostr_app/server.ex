@@ -112,7 +112,10 @@ defmodule NostrApp.Server do
         {:send_encrypted_direct_messages, pubkey, message},
         %{private_key: private_key} = socket
       ) do
-    Client.send_encrypted_direct_messages(pubkey, message, private_key)
+    case Client.send_encrypted_direct_messages(pubkey, message, private_key) do
+      :ok -> Logger.info("successfully sent an encrypted direct message")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
