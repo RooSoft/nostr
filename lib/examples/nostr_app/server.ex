@@ -178,7 +178,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:repost, note_id}, %{private_key: private_key} = socket) do
-    Client.repost(note_id, private_key)
+    case Client.repost(note_id, private_key) do
+      {:ok, _} -> Logger.info("successfully reposted #{note_id}")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end

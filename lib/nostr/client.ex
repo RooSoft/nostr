@@ -241,9 +241,14 @@ defmodule Nostr.Client do
   @doc """
   Reposts a note
   """
+  @spec repost(<<_::256>> | String.t(), <<_::256>> | String.t()) :: GenServer.on_start()
   def repost(note_id, privkey) do
-    relay_pids()
-    |> SendRepost.start_link(note_id, privkey)
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
+      SendRepost.start_link(relay_pids(), binary_note_id, binary_privkey)
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """
