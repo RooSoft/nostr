@@ -54,7 +54,7 @@ defmodule Nostr.Event.Types.RepostEvent do
   defp content_from_text_event(%TextEvent{event: %Event{} = event}, relays) do
     %{
       content: event.content,
-      created_at: event.created_at,
+      created_at: event.created_at |> DateTime.to_unix(),
       id: event.id,
       kind: @text_event_kind,
       pubkey: event.pubkey |> Binary.to_hex(),
