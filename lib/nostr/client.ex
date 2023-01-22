@@ -284,12 +284,18 @@ defmodule Nostr.Client do
   @doc """
   Get an author's reactions
   """
-  @spec subscribe_reactions(list()) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_reactions(list(<<_::256>>)) :: DynamicSupervisor.on_start_child()
   def subscribe_reactions(pubkeys) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {ReactionsSubscription, [relay_pids(), pubkeys, self()]}
-    )
+    case PublicKey.to_binary(pubkeys) do
+      {:ok, binary_pubkeys} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {ReactionsSubscription, [relay_pids(), binary_pubkeys, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """

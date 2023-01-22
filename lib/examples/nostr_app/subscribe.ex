@@ -37,4 +37,11 @@ defmodule NostrApp.Subscribe do
       {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end
+
+  def to_reactions(public_keys) do
+    case Client.subscribe_reactions(public_keys) do
+      {:ok, _} -> Logger.info("Subscribed to #{public_keys}'s reactions")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
 end
