@@ -24,10 +24,10 @@ defmodule NostrApp.Subscribe do
     end
   end
 
-  def to_notes([public_key]) do
-    case Client.subscribe_notes(public_key) do
-      {:ok, _} -> Logger.info("Subscribed to notes from: #{public_key}")
-      {:error, message} -> Logger.warn(message)
+  def to_notes(public_keys) do
+    case Client.subscribe_notes(public_keys) do
+      {:ok, _} -> Logger.info("Subscribed to notes from: #{public_keys}")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end
 end

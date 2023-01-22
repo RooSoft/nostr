@@ -150,14 +150,14 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:notes}, %{public_key: public_key} = socket) do
-    Client.subscribe_notes([public_key])
+    Subscribe.to_notes([public_key])
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_cast({:notes, pubkeys}, socket) do
-    Client.subscribe_notes(pubkeys)
+    Subscribe.to_notes(pubkeys)
 
     {:noreply, socket}
   end
