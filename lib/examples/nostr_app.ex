@@ -35,8 +35,8 @@ defmodule NostrApp do
   end
 
   ### NIP-01
-  def notes(pubkey) do
-    GenServer.cast(Server, {:notes, pubkey})
+  def notes(pubkeys) do
+    GenServer.cast(Server, {:notes, pubkeys})
   end
 
   ### NIP-01

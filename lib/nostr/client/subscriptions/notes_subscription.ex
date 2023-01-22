@@ -9,20 +9,20 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   alias Nostr.RelaySocket
   alias Nostr.Event.Types.EndOfStoredEvents
 
-  def start_link([relay_pids, pubkey, subscriber]) do
+  def start_link([relay_pids, pubkeys, subscriber]) do
     GenServer.start_link(__MODULE__, %{
       relay_pids: relay_pids,
-      pubkey: pubkey,
+      pubkeys: pubkeys,
       subscriber: subscriber
     })
   end
 
   @impl true
-  def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
+  def init(%{relay_pids: relay_pids, pubkeys: pubkeys} = state) do
     subscriptions =
       relay_pids
       |> Enum.map(fn relay_pid ->
-        RelaySocket.subscribe_notes(relay_pid, [pubkey])
+        RelaySocket.subscribe_notes(relay_pid, pubkeys)
       end)
 
     {

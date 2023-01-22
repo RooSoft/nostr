@@ -211,11 +211,11 @@ defmodule Nostr.Client do
   @doc """
   Get an author's notes
   """
-  @spec subscribe_notes(<<_::256>>) :: DynamicSupervisor.on_start_child()
-  def subscribe_notes(pubkey) do
+  @spec subscribe_notes(list(<<_::256>>)) :: DynamicSupervisor.on_start_child()
+  def subscribe_notes(pubkeys) do
     DynamicSupervisor.start_child(
       Nostr.Subscriptions,
-      {NotesSubscription, [relay_pids(), pubkey, self()]}
+      {NotesSubscription, [relay_pids(), pubkeys, self()]}
     )
   end
 
