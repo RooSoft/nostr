@@ -56,4 +56,15 @@ defmodule Nostr.Models.Note.IdTest do
              <<0xC6C75BCF5E7C1316191BDF6896172E3768907E61CFD8B0845413F2BFCBA7361F::256>>
            ] == binary_note_ids
   end
+
+  test "attempt converting a list of note ids with errors" do
+    list = [
+      "note1crqskw27zw5p9pyk4r2ask68nlnhn969qhlc32asnwll9557fx4sskrzq5",
+      "note1cmr4hn670setlja8xc0s8pkxu6"
+    ]
+
+    {:error, message} = Note.Id.to_binary(list)
+
+    assert :checksum_failed == message
+  end
 end

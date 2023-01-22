@@ -110,10 +110,16 @@ defmodule Nostr.Models.Note.Id do
   def to_binary(note_ids) when is_list(note_ids) do
     note_ids
     |> Enum.reverse()
-    |> Enum.reduce({:ok, []}, fn note_id, {:ok, binary_note_ids} ->
-      case to_binary(note_id) do
-        {:ok, binary_note_id} ->
-          {:ok, [binary_note_id | binary_note_ids]}
+    |> Enum.reduce({:ok, []}, fn note_id, acc ->
+      case acc do
+        {:ok, binary_note_ids} ->
+          case to_binary(note_id) do
+            {:ok, binary_note_id} ->
+              {:ok, [binary_note_id | binary_note_ids]}
+
+            {:error, message} ->
+              {:error, message}
+          end
 
         {:error, message} ->
           {:error, message}
