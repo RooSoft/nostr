@@ -102,9 +102,24 @@ defmodule Nostr.Models.Note.Id do
       ...> |> Nostr.Models.Note.Id.to_binary()
       { :ok, <<0x05a481f758dd370d6ce7b01bd0a65336ce0a3ff8e0f2c5859baa7414c0f2a40c::256>> }
   """
-  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  @spec to_binary(<<_::256>> | String.t() | list()) ::
+          {:ok, <<_::256>>} | {:ok, list(<<_::256>>)} | {:error, String.t()}
   def to_binary(<<_::256>> = note_id), do: {:ok, note_id}
   def to_binary("note" <> _ = note_id), do: from_bech32(note_id)
+
+  def to_binary(note_ids) when is_list(note_ids) do
+    note_ids
+    |> Enum.reverse()
+    |> Enum.reduce({:ok, []}, fn note_id, {:ok, binary_note_ids} ->
+      case to_binary(note_id) do
+        {:ok, binary_note_id} ->
+          {:ok, [binary_note_id | binary_note_ids]}
+
+        {:error, message} ->
+          {:error, message}
+      end
+    end)
+  end
 
   def to_binary(not_lowercase_bech32_note_id) do
     case String.downcase(not_lowercase_bech32_note_id) do
