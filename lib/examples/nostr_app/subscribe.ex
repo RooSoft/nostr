@@ -30,4 +30,11 @@ defmodule NostrApp.Subscribe do
       {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end
+
+  def to_encrypted_direct_messages(private_key) do
+    case Client.encrypted_direct_messages(private_key) do
+      {:ok, _} -> Logger.info("Subscribed to #{private_key}'s encrypted messages")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
 end

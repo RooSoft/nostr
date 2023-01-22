@@ -148,14 +148,20 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Get encrypted direct messages
+  Get encrypted direct messages from a private key
   """
   @spec encrypted_direct_messages(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def encrypted_direct_messages(private_key) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {EncryptedDirectMessagesSubscription, [relay_pids(), private_key, self()]}
-    )
+    case PrivateKey.to_binary(private_key) do
+      {:ok, binary_private_key} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {EncryptedDirectMessagesSubscription, [relay_pids(), binary_private_key, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """

@@ -95,7 +95,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:encrypted_direct_messages}, %{private_key: private_key} = socket) do
-    Client.encrypted_direct_messages(private_key)
+    Subscribe.to_encrypted_direct_messages(private_key)
 
     {:noreply, socket}
   end
