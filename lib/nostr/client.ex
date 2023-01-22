@@ -222,9 +222,13 @@ defmodule Nostr.Client do
   @doc """
   Deletes events
   """
-  def delete_events(note_id, note, privkey) do
-    relay_pids()
-    |> DeleteEvents.start_link(note_id, note, privkey)
+  def delete_events(note_ids, note, privkey) do
+    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
+         {:ok, binary_note_ids} <- Note.Id.to_binary(note_ids) do
+      DeleteEvents.start_link(relay_pids(), binary_note_ids, note, binary_privkey)
+    else
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """

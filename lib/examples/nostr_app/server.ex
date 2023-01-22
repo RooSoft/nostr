@@ -164,7 +164,10 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
-    Client.delete_events(event_ids, note, private_key)
+    case Client.delete_events(event_ids, note, private_key) do
+      {:ok, _} -> Logger.info("successfully deleted #{event_ids}")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
