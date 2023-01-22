@@ -38,4 +38,43 @@ defmodule Nostr.Keys.PublicKeyTest do
 
     assert message =~ "is not a valid public key"
   end
+
+  test "convert a list of npub to binary ids" do
+    list = [
+      "npub1tv8gmfhalwnxxquxjzeh6gtdsdz6vg7vx0s3rt7s7uuw6aujh32qn77wn2",
+      "npub1ate84ggysvau69hkw9ygkqwktak6xqtrkkzg465eva7vj37aqz4qqwmf3z"
+    ]
+
+    {:ok, binary_public_keys} = PublicKey.to_binary(list)
+
+    assert [
+             <<0x5B0E8DA6FDFBA663038690B37D216D8345A623CC33E111AFD0F738ED7792BC54::256>>,
+             <<0xEAF27AA104833BCD16F671488B01D65F6DA30163B5848AEA99677CC947DD00AA::256>>
+           ] == binary_public_keys
+  end
+
+  test "convert a disparate list of public key formats to binary ids" do
+    list = [
+      <<0x5B0E8DA6FDFBA663038690B37D216D8345A623CC33E111AFD0F738ED7792BC54::256>>,
+      "npub1ate84ggysvau69hkw9ygkqwktak6xqtrkkzg465eva7vj37aqz4qqwmf3z"
+    ]
+
+    {:ok, binary_public_keys} = PublicKey.to_binary(list)
+
+    assert [
+             <<0x5B0E8DA6FDFBA663038690B37D216D8345A623CC33E111AFD0F738ED7792BC54::256>>,
+             <<0xEAF27AA104833BCD16F671488B01D65F6DA30163B5848AEA99677CC947DD00AA::256>>
+           ] == binary_public_keys
+  end
+
+  test "attempt converting a list of public keys with errors" do
+    list = [
+      "npub1tv8gmg7vx0s3rt7s7uuw6aujh32qn77wn2",
+      "npub1ate84ggysvau69hkw9ygkqwktak6xqtrkkzg465eva7vj37aqz4qqwmf3z"
+    ]
+
+    {:error, message} = PublicKey.to_binary(list)
+
+    assert :checksum_failed == message
+  end
 end

@@ -113,6 +113,26 @@ defmodule Nostr.Keys.PublicKey do
   def to_binary(<<_::256>> = public_key), do: {:ok, public_key}
   def to_binary("npub" <> _ = public_key), do: from_npub(public_key)
 
+  def to_binary(public_keys) when is_list(public_keys) do
+    public_keys
+    |> Enum.reverse()
+    |> Enum.reduce({:ok, []}, fn public_key, acc ->
+      case acc do
+        {:ok, binary_public_keys} ->
+          case to_binary(public_key) do
+            {:ok, binary_public_key} ->
+              {:ok, [binary_public_key | binary_public_keys]}
+
+            {:error, message} ->
+              {:error, message}
+          end
+
+        {:error, message} ->
+          {:error, message}
+      end
+    end)
+  end
+
   def to_binary(not_lowercase_npub) do
     case String.downcase(not_lowercase_npub) do
       "npub" <> _ = npub -> from_npub(npub)
