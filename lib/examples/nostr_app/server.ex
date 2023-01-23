@@ -42,9 +42,15 @@ defmodule NostrApp.Server do
     end
   end
 
+  ### Send functions
+  ##################
+
   @impl true
   def handle_cast({:send_note, note}, %{private_key: private_key} = socket) do
-    Client.send_note(note, private_key)
+    case Client.send_note(note, private_key) do
+      {:ok, _} -> Logger.info("successfully sent a note")
+      {:error, message} -> Logger.error(message)
+    end
 
     {:noreply, socket}
   end
@@ -55,20 +61,6 @@ defmodule NostrApp.Server do
       {:ok, _} -> Logger.info("successfully sent a reaction")
       {:error, message} -> Logger.error(message)
     end
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_cast({:contacts}, %{public_key: public_key} = socket) do
-    Subscribe.to_contacts(public_key)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_cast({:contacts, pubkey}, socket) do
-    Client.subscribe_contacts(pubkey)
 
     {:noreply, socket}
   end
@@ -94,6 +86,56 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast(
+        {:send_encrypted_direct_messages, pubkey, message},
+        %{private_key: private_key} = socket
+      ) do
+    case Client.send_encrypted_direct_messages(pubkey, message, private_key) do
+      :ok -> Logger.info("successfully sent an encrypted direct message")
+      {:error, message} -> Logger.error(message)
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
+    case Client.delete_events(event_ids, note, private_key) do
+      {:ok, _} -> Logger.info("successfully deleted #{event_ids}")
+      {:error, message} -> Logger.error(message)
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:repost, note_id}, %{private_key: private_key} = socket) do
+    case Client.repost(note_id, private_key) do
+      {:ok, _} -> Logger.info("successfully reposted #{note_id}")
+      {:error, message} -> Logger.error(message)
+    end
+
+    {:noreply, socket}
+  end
+
+  ## Subscription functions
+  #########################
+
+  @impl true
+  def handle_cast({:contacts}, %{public_key: public_key} = socket) do
+    Subscribe.to_contacts(public_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:contacts, pubkey}, socket) do
+    Client.subscribe_contacts(pubkey)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:encrypted_direct_messages}, %{private_key: private_key} = socket) do
     Subscribe.to_encrypted_direct_messages(private_key)
 
@@ -103,19 +145,6 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:encrypted_direct_messages, private_key}, socket) do
     Client.encrypted_direct_messages(private_key)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_cast(
-        {:send_encrypted_direct_messages, pubkey, message},
-        %{private_key: private_key} = socket
-      ) do
-    case Client.send_encrypted_direct_messages(pubkey, message, private_key) do
-      :ok -> Logger.info("successfully sent an encrypted direct message")
-      {:error, message} -> Logger.error(message)
-    end
 
     {:noreply, socket}
   end
@@ -163,16 +192,6 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
-    case Client.delete_events(event_ids, note, private_key) do
-      {:ok, _} -> Logger.info("successfully deleted #{event_ids}")
-      {:error, message} -> Logger.error(message)
-    end
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_cast({:deletions}, %{public_key: public_key} = socket) do
     Subscribe.to_deletions([public_key])
 
@@ -182,16 +201,6 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:deletions, pubkeys}, socket) do
     Subscribe.to_deletions(pubkeys)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_cast({:repost, note_id}, %{private_key: private_key} = socket) do
-    case Client.repost(note_id, private_key) do
-      {:ok, _} -> Logger.info("successfully reposted #{note_id}")
-      {:error, message} -> Logger.error(message)
-    end
 
     {:noreply, socket}
   end
