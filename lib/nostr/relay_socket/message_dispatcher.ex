@@ -88,7 +88,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
        ) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
-      {:ping, data} = frame, state ->
+      {:ping, data}, state ->
         send(owner_pid, {:relaysocket, :ping, %{url: url}})
         {:ok, state} = Sender.send_pong(state, data)
         state
