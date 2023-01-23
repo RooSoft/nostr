@@ -90,7 +90,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec follow(Profile.t(), Schnorr.signing_key()) :: GenServer.on_start()
+  @spec update_profile(Profile.t(), Schnorr.signing_key()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)
@@ -175,8 +175,7 @@ defmodule Nostr.Client do
           {:ok, :ok} | {:error, binary() | atom()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
     with {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
-         {:ok, local_pubkey} <- Schnorr.verifying_key_from_signing_key(binary_private_key),
-         {:ok, binary_local_pubkey} <- PublicKey.to_binary(local_pubkey),
+         {:ok, binary_local_pubkey} <- Schnorr.verifying_key_from_signing_key(binary_private_key),
          {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
          encrypted_message = AES256CBC.encrypt(message, binary_private_key, binary_remote_pubkey),
          dm_event =
