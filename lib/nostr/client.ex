@@ -326,8 +326,6 @@ defmodule Nostr.Client do
   """
   @spec send_note(String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
   def send_note(note, privkey) do
-    IO.puts("start of send_note")
-
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),
          text_event = TextEvent.create(note, pubkey),
@@ -337,7 +335,7 @@ defmodule Nostr.Client do
         RelaySocket.send_event(relay_pid, signed_event)
       end
     else
-      {:error, message} -> {:error, message} |> IO.inspect()
+      {:error, message} -> {:error, message}
     end
   end
 
