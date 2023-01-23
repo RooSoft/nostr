@@ -3,6 +3,8 @@ defmodule Nostr.Keys.PublicKey do
   Public keys management functions
   """
 
+  @type id :: String.t() | <<_::256>>
+
   alias Nostr.Keys.PrivateKey
   alias K256.Schnorr
 

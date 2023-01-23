@@ -71,7 +71,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's profile
   """
-  @spec subscribe_profile(<<_::256>> | binary()) ::
+  @spec subscribe_profile(PublicKey.id()) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_profile(pubkey) do
     case PublicKey.to_binary(pubkey) do
@@ -92,7 +92,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec update_profile(Profile.t(), <<_::256>>) :: GenServer.on_start()
+  @spec update_profile(Profile.t(), PrivateKey.id()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)
@@ -101,7 +101,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's contacts
   """
-  @spec subscribe_contacts(<<_::256>>) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_contacts(PublicKey.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_contacts(pubkey) do
     case PublicKey.to_binary(pubkey) do
       {:ok, binary_pubkey} ->
@@ -118,7 +118,7 @@ defmodule Nostr.Client do
   @doc """
   Follow a new contact using either a binary public key or a npub
   """
-  @spec follow(<<_::256>> | String.t(), <<_::256>> | String.t()) ::
+  @spec follow(PublicKey.id(), PrivateKey.id()) ::
           {:ok, GenServer.on_start()} | {:error, binary()}
   def follow(pubkey, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
@@ -135,7 +135,7 @@ defmodule Nostr.Client do
   @doc """
   Unfollow from a contact
   """
-  @spec unfollow(<<_::256>> | String.t(), <<_::256>> | String.t()) ::
+  @spec unfollow(PublicKey.id(), PrivateKey.id()) ::
           {:ok, GenServer.on_start()} | {:error, binary()}
   def unfollow(pubkey, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
@@ -152,7 +152,7 @@ defmodule Nostr.Client do
   @doc """
   Get encrypted direct messages from a private key
   """
-  @spec encrypted_direct_messages(<<_::256>>) :: DynamicSupervisor.on_start_child()
+  @spec encrypted_direct_messages(PrivateKey.id()) :: DynamicSupervisor.on_start_child()
   def encrypted_direct_messages(private_key) do
     case PrivateKey.to_binary(private_key) do
       {:ok, binary_private_key} ->
@@ -169,7 +169,7 @@ defmodule Nostr.Client do
   @doc """
   Sends an encrypted direct message
   """
-  @spec send_encrypted_direct_messages(<<_::256>>, String.t(), <<_::256>>) ::
+  @spec send_encrypted_direct_messages(PublicKey.id(), String.t(), PrivateKey.id()) ::
           :ok | {:error, binary()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
     with {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
@@ -198,7 +198,7 @@ defmodule Nostr.Client do
   @doc """
   Get a note by id
   """
-  @spec subscribe_note(<<_::256>>) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_note(Note.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
     case Note.Id.to_binary(note_id) do
       {:ok, binary_note_id} ->
@@ -215,7 +215,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's notes
   """
-  @spec subscribe_notes(list(<<_::256>>)) ::
+  @spec subscribe_notes(list(Note.id())) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_notes(pubkeys) when is_list(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
@@ -236,10 +236,12 @@ defmodule Nostr.Client do
   @doc """
   Deletes events
   """
+  @spec delete_events(list(Note.id()), String.t(), PrivateKey.id()) ::
+          {:ok, GenServer.on_start()} | {:error, String.t()}
   def delete_events(note_ids, note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, binary_note_ids} <- Note.Id.to_binary(note_ids) do
-      DeleteEvents.start_link(relay_pids(), binary_note_ids, note, binary_privkey)
+      {:ok, DeleteEvents.start_link(relay_pids(), binary_note_ids, note, binary_privkey)}
     else
       {:error, message} -> {:error, message}
     end
@@ -265,11 +267,11 @@ defmodule Nostr.Client do
   @doc """
   Reposts a note
   """
-  @spec repost(<<_::256>> | String.t(), <<_::256>> | String.t()) :: GenServer.on_start()
+  @spec repost(Note.id(), PrivateKey.id()) :: {:ok, GenServer.on_start()} | {:error, String.t()}
   def repost(note_id, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
-      SendRepost.start_link(relay_pids(), binary_note_id, binary_privkey)
+      {:ok, SendRepost.start_link(relay_pids(), binary_note_id, binary_privkey)}
     else
       {:error, message} -> {:error, message}
     end
@@ -295,7 +297,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's reactions
   """
-  @spec subscribe_reactions(list(<<_::256>>)) ::
+  @spec subscribe_reactions(list(PublicKey.id())) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_reactions(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
@@ -316,7 +318,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's realtime timeline including notes from everyone the author follows
   """
-  @spec subscribe_timeline(<<_::256>>) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_timeline(PublicKey.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_timeline(pubkey) do
     case PublicKey.to_binary(pubkey) do
       {:ok, binary_pubkey} ->
@@ -333,7 +335,7 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
+  @spec send_note(String.t(), PrivateKey.id()) :: :ok | {:error, binary() | atom()}
   def send_note(note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),
