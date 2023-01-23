@@ -76,10 +76,13 @@ defmodule Nostr.Client do
   def subscribe_profile(pubkey) do
     case PublicKey.to_binary(pubkey) do
       {:ok, binary_pubkey} ->
-        DynamicSupervisor.start_child(
-          Nostr.Subscriptions,
-          {ProfileSubscription, [relay_pids(), binary_pubkey, self()]}
-        )
+        {
+          :ok,
+          DynamicSupervisor.start_child(
+            Nostr.Subscriptions,
+            {ProfileSubscription, [relay_pids(), binary_pubkey, self()]}
+          )
+        }
 
       {:error, message} ->
         {:error, message}
@@ -167,7 +170,7 @@ defmodule Nostr.Client do
   Sends an encrypted direct message
   """
   @spec send_encrypted_direct_messages(<<_::256>>, String.t(), <<_::256>>) ::
-          {:ok, :ok} | {:error, binary() | atom()}
+          :ok | {:error, binary()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
     with {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
          {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
@@ -187,6 +190,7 @@ defmodule Nostr.Client do
 
       :ok
     else
+      {:error, message} when is_atom(message) -> Atom.to_string(message)
       {:error, message} -> {:error, message}
     end
   end
@@ -211,7 +215,8 @@ defmodule Nostr.Client do
   @doc """
   Get an author's notes
   """
-  @spec subscribe_notes(list(<<_::256>>)) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_notes(list(<<_::256>>)) ::
+          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_notes(pubkeys) when is_list(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
       {:ok, binary_pub_keys} ->
@@ -290,14 +295,18 @@ defmodule Nostr.Client do
   @doc """
   Get an author's reactions
   """
-  @spec subscribe_reactions(list(<<_::256>>)) :: DynamicSupervisor.on_start_child()
+  @spec subscribe_reactions(list(<<_::256>>)) ::
+          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_reactions(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
       {:ok, binary_pubkeys} ->
-        DynamicSupervisor.start_child(
-          Nostr.Subscriptions,
-          {ReactionsSubscription, [relay_pids(), binary_pubkeys, self()]}
-        )
+        {
+          :ok,
+          DynamicSupervisor.start_child(
+            Nostr.Subscriptions,
+            {ReactionsSubscription, [relay_pids(), binary_pubkeys, self()]}
+          )
+        }
 
       {:error, message} ->
         {:error, message}

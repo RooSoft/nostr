@@ -110,7 +110,8 @@ defmodule Nostr.Keys.PublicKey do
       ...> |> Nostr.Keys.PublicKey.to_binary()
       { :ok, <<0xd987084c48390a290f5d2a34603ae64f55137d9b4affced8c0eae030eb222a25::256>> }
   """
-  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  @spec to_binary(<<_::256>> | String.t() | list(<<_::256>>)) ::
+          {:ok, <<_::256>>} | {:error, String.t()}
   def to_binary(<<_::256>> = public_key), do: {:ok, public_key}
   def to_binary("npub" <> _ = public_key), do: from_npub(public_key)
 

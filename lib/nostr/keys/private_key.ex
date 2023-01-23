@@ -5,6 +5,8 @@ defmodule Nostr.Keys.PrivateKey do
 
   @type id :: String.t() | <<_::256>>
 
+  alias Nostr.Keys.PrivateKey
+
   @doc """
   Creates a new private key
 
@@ -25,7 +27,6 @@ defmodule Nostr.Keys.PrivateKey do
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
   @spec from_nsec(binary()) :: {:ok, <<_::256>>} | {:error, String.t()}
-
   def from_nsec("nsec" <> _ = bech32_private_key) do
     case Bech32.decode(bech32_private_key) do
       {:ok, "nsec", private_key} ->
