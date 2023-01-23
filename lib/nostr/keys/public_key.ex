@@ -39,6 +39,7 @@ defmodule Nostr.Keys.PublicKey do
     case from_private_key(private_key) do
       {:ok, public_key} -> public_key
       {:error, :signing_key_decoding_failed} -> raise "signing key decoding failed"
+      {:error, message} -> raise message
     end
   end
 

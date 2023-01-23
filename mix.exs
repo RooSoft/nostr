@@ -61,7 +61,7 @@ defmodule Nostr.MixProject do
       {:hammox, "~> 0.7", only: :test},
       {:mint_web_socket, "~> 1.0"},
       {:jason, "~> 1.4"},
-      {:k256, "~> 0.0.6"},
+      {:k256, "~> 0.0.7"},
       {:binary, "~> 0.0.5"},
       {:bech32, "~> 1.0"}
     ]
