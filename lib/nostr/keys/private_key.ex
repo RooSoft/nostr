@@ -111,8 +111,7 @@ defmodule Nostr.Keys.PrivateKey do
   def to_binary!(private_key) do
     case to_binary(private_key) do
       {:ok, binary_private_key} -> binary_private_key
-      {:error, message} when is_atom(message) -> raise Atom.to_string(message)
-      {:error, message} when is_binary(message) -> raise message
+      {:error, message} -> raise message
     end
   end
 end
