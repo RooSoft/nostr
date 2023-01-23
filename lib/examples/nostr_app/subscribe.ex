@@ -58,4 +58,11 @@ defmodule NostrApp.Subscribe do
       {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end
+
+  def to_timeline(public_key) do
+    case Client.subscribe_timeline(public_key) do
+      {:ok, _} -> Logger.info("Subscribed to #{inspect(public_key)}'s timeline")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
 end

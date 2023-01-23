@@ -314,10 +314,16 @@ defmodule Nostr.Client do
   """
   @spec subscribe_timeline(<<_::256>>) :: DynamicSupervisor.on_start_child()
   def subscribe_timeline(pubkey) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {TimelineSubscription, [relay_pids(), pubkey, self()]}
-    )
+    case PublicKey.to_binary(pubkey) do
+      {:ok, binary_pubkey} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {TimelineSubscription, [relay_pids(), binary_pubkey, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """
