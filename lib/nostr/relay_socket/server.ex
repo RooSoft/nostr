@@ -17,7 +17,14 @@ defmodule Nostr.RelaySocket.Server do
       {:ok, conn, ref} ->
         Publisher.successful_connection(owner_pid, relay_url)
 
-        {:ok, %RelaySocket{%RelaySocket{} | url: relay_url, conn: conn, request_ref: ref}}
+        {:ok,
+         %RelaySocket{
+           %RelaySocket{}
+           | url: relay_url,
+             conn: conn,
+             request_ref: ref,
+             owner_pid: owner_pid
+         }}
 
       {:error, message} ->
         Publisher.unsuccessful_connection(owner_pid, relay_url, message)

@@ -8,6 +8,7 @@ defmodule Nostr.RelaySocket do
     :conn,
     :websocket,
     :request_ref,
+    :owner_pid,
     :caller,
     :status,
     :resp_headers,

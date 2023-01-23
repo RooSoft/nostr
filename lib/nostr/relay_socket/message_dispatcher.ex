@@ -82,16 +82,19 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
 
   defp handle_responses(state, []), do: state
 
-  defp handle_frames(%{conn: conn, subscriptions: subscriptions} = state, frames) do
+  defp handle_frames(
+         %{conn: conn, subscriptions: subscriptions, url: url, owner_pid: owner_pid} = state,
+         frames
+       ) do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
-      {:ping, data}, state ->
-        Logger.debug("PING #{conn.host}")
+      {:ping, data} = frame, state ->
+        send(owner_pid, {:relaysocket, :ping, %{url: url}})
         {:ok, state} = Sender.send_pong(state, data)
         state
 
       {:close, _code, reason}, state ->
-        Logger.debug("Closing connection: #{inspect(reason)}")
+        send(owner_pid, {:relaysocket, :closing, %{reason: reason}})
         %{state | closing?: true}
 
       {:text, text}, state ->
@@ -99,7 +102,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         state
 
       frame, state ->
-        Logger.debug("Unexpected frame received: #{inspect(frame)}")
+        send(owner_pid, {:relaysocket, :unexpected, %{frame: frame}})
         state
     end)
   end

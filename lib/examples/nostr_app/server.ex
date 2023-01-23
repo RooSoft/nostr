@@ -7,7 +7,7 @@ defmodule NostrApp.Server do
 
   require Logger
 
-  alias NostrApp.Subscribe
+  alias NostrApp.{RelaySocketMessageHandler, Subscribe}
 
   alias Nostr.Client
   alias Nostr.Event.Types.MetadataEvent
@@ -251,6 +251,13 @@ defmodule NostrApp.Server do
   def handle_info({:connection, _relay_url, :error, _message} = message, socket) do
     # credo:disable-for-next-line
     IO.inspect(message)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:relaysocket, type, message}, socket) do
+    RelaySocketMessageHandler.handle(type, message)
 
     {:noreply, socket}
   end
