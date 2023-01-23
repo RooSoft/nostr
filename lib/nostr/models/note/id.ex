@@ -110,27 +110,29 @@ defmodule Nostr.Models.Note.Id do
   def to_binary(note_ids) when is_list(note_ids) do
     note_ids
     |> Enum.reverse()
-    |> Enum.reduce({:ok, []}, fn note_id, acc ->
-      case acc do
-        {:ok, binary_note_ids} ->
-          case to_binary(note_id) do
-            {:ok, binary_note_id} ->
-              {:ok, [binary_note_id | binary_note_ids]}
-
-            {:error, message} ->
-              {:error, message}
-          end
-
-        {:error, message} ->
-          {:error, message}
-      end
-    end)
+    |> Enum.reduce({:ok, []}, &reduce_to_binaries/2)
   end
 
   def to_binary(not_lowercase_bech32_note_id) do
     case String.downcase(not_lowercase_bech32_note_id) do
       "note" <> _ = bech32_note_id -> from_bech32(bech32_note_id)
       _ -> {:error, "#{not_lowercase_bech32_note_id} is not a valid note id"}
+    end
+  end
+
+  defp reduce_to_binaries(note_id, acc) do
+    case acc do
+      {:ok, binary_note_ids} ->
+        case to_binary(note_id) do
+          {:ok, binary_note_id} ->
+            {:ok, [binary_note_id | binary_note_ids]}
+
+          {:error, message} ->
+            {:error, message}
+        end
+
+      {:error, message} ->
+        {:error, message}
     end
   end
 end
