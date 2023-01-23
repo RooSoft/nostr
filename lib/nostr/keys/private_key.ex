@@ -3,6 +3,8 @@ defmodule Nostr.Keys.PrivateKey do
   Private keys management functions
   """
 
+  @type id :: String.t() | <<_::256>>
+
   @doc """
   Creates a new private key
 

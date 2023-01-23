@@ -349,6 +349,8 @@ defmodule Nostr.Client do
     end
   end
 
+  @spec react(Note.id(), PrivateKey.id(), String.t()) ::
+          {:ok, GenServer.on_start()} | {:error, String.t()}
   def react(note_id, privkey, content \\ "+") do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
