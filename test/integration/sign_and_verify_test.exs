@@ -1,9 +1,9 @@
 defmodule Nostr.Integration.SignAndVerifyTest do
   use ExUnit.Case, async: true
 
+  alias Nostr.Keys.PublicKey
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event
-  alias K256.Schnorr
 
   @test_private_key <<0x4E22DA43418DD934373CBB38A5AB13059191A2B3A51C5E0B67EB1334656943B8::256>>
 
@@ -18,9 +18,7 @@ defmodule Nostr.Integration.SignAndVerifyTest do
           ["e", "0500f45ca79ecf3a6e4dd6ecfd6a8c2ef2fedf8c590e60b22b98196a89ee2560"],
           ["p", "98b62941fc20cfbb094e54b33593afa0090e43f263e92689a0b66b7e97cf39de"]
         ],
-        pubkey:
-          Schnorr.verifying_key_from_signing_key(@test_private_key)
-          |> elem(1),
+        pubkey: PublicKey.from_private_key!(@test_private_key),
         created_at: ~U[2022-12-25 16:33:04Z],
         kind: 1
       }

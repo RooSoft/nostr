@@ -90,7 +90,7 @@ defmodule Nostr.Client do
   @doc """
   Update the profile that's linked to the private key
   """
-  @spec update_profile(Profile.t(), Schnorr.signing_key()) :: GenServer.on_start()
+  @spec update_profile(Profile.t(), <<_::256>>) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
     relay_pids()
     |> UpdateProfile.start_link(profile, privkey)
@@ -167,16 +167,12 @@ defmodule Nostr.Client do
   @doc """
   Sends an encrypted direct message
   """
-  @spec send_encrypted_direct_messages(
-          Schnorr.verifying_key() | <<_::256>>,
-          String.t(),
-          Schnorr.signing_key() | <<_::256>>
-        ) ::
+  @spec send_encrypted_direct_messages(<<_::256>>, String.t(), <<_::256>>) ::
           {:ok, :ok} | {:error, binary() | atom()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
-    with {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
-         {:ok, binary_local_pubkey} <- Schnorr.verifying_key_from_signing_key(binary_private_key),
-         {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
+    with {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
+         {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
+         {:ok, binary_local_pubkey} <- PublicKey.from_private_key(binary_private_key),
          encrypted_message = AES256CBC.encrypt(message, binary_private_key, binary_remote_pubkey),
          dm_event =
            EncryptedDirectMessageEvent.create(
@@ -329,12 +325,9 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(String.t(), Schnorr.signing_key()) ::
-          :ok | {:error, binary() | atom()}
+  @spec send_note(String.t(), <<_::256>>) :: :ok | {:error, binary() | atom()}
   def send_note(note, privkey) do
     IO.puts("start of send_note")
-
-    alias Nostr.Keys.PrivateKey
 
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),

@@ -3,11 +3,7 @@ defmodule Nostr.Crypto.AES256CBC do
   Algorithm that encrypts and decrypts direct messages
   """
 
-  @spec encrypt(
-          String.t(),
-          K256.Schnorr.signing_key() | <<_::256>>,
-          K256.Schnorr.verifying_key() | <<_::256>>
-        ) :: String.t()
+  @spec encrypt(String.t(), <<_::256>>, <<_::256>>) :: String.t()
   def encrypt(message, seckey, pubkey) do
     iv = :crypto.strong_rand_bytes(16)
 
@@ -25,7 +21,7 @@ defmodule Nostr.Crypto.AES256CBC do
     "#{b64_cypher_text}?iv=#{b64_iv}"
   end
 
-  @spec decrypt(String.t(), K256.Schnorr.signing_key(), K256.Schnorr.verifying_key()) ::
+  @spec decrypt(String.t(), <<_::256>>, <<_::256>>) ::
           {:ok, String.t()} | {:error, atom() | String.t()}
   def decrypt(message, seckey, pubkey) do
     [message, iv] = String.split(message, "?iv=")

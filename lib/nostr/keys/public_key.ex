@@ -14,8 +14,8 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.from_private_key(private_key)
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
-  @spec from_private_key(Schnorr.signing_key()) ::
-          {:ok, Schnorr.verifying_key()} | {:error, String.t() | :signing_key_decoding_failed}
+  @spec from_private_key(<<_::256>>) ::
+          {:ok, <<_::256>>} | {:error, String.t() | :signing_key_decoding_failed}
   def from_private_key(private_key) do
     case PrivateKey.to_binary(private_key) do
       {:ok, binary_private_key} ->
@@ -34,7 +34,7 @@ defmodule Nostr.Keys.PublicKey do
       ...> Nostr.Keys.PublicKey.from_private_key!(private_key)
       <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>
   """
-  @spec from_private_key!(Schnorr.signing_key()) :: Schnorr.verifying_key()
+  @spec from_private_key!(<<_::256>>) :: <<_::256>>
   def from_private_key!(private_key) do
     case from_private_key(private_key) do
       {:ok, public_key} -> public_key
