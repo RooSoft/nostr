@@ -11,7 +11,7 @@ defmodule Nostr.Keys.PrivateKey do
   ## Examples
       iex> Nostr.Keys.PrivateKey.create()
   """
-  @spec create() :: K256.Schnorr.signing_key()
+  @spec create() :: <<_::256>>
   def create do
     K256.Schnorr.generate_random_signing_key()
   end
@@ -24,7 +24,7 @@ defmodule Nostr.Keys.PrivateKey do
       ...> Nostr.Keys.PrivateKey.from_nsec(nsec)
       {:ok, <<0x6d72da1aa56f82aa9a7a8a7f2a94f46e2a80a6686dd60c182bbbc8ebef5811b1::256>>}
   """
-  @spec from_nsec(binary()) :: {:ok, binary()} | {:error, binary()}
+  @spec from_nsec(binary()) :: {:ok, <<_::256>>} | {:error, String.t()}
 
   def from_nsec("nsec" <> _ = bech32_private_key) do
     case Bech32.decode(bech32_private_key) do
@@ -38,11 +38,8 @@ defmodule Nostr.Keys.PrivateKey do
       {:ok, _, _} ->
         {:error, "malformed bech32 private key"}
 
-      {:error, message} ->
-        {:error, message}
-
-      anything ->
-        {:error, anything}
+      {:error, message} when is_atom(message) ->
+        {:error, Atom.to_string(message)}
     end
   end
 
@@ -91,7 +88,7 @@ defmodule Nostr.Keys.PrivateKey do
       ...> |> Nostr.Keys.PrivateKey.to_binary()
       { :ok, <<0x4e22da43418dd934373cbb38a5ab13059191a2b3a51c5e0b67eb1334656943b8::256>> }
   """
-  @spec to_binary(<<_::256>> | String.t()) :: {:ok, <<_::256>>} | {:error, String.t()}
+  @spec to_binary(PrivateKey.id()) :: {:ok, <<_::256>>} | {:error, String.t()}
   def to_binary(<<_::256>> = private_key), do: {:ok, private_key}
   def to_binary("nsec" <> _ = private_key), do: from_nsec(private_key)
 
@@ -110,12 +107,12 @@ defmodule Nostr.Keys.PrivateKey do
       ...> |> Nostr.Keys.PrivateKey.to_binary!()
       <<0x4e22da43418dd934373cbb38a5ab13059191a2b3a51c5e0b67eb1334656943b8::256>>
   """
-  @spec to_binary!(<<_::256>> | String.t()) :: <<_::256>>
+  @spec to_binary!(PrivateKey.id()) :: <<_::256>>
   def to_binary!(private_key) do
     case to_binary(private_key) do
       {:ok, binary_private_key} -> binary_private_key
-      {:error, :checksum_failed} -> raise "checkum failed"
-      {:error, message} -> raise message
+      {:error, message} when is_atom(message) -> raise Atom.to_string(message)
+      {:error, message} when is_binary(message) -> raise message
     end
   end
 end
