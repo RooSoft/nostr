@@ -281,10 +281,16 @@ defmodule Nostr.Client do
   """
   @spec subscribe_reposts(list()) :: DynamicSupervisor.on_start_child()
   def subscribe_reposts(pubkeys) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {RepostsSubscription, [relay_pids(), pubkeys, self()]}
-    )
+    case PublicKey.to_binary(pubkeys) do
+      {:ok, binary_pubkeys} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {RepostsSubscription, [relay_pids(), binary_pubkeys, self()]}
+        )
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   @doc """

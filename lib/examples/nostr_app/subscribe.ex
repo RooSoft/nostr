@@ -51,4 +51,11 @@ defmodule NostrApp.Subscribe do
       {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end
+
+  def to_reposts(public_keys) do
+    case Client.subscribe_reposts(public_keys) do
+      {:ok, _} -> Logger.info("Subscribed to #{inspect(public_keys)}'s reposts")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
 end
