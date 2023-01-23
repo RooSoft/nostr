@@ -6,6 +6,9 @@ defmodule Nostr.Event.Types.RepostEvent do
   the official specification, so kind 6 doesn't exist anymore at the moment
   of this writing. Clients are still using it so it will remain by the time
   being.
+
+  As a reference, here's a link to the NIP before it's been deleted:
+  https://github.com/nostr-protocol/nips/blob/e5ae318984bdc2f28932420be976183c9a0cd3ff/18.md
   """
 
   require Logger
