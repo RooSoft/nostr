@@ -56,7 +56,7 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:profile, pubkey, self()})
   end
 
-  @spec subscribe_contacts(pid(), <<_::256>> | K256.Schnorr.verifying_key()) :: atom()
+  @spec subscribe_contacts(pid(), <<_::256>>) :: atom()
   def subscribe_contacts(pid, pubkey, limit \\ 10) do
     GenServer.call(pid, {:contacts, pubkey, limit, self()})
   end
@@ -66,27 +66,27 @@ defmodule Nostr.RelaySocket do
     GenServer.call(pid, {:note, note_id, self()})
   end
 
-  @spec subscribe_notes(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
+  @spec subscribe_notes(pid(), list(<<_::256>>), integer()) :: atom()
   def subscribe_notes(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:notes, pubkeys, limit, self()})
   end
 
-  @spec subscribe_deletions(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
+  @spec subscribe_deletions(pid(), list(<<_::256>>), integer()) :: atom()
   def subscribe_deletions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:deletions, pubkeys, limit, self()})
   end
 
-  @spec subscribe_reposts(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
+  @spec subscribe_reposts(pid(), list(<<_::256>>), integer()) :: atom()
   def subscribe_reposts(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reposts, pubkeys, limit, self()})
   end
 
-  @spec subscribe_reactions(pid(), list(K256.Schnorr.verifying_key()), integer()) :: atom()
+  @spec subscribe_reactions(pid(), list(<<_::256>>), integer()) :: atom()
   def subscribe_reactions(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:reactions, pubkeys, limit, self()})
   end
 
-  @spec subscribe_encrypted_direct_messages(pid(), K256.Schnorr.verifying_key(), integer()) ::
+  @spec subscribe_encrypted_direct_messages(pid(), <<_::256>>, integer()) ::
           atom()
   def subscribe_encrypted_direct_messages(pid, pubkey, limit \\ 10) do
     GenServer.call(pid, {:encrypted_direct_messages, pubkey, limit, self()})

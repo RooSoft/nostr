@@ -15,8 +15,7 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
 
   @kind 4
 
-  @spec create(String.t() | nil, K256.Schnorr.verifying_key(), <<_::256>>) ::
-          EncryptedDirectMessageEvent.t()
+  @spec create(String.t() | nil, <<_::256>>, <<_::256>>) :: EncryptedDirectMessageEvent.t()
   def create(content, local_pubkey, remote_pubkey) do
     hex_pubkey = PublicKey.to_hex(remote_pubkey)
 

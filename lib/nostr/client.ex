@@ -35,7 +35,6 @@ defmodule Nostr.Client do
 
   alias Nostr.Crypto.AES256CBC
   alias Nostr.RelaySocket
-  alias K256.Schnorr
 
   @default_config {}
 
@@ -72,7 +71,7 @@ defmodule Nostr.Client do
   @doc """
   Get an author's profile
   """
-  @spec subscribe_profile(Schnorr.verifying_key() | binary()) ::
+  @spec subscribe_profile(<<_::256>> | binary()) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_profile(pubkey) do
     case PublicKey.to_binary(pubkey) do

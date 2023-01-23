@@ -65,7 +65,7 @@ defmodule Nostr.Event do
         sig: nil
       }
   """
-  @spec create(String.t() | nil, K256.Schnorr.verifying_key() | <<_::256>>) :: Event.t()
+  @spec create(String.t() | nil, <<_::256>>) :: Event.t()
   def create(content, pubkey) do
     %Event{
       pubkey: pubkey,

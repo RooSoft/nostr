@@ -16,7 +16,7 @@ defmodule Nostr.Event.Types.TextEvent do
 
   @kind 1
 
-  @spec create(binary(), K256.Schnorr.verifying_key()) :: TextEvent.t()
+  @spec create(binary(), <<_::256>>) :: TextEvent.t()
   def create(content, pubkey) do
     event =
       %{Event.create(content, pubkey) | kind: @kind}
