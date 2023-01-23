@@ -173,8 +173,15 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:deletions}, %{public_key: public_key} = socket) do
+    Subscribe.to_deletions([public_key])
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:deletions, pubkeys}, socket) do
-    Client.subscribe_deletions(pubkeys)
+    Subscribe.to_deletions(pubkeys)
 
     {:noreply, socket}
   end

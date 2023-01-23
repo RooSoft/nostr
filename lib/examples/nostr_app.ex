@@ -92,6 +92,11 @@ defmodule NostrApp do
   end
 
   ### NIP-09
+  def deletions() do
+    GenServer.cast(Server, {:deletions})
+  end
+
+  ### NIP-09
   def deletions(pubkeys) when is_list(pubkeys) do
     GenServer.cast(Server, {:deletions, pubkeys})
   end

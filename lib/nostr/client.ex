@@ -251,10 +251,16 @@ defmodule Nostr.Client do
   """
   @spec subscribe_deletions(list()) :: DynamicSupervisor.on_start_child()
   def subscribe_deletions(pubkeys) do
-    DynamicSupervisor.start_child(
-      Nostr.Subscriptions,
-      {DeletionsSubscription, [relay_pids(), pubkeys, self()]}
-    )
+    case PublicKey.to_binary(pubkeys) do
+      {:ok, binary_pubkeys} ->
+        DynamicSupervisor.start_child(
+          Nostr.Subscriptions,
+          {DeletionsSubscription, [relay_pids(), binary_pubkeys, self()]}
+        )
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   @doc """
