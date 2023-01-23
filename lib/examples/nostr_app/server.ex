@@ -46,6 +46,13 @@ defmodule NostrApp.Server do
   ##################
 
   @impl true
+  def handle_cast({:update_profile, %Profile{} = profile}, %{private_key: private_key} = socket) do
+    Client.update_profile(profile, private_key)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:send_note, note}, %{private_key: private_key} = socket) do
     case Client.send_note(note, private_key) do
       {:ok, _} -> Logger.info("successfully sent a note")
@@ -130,7 +137,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:contacts, pubkey}, socket) do
-    Client.subscribe_contacts(pubkey)
+    Subscribe.to_contacts(pubkey)
 
     {:noreply, socket}
   end
@@ -144,7 +151,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:encrypted_direct_messages, private_key}, socket) do
-    Client.encrypted_direct_messages(private_key)
+    Subscribe.to_encrypted_direct_messages(private_key)
 
     {:noreply, socket}
   end
@@ -159,13 +166,6 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:profile, public_key}, socket) do
     Subscribe.to_profile(public_key)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_cast({:update_profile, %Profile{} = profile}, %{private_key: private_key} = socket) do
-    Client.update_profile(profile, private_key)
 
     {:noreply, socket}
   end
@@ -235,14 +235,14 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:timeline}, %{public_key: public_key} = socket) do
-    Client.subscribe_timeline(public_key)
+    Subscribe.to_timeline(public_key)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_cast({:timeline, pubkey}, socket) do
-    Client.subscribe_timeline(pubkey)
+    Subscribe.to_timeline(pubkey)
 
     {:noreply, socket}
   end
