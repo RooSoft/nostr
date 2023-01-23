@@ -1,4 +1,8 @@
 defmodule Nostr.RelaySocket.MessageDispatcher do
+  @moduledoc """
+  Sends websocket messages to the right destination
+  """
+
   require Logger
 
   alias Mint.{WebSocket}

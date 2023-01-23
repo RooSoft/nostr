@@ -1,4 +1,8 @@
 defmodule NostrApp.Subscribe do
+  @moduledoc """
+  Hiding the boilerplate code to subscribe to various event types
+  """
+
   require Logger
 
   alias Nostr.Client
