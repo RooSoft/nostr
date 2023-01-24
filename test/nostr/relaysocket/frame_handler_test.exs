@@ -2,8 +2,8 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
   use ExUnit.Case, async: true
 
   alias Nostr.RelaySocket.FrameHandler
-  alias Nostr.Frames.{Ok, Notice}
-  alias Nostr.Event.Types.EndOfStoredEvents
+  alias Nostr.Frames.{Ok}
+  alias Nostr.Event.Types.{EndOfStoredEvents}
 
   test "manage an OK frame" do
     frame = ~s(["OK","a806462fec12d934e452e1375a2401ef",true,"duplicate:"])
@@ -33,6 +33,18 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
 
     :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive %Notice{message: ^message}
+    assert_receive {:relaysocket, :notice, %{message: ^message, url: ^relay_url}}
+  end
+
+  test "manage a parsing error" do
+    frame =
+      ~s("["EVENT"]")
+
+    relay_url = "my.relay.social"
+    subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
+
+    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+
+    assert_receive {:relaysocket, :parsing_error, %{frame: ^frame, url: ^relay_url}}
   end
 end

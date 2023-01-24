@@ -30,6 +30,7 @@ defmodule Nostr.RelaySocket.FrameHandler do
     else
       {:error, _} ->
         send(owner_pid, {:relaysocket, :parsing_error, %{url: relay_url, frame: frame}})
+        :ok
     end
   end
 
