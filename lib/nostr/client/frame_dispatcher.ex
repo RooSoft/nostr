@@ -29,7 +29,7 @@ defmodule Nostr.Client.FrameDispatcher do
   def dispatch(["OK", request_id, ok?, message]) do
     Logger.debug("OK: #{message}")
 
-    {:ok, {request_id, "OK #{request_id}, #{ok?}, #{message}"}}
+    {:ok, {request_id, "OK #{ok?}, #{message}"}}
   end
 
   def dispatch([type | _remaining]) do

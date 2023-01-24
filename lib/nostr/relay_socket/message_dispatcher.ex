@@ -83,7 +83,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
   defp handle_responses(state, []), do: state
 
   defp handle_frames(
-         %{conn: conn, subscriptions: subscriptions, url: url, owner_pid: owner_pid} = state,
+         %{subscriptions: subscriptions, url: url, owner_pid: owner_pid} = state,
          frames
        ) do
     Enum.reduce(frames, state, fn
@@ -94,12 +94,11 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         state
 
       {:close, code, reason}, state ->
-        IO.inspect("closing...")
         Publisher.close(owner_pid, url, code, reason)
         %{state | closing?: true}
 
       {:text, text}, state ->
-        FrameHandler.handle_text_frame(text, subscriptions, conn, owner_pid)
+        FrameHandler.handle_text_frame(text, subscriptions, url, owner_pid)
         state
 
       frame, state ->

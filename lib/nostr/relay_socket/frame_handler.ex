@@ -3,7 +3,8 @@ defmodule Nostr.RelaySocket.FrameHandler do
   Websocket frames are first sent here to be decoded and then sent to the frame dispatcher
   """
 
-  def handle_text_frame(frame, subscriptions, conn, owner_pid) do
+  @spec handle_text_frame(list(), list(), map(), pid()) :: :ok
+  def handle_text_frame(frame, subscriptions, relay_url, owner_pid) do
     with {:ok, data} <- Jason.decode(frame),
          {:ok, item} <- Nostr.Client.FrameDispatcher.dispatch(data) do
       case get_atom_id(item) do
@@ -18,12 +19,14 @@ defmodule Nostr.RelaySocket.FrameHandler do
             subscriber ->
               {_id, event} = item
 
-              send(subscriber, {conn.host, event})
+              send(subscriber, {relay_url, event})
           end
       end
+
+      :ok
     else
       {:error, _} ->
-        send(owner_pid, {:relaysocket, :parsing_error, %{url: conn.host, frame: frame}})
+        send(owner_pid, {:relaysocket, :parsing_error, %{url: relay_url, frame: frame}})
     end
   end
 

@@ -19,6 +19,10 @@ defmodule Nostr.RelaySocket.Publisher do
     send(pid, {:relaysocket, :event, %{url: relay_url, event: event}})
   end
 
+  def notice(pid, relay_url, message) do
+    send(pid, {:relaysocket, :notice, %{url: relay_url, message: message}})
+  end
+
   def close(pid, relay_url, code, reason) do
     send(pid, {:relaysocket, :close, %{url: relay_url, code: code, reason: reason}})
   end
