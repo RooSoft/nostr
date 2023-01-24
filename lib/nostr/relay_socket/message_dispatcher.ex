@@ -8,13 +8,14 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
   alias Mint.{WebSocket}
   alias Nostr.RelaySocket.{FrameHandler, Publisher, Sender}
 
-  def dispatch(message, %{conn: conn, url: url} = state) do
+  def dispatch(message, %{conn: conn, url: url, owner_pid: owner_pid} = state) do
     case WebSocket.stream(conn, message) do
       {:ok, conn, responses} ->
         state = put_in(state.conn, conn) |> handle_responses(responses)
         if state.closing?, do: do_close(state), else: {:noreply, state}
 
-      {:error, _conn, %Mint.TransportError{reason: :closed}, _responses} ->
+      {:error, _conn, %Mint.TransportError{} = error, _responses} ->
+        Publisher.transport_error(owner_pid, url, error.reason)
         {:stop, "#{url} has closed the connection", state}
 
       {:error, conn, reason, _responses} ->

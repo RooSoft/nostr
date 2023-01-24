@@ -12,7 +12,7 @@ defmodule NostrApp.ConsoleHandler do
   end
 
   def handle(:cant_connect, %{url: url, message: message}) do
-    Logger.info("Can't connect to #{url} because of #{message}")
+    Logger.warning("Can't connect to #{url} because #{message}")
   end
 
   def handle(:ping, %{url: url}) do
@@ -24,14 +24,18 @@ defmodule NostrApp.ConsoleHandler do
   end
 
   def handle(:unexpected, %{url: url, frame: frame}) do
-    Logger.info("Got an unexpected frame from #{url}: #{inspect(frame)}")
+    Logger.warning("Got an unexpected frame from #{url}: #{inspect(frame)}")
   end
 
   def handle(:parsing_error, %{url: url, frame: frame}) do
-    Logger.info("Got an unexpected frame from #{url}: #{inspect(frame)}")
+    Logger.warning("Got an unexpected frame from #{url}: #{inspect(frame)}")
   end
 
   def handle(:notice, %{url: url, message: message}) do
     Logger.info("NOTICE from #{url}: #{message}")
+  end
+
+  def handle(:transport_error, %{url: url, message: message}) do
+    Logger.warning("transport error from #{url}: #{message}")
   end
 end
