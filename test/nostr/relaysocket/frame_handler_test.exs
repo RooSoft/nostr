@@ -5,7 +5,7 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
   alias Nostr.Frames.Ok
 
   test "manage an OK frame" do
-    frame = "[\"OK\",\"a806462fec12d934e452e1375a2401ef\",true,\"duplicate:\"]"
+    frame = ~s(["OK","a806462fec12d934e452e1375a2401ef",true,"duplicate:"])
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
     relay_url = "my.relay.social"
 
