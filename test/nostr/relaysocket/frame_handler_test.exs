@@ -3,6 +3,8 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
 
   alias Nostr.RelaySocket.FrameHandler
   alias Nostr.Frames.Ok
+  alias Nostr.Event.Types.EndOfStoredEvents
+
 
   test "manage an OK frame" do
     frame = ~s(["OK","a806462fec12d934e452e1375a2401ef",true,"duplicate:"])
@@ -12,5 +14,15 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
     :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
     assert_receive {^relay_url, %Ok{persisted?: true, reason: "duplicate:"}}
+  end
+
+  test "manage an EOSE frame" do
+    frame = ~s(["EOSE","a806462fec12d934e452e1375a2401ef"])
+    subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
+    relay_url = "my.relay.social"
+
+    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+
+    assert_receive {^relay_url, %EndOfStoredEvents{}}
   end
 end
