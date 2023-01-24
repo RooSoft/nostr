@@ -12,7 +12,7 @@ defmodule Nostr.RelaySocket.FrameHandler do
       case get_atom_id(item) do
         nil ->
           %Notice{message: message} = get_event(item)
-          send(owner_pid, {:relaysocket, :notice, %{url: relay_url, message: message}})
+          send(owner_pid, {:console, :notice, %{url: relay_url, message: message}})
 
         atom_id ->
           case Keyword.get(subscriptions, atom_id) do
@@ -29,7 +29,7 @@ defmodule Nostr.RelaySocket.FrameHandler do
       :ok
     else
       {:error, _} ->
-        send(owner_pid, {:relaysocket, :parsing_error, %{url: relay_url, frame: frame}})
+        send(owner_pid, {:console, :parsing_error, %{url: relay_url, frame: frame}})
         :ok
     end
   end

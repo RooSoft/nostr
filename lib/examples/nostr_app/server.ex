@@ -7,7 +7,7 @@ defmodule NostrApp.Server do
 
   require Logger
 
-  alias NostrApp.{RelaySocketMessageHandler, Subscribe}
+  alias NostrApp.{ConsoleHandler, Subscribe}
 
   alias Nostr.Client
   alias Nostr.Event.Types.MetadataEvent
@@ -256,8 +256,8 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info({:relaysocket, type, message}, socket) do
-    RelaySocketMessageHandler.handle(type, message)
+  def handle_info({:console, type, message}, socket) do
+    ConsoleHandler.handle(type, message)
 
     {:noreply, socket}
   end

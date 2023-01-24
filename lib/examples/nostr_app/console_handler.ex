@@ -1,4 +1,4 @@
-defmodule NostrApp.RelaySocketMessageHandler do
+defmodule NostrApp.ConsoleHandler do
   @moduledoc """
   Manage messages received from relaysockets
   """

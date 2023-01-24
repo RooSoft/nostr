@@ -33,7 +33,7 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
 
     :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {:relaysocket, :notice, %{message: ^message, url: ^relay_url}}
+    assert_receive {:console, :notice, %{message: ^message, url: ^relay_url}}
   end
 
   test "manage a parsing error" do
@@ -44,7 +44,7 @@ defmodule Nostr.RelaySocket.FrameHandlerTest do
 
     :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {:relaysocket, :parsing_error, %{frame: ^frame, url: ^relay_url}}
+    assert_receive {:console, :parsing_error, %{frame: ^frame, url: ^relay_url}}
   end
 
   test "manage a contact event" do
