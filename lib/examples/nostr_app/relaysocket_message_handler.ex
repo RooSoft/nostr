@@ -7,11 +7,19 @@ defmodule NostrApp.RelaySocketMessageHandler do
 
   @spec handle(atom(), map()) :: :ok
 
+  def handle(:connected, %{url: url}) do
+    Logger.info("Connected to #{url}")
+  end
+
+  def handle(:cant_connect, %{url: url, message: message}) do
+    Logger.info("Can't connect to #{url} because of #{message}")
+  end
+
   def handle(:ping, %{url: url}) do
     Logger.info("In test app: got a PING from #{url}")
   end
 
-  def handle(:closing, %{url: url, code: code, reason: reason}) do
+  def handle(:close, %{url: url, code: code, reason: reason}) do
     Logger.info("#{url} is closing the connection with code #{code} because: #{inspect(reason)}")
   end
 

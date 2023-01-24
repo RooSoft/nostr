@@ -6,7 +6,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
   require Logger
 
   alias Mint.{WebSocket}
-  alias Nostr.RelaySocket.{FrameHandler, Sender}
+  alias Nostr.RelaySocket.{FrameHandler, Publisher, Sender}
 
   def dispatch(message, %{conn: conn, url: url} = state) do
     case WebSocket.stream(conn, message) do
@@ -89,12 +89,13 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
     Enum.reduce(frames, state, fn
       # reply to pings with pongs
       {:ping, data}, state ->
-        send(owner_pid, {:relaysocket, :ping, %{url: url}})
+        Publisher.ping(owner_pid, url)
         {:ok, state} = Sender.send_pong(state, data)
         state
 
       {:close, code, reason}, state ->
-        send(owner_pid, {:relaysocket, :closing, %{url: url, code: code, reason: reason}})
+        IO.inspect("closing...")
+        Publisher.close(owner_pid, url, code, reason)
         %{state | closing?: true}
 
       {:text, text}, state ->
@@ -102,7 +103,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         state
 
       frame, state ->
-        send(owner_pid, {:relaysocket, :unexpected, %{url: url, frame: frame}})
+        Publisher.unexpected_frame(owner_pid, url, frame)
         state
     end)
   end

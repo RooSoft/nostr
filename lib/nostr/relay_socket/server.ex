@@ -29,7 +29,7 @@ defmodule Nostr.RelaySocket.Server do
       {:error, message} ->
         Publisher.unsuccessful_connection(owner_pid, relay_url, message)
 
-        {:stop, message}
+        {:stop, "error in RelaySocket init: #{message}"}
     end
   end
 
