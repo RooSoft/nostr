@@ -98,7 +98,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         %{state | closing?: true}
 
       {:text, text}, state ->
-        FrameHandler.handle_text_frame(text, subscriptions, conn)
+        FrameHandler.handle_text_frame(text, subscriptions, conn, owner_pid)
         state
 
       frame, state ->

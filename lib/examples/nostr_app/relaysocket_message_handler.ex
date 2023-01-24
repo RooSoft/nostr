@@ -18,4 +18,8 @@ defmodule NostrApp.RelaySocketMessageHandler do
   def handle(:unexpected, %{url: url, frame: frame}) do
     Logger.info("Got an unexpected frame from #{url}: #{inspect(frame)}")
   end
+
+  def handle(:parsing_error, %{url: url, frame: frame}) do
+    Logger.info("Got an unexpected frame from #{url}: #{inspect(frame)}")
+  end
 end
