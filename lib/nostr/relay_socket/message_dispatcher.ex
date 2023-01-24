@@ -19,12 +19,12 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         {:stop, "#{url} has closed the connection", state}
 
       {:error, conn, reason, _responses} ->
-        Logger.error("in relay_socket some error handle_info happened: #{inspect(reason)}")
+        Publisher.transport_error(owner_pid, url, "#{inspect(reason)}")
         state = put_in(state.conn, conn) |> reply({:error, reason})
         {:noreply, state}
 
       :unknown ->
-        Logger.error("in relay_socket some :unknown handle_info happened")
+        Publisher.transport_error(owner_pid, url, "an unknown error happened in Mint.WebSockets")
         {:noreply, state}
     end
   end
