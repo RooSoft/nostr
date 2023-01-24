@@ -8,6 +8,7 @@ defmodule Nostr.Client.FrameDispatcher do
 
   alias Nostr.Event
   alias Nostr.Event.Types.EndOfStoredEvents
+  alias Nostr.Frames.Ok
 
   def dispatch(["EVENT" | [request_id | [data]]]) do
     case Event.Dispatcher.dispatch(data) do
@@ -26,10 +27,8 @@ defmodule Nostr.Client.FrameDispatcher do
     {:ok, {"", "NOTICE #{message}"}}
   end
 
-  def dispatch(["OK", request_id, ok?, message]) do
-    Logger.debug("OK: #{message}")
-
-    {:ok, {request_id, "OK #{ok?}, #{message}"}}
+  def dispatch(["OK", request_id, persisted?, reason]) do
+    {:ok, {request_id, %Ok{persisted?: persisted?, reason: reason}}}
   end
 
   def dispatch([type | _remaining]) do
