@@ -248,14 +248,6 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info({:connection, _relay_url, :error, _message} = message, socket) do
-    # credo:disable-for-next-line
-    IO.inspect(message)
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_info({:console, type, message}, socket) do
     ConsoleHandler.handle(type, message)
 
