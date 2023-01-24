@@ -9,7 +9,8 @@ defmodule Nostr.RelaySocket.FrameHandler do
          {:ok, item} <- Nostr.Client.FrameDispatcher.dispatch(data) do
       case get_atom_id(item) do
         nil ->
-          :ok
+          notice = get_event(item)
+          send(owner_pid, notice)
 
         atom_id ->
           case Keyword.get(subscriptions, atom_id) do
@@ -30,7 +31,8 @@ defmodule Nostr.RelaySocket.FrameHandler do
     end
   end
 
-  defp get_atom_id({id, _}) do
-    String.to_atom(id)
-  end
+  defp get_atom_id({nil, _}), do: nil
+  defp get_atom_id({id, _}), do: String.to_atom(id)
+
+  defp get_event({_, event}), do: event
 end
