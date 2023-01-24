@@ -55,7 +55,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:send_note, note}, %{private_key: private_key} = socket) do
     case Client.send_note(note, private_key) do
-      {:ok, _} -> Logger.info("successfully sent a note")
+      :ok -> Logger.info("successfully sent a note")
       {:error, message} -> Logger.error(message)
     end
 

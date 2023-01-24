@@ -18,7 +18,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         {:stop, "#{url} has closed the connection", state}
 
       {:error, conn, reason, _responses} ->
-        Logger.error("in relay_socket some error handle_info happened: #{reason}")
+        Logger.error("in relay_socket some error handle_info happened: #{inspect(reason)}")
         state = put_in(state.conn, conn) |> reply({:error, reason})
         {:noreply, state}
 
@@ -93,8 +93,8 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         {:ok, state} = Sender.send_pong(state, data)
         state
 
-      {:close, _code, reason}, state ->
-        send(owner_pid, {:relaysocket, :closing, %{reason: reason}})
+      {:close, code, reason}, state ->
+        send(owner_pid, {:relaysocket, :closing, %{url: url, code: code, reason: reason}})
         %{state | closing?: true}
 
       {:text, text}, state ->
@@ -102,7 +102,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
         state
 
       frame, state ->
-        send(owner_pid, {:relaysocket, :unexpected, %{frame: frame}})
+        send(owner_pid, {:relaysocket, :unexpected, %{url: url, frame: frame}})
         state
     end)
   end

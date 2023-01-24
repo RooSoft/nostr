@@ -11,8 +11,8 @@ defmodule NostrApp.RelaySocketMessageHandler do
     Logger.info("In test app: got a PING from #{url}")
   end
 
-  def handle(:closing, %{url: url, reason: reason}) do
-    Logger.info("#{url} is closing the connection because: #{reason}")
+  def handle(:closing, %{url: url, code: code, reason: reason}) do
+    Logger.info("#{url} is closing the connection with code #{code} because: #{inspect(reason)}")
   end
 
   def handle(:unexpected, %{url: url, frame: frame}) do

@@ -335,7 +335,7 @@ defmodule Nostr.Client do
   @doc """
   Sends a note to the relay
   """
-  @spec send_note(String.t(), PrivateKey.id()) :: :ok | {:error, binary() | atom()}
+  @spec send_note(String.t(), PrivateKey.id()) :: :ok | {:error, String.t()}
   def send_note(note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),
@@ -345,7 +345,10 @@ defmodule Nostr.Client do
       for relay_pid <- relay_pids() do
         RelaySocket.send_event(relay_pid, signed_event)
       end
+
+      :ok
     else
+      {:error, message} when is_atom(message) -> {:error, Atom.to_string(message)}
       {:error, message} -> {:error, message}
     end
   end
