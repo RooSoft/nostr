@@ -7,6 +7,10 @@ defmodule Nostr.RelaySocket.Publisher do
     send(pid, {:console, :connected, %{url: relay_url}})
   end
 
+  def websockets_ready(pid, relay_url) do
+    send(pid, {:console, :websockets_ready, %{url: relay_url}})
+  end
+
   def unsuccessful_connection(pid, relay_url, message) do
     send(pid, {:console, :cant_connect, %{url: relay_url, message: stringify(message)}})
   end

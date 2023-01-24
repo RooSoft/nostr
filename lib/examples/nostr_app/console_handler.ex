@@ -8,7 +8,11 @@ defmodule NostrApp.ConsoleHandler do
   @spec handle(atom(), map()) :: :ok
 
   def handle(:connected, %{url: url}) do
-    Logger.info("Connected to #{url}")
+    Logger.info("HTTP connection to #{url}")
+  end
+
+  def handle(:websockets_ready, %{url: url}) do
+    Logger.info("Websockets activated for #{url}")
   end
 
   def handle(:cant_connect, %{url: url, message: message}) do

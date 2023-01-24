@@ -46,9 +46,13 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
     |> handle_responses(rest)
   end
 
-  defp handle_responses(%{request_ref: ref} = state, [{:done, ref} | rest]) do
+  defp handle_responses(%{request_ref: ref, owner_pid: owner_pid, url: url} = state, [
+         {:done, ref} | rest
+       ]) do
     case WebSocket.new(state.conn, ref, state.status, state.resp_headers) do
       {:ok, conn, websocket} ->
+        Publisher.websockets_ready(owner_pid, url)
+
         %{state | conn: conn, websocket: websocket, status: nil, resp_headers: nil}
         |> reply({:ok, :connected})
         |> handle_responses(rest)
