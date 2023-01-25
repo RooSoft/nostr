@@ -55,7 +55,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:send_note, note}, %{private_key: private_key} = socket) do
     case Client.send_note(note, private_key) do
-      :ok -> Logger.info("successfully sent a note")
+      :ok -> Logger.info("sent a note creation command")
       {:error, message} -> Logger.error(message)
     end
 
@@ -65,7 +65,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:react, note_id}, %{private_key: private_key} = socket) do
     case Client.react(note_id, private_key) do
-      {:ok, _} -> Logger.info("successfully sent a reaction")
+      {:ok, _} -> Logger.info("sent an reaction command")
       {:error, message} -> Logger.error(message)
     end
 
@@ -75,7 +75,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:follow, contact_pubkey}, %{private_key: private_key} = socket) do
     case Client.follow(contact_pubkey, private_key) do
-      {:ok, _} -> Logger.info("successfully followed #{contact_pubkey}")
+      {:ok, _} -> Logger.info("sent an follow command for #{contact_pubkey}")
       {:error, message} -> Logger.error(message)
     end
 
@@ -85,7 +85,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:unfollow, contact_pubkey}, %{private_key: private_key} = socket) do
     case Client.unfollow(contact_pubkey, private_key) do
-      {:ok, _} -> Logger.info("successfully unfollowed #{contact_pubkey}")
+      {:ok, _} -> Logger.info("sent an unfollow command for #{contact_pubkey}")
       {:error, message} -> Logger.error(message)
     end
 
@@ -98,7 +98,7 @@ defmodule NostrApp.Server do
         %{private_key: private_key} = socket
       ) do
     case Client.send_encrypted_direct_messages(pubkey, message, private_key) do
-      :ok -> Logger.info("successfully sent an encrypted direct message")
+      :ok -> Logger.info("sent an encrypted direct message command")
       {:error, message} -> Logger.error(message)
     end
 
@@ -108,7 +108,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
     case Client.delete_events(event_ids, note, private_key) do
-      {:ok, _} -> Logger.info("successfully deleted #{event_ids}")
+      {:ok, _} -> Logger.info("sent a deletion command for #{event_ids}")
       {:error, message} -> Logger.error(message)
     end
 
@@ -118,7 +118,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:repost, note_id}, %{private_key: private_key} = socket) do
     case Client.repost(note_id, private_key) do
-      {:ok, _} -> Logger.info("successfully reposted #{note_id}")
+      {:ok, _} -> Logger.info("sent a repost command for #{note_id}")
       {:error, message} -> Logger.error(message)
     end
 
