@@ -16,7 +16,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
 
       {:error, _conn, %Mint.TransportError{} = error, _responses} ->
         Publisher.transport_error(owner_pid, url, error.reason)
-        {:stop, "#{url} has closed the connection", state}
+        {:stop, {:shutdown, "#{url} has closed the connection"}, state}
 
       {:error, conn, reason, _responses} ->
         Publisher.transport_error(owner_pid, url, "#{inspect(reason)}")
