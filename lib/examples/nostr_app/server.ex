@@ -29,16 +29,16 @@ defmodule NostrApp.Server do
       }
     else
       {:error, message} ->
-        {:stop, message}
+        {:stop, {:shutdown, message}}
 
       :already_present ->
         :ok
 
       :ignore ->
-        {:stop, :ignore}
+        {:stop, {:shutdown, :ignore}}
 
       other ->
-        {:stop, other}
+        {:stop, {:shutdown, other}}
     end
   end
 
