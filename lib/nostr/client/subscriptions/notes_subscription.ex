@@ -19,6 +19,13 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkeys: pubkeys} = state) do
+    send(self(), {:connect, relay_pids, pubkeys})
+
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info({:connect, relay_pids, pubkeys}, state) do
     subscriptions =
       relay_pids
       |> Enum.map(fn relay_pid ->
@@ -26,7 +33,7 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
       end)
 
     {
-      :ok,
+      :noreply,
       state
       |> set_note_subscriptions(subscriptions)
     }
