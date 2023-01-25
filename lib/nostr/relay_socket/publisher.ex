@@ -19,6 +19,10 @@ defmodule Nostr.RelaySocket.Publisher do
     send(pid, {:console, :close, %{url: relay_url, code: code, reason: stringify(reason)}})
   end
 
+  def not_ready(pid, relay_url, reason) do
+    send(pid, {:console, :not_ready, %{url: relay_url, reason: stringify(reason)}})
+  end
+
   def ping(pid, relay_url) do
     send(pid, {:console, :ping, %{url: relay_url}})
   end

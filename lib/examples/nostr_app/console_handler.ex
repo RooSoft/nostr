@@ -27,12 +27,16 @@ defmodule NostrApp.ConsoleHandler do
     Logger.info("#{url} is closing the connection with code #{code} because: #{inspect(reason)}")
   end
 
+  def handle(:not_ready, %{url: url, reason: reason}) do
+    Logger.info("#{url} is not ready: #{reason}")
+  end
+
   def handle(:unexpected, %{url: url, frame: frame}) do
     Logger.warning("Got an unexpected frame from #{url}: #{inspect(frame)}")
   end
 
   def handle(:parsing_error, %{url: url, frame: frame}) do
-    Logger.warning("Got an unexpected frame from #{url}: #{inspect(frame)}")
+    Logger.warning("Got an parsing error from #{url}: #{inspect(frame)}")
   end
 
   def handle(:notice, %{url: url, message: message}) do
