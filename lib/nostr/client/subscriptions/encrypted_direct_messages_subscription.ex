@@ -38,7 +38,7 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
         }
 
       {:error, message} ->
-        {:stop, message}
+        {:stop, {:shutdown, message}}
     end
   end
 
