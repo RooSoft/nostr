@@ -13,24 +13,9 @@ defmodule Nostr.RelaySocket.Server do
 
   @impl true
   def init(%{relay_url: relay_url, owner_pid: owner_pid}) do
-    case Connector.connect(relay_url) do
-      {:ok, conn, ref} ->
-        Publisher.successful_connection(owner_pid, relay_url)
+    send(self(), {:connect_to_relay, relay_url, owner_pid})
 
-        {:ok,
-         %RelaySocket{
-           %RelaySocket{}
-           | url: relay_url,
-             conn: conn,
-             request_ref: ref,
-             owner_pid: owner_pid
-         }}
-
-      {:error, message} ->
-        Publisher.unsuccessful_connection(owner_pid, relay_url, message)
-
-        {:stop, "error in RelaySocket init: #{message}"}
-    end
+    {:ok, %RelaySocket{}}
   end
 
   @impl true
@@ -54,6 +39,20 @@ defmodule Nostr.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call(
+        command,
+        _from,
+        %RelaySocket{url: url, owner_pid: owner_pid, websocket: nil} = state
+      ) do
+    command_name = elem(command, 0)
+    reason = "Can't execute #{command_name} on #{url}, as websockets aren't enabled yet"
+
+    Publisher.not_ready(owner_pid, url, reason)
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_call({:subscriptions}, _from, %{subscriptions: subscriptions} = state) do
     {:reply, subscriptions, state}
   end
@@ -62,7 +61,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:profile, pubkey, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.profile(pubkey)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -71,7 +70,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:contacts, pubkey, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.contacts(pubkey, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -80,7 +79,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:note, note_id, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.note(note_id)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -89,7 +88,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:notes, pubkeys, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -98,7 +97,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:deletions, pubkeys, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.deletions(pubkeys, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -107,7 +106,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:reposts, pubkeys, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.reposts(pubkeys, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -116,7 +115,7 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:reactions, pubkeys, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
   end
@@ -125,9 +124,40 @@ defmodule Nostr.RelaySocket.Server do
   def handle_call({:encrypted_direct_messages, pubkey, limit, subscriber}, _from, state) do
     {atom_subscription_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
 
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 
     {:reply, atom_subscription_id, state}
+  end
+
+  @impl true
+  def handle_info({:connect_to_relay, relay_url, owner_pid}, relaysocket) do
+    case Connector.connect(relay_url) do
+      {:ok, conn, ref} ->
+        Publisher.successful_connection(owner_pid, relay_url)
+
+        {
+          :noreply,
+          %RelaySocket{
+            relaysocket
+            | url: relay_url,
+              conn: conn,
+              request_ref: ref,
+              owner_pid: owner_pid
+          }
+        }
+
+      {:error, message} ->
+        Publisher.unsuccessful_connection(owner_pid, relay_url, message)
+
+        {:stop, {:shutdown, "error in RelaySocket init: #{message}"}}
+    end
+  end
+
+  @impl true
+  def handle_info({:subscription_request, state, atom_subscription_id, json, subscriber}, state) do
+    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+
+    {:noreply, state}
   end
 
   @impl true
