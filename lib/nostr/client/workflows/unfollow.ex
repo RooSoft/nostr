@@ -34,7 +34,7 @@ defmodule Nostr.Client.Workflows.Unfollow do
         }
 
       {:error, message} ->
-        {:stop, message}
+        {:stop, {:shutdown, message}}
     end
   end
 
