@@ -8,7 +8,7 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
 
   require Logger
 
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Models.Profile
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{MetadataEvent}

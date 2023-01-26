@@ -6,7 +6,7 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
 
   use GenServer
 
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, EndOfStoredEvents}
   alias Nostr.Keys.PublicKey

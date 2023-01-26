@@ -1,7 +1,7 @@
-defmodule Nostr.Client.RelaySocket.FrameHandlerTest do
+defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
   use ExUnit.Case, async: true
 
-  alias Nostr.Client.RelaySocket.FrameHandler
+  alias Nostr.Client.Relays.RelaySocket.FrameHandler
   alias Nostr.Frames.{Ok}
   alias Nostr.Event.Types.{EndOfStoredEvents}
 

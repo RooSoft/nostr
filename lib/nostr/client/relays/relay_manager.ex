@@ -5,10 +5,10 @@ defmodule Nostr.Client.Relays.RelayManager do
 
   use DynamicSupervisor
 
-  alias Nostr.Client.{RelayManager, RelaySocket}
+  alias Nostr.Client.Relays.{RelayManager, RelaySocket}
 
   def start_link(_options) do
-    opts = [strategy: :one_for_one, name: Nostr.Client.RelayManager]
+    opts = [strategy: :one_for_one, name: RelayManager]
 
     DynamicSupervisor.start_link(opts)
   end

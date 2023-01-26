@@ -12,7 +12,7 @@ defmodule Nostr.Client.Workflows.Unfollow do
 
   use GenServer
 
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{ContactsEvent, EndOfStoredEvents}
   alias Nostr.Models.ContactList

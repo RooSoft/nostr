@@ -6,7 +6,7 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   use GenServer
 
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{MetadataEvent, EndOfStoredEvents}
 
   def start_link([relay_pids, pubkey, subscriber]) do

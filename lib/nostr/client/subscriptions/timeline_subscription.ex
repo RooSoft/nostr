@@ -5,7 +5,7 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
 
   use GenServer
 
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.EndOfStoredEvents
 
   alias Nostr.Models.{ContactList}

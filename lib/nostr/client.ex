@@ -35,7 +35,7 @@ defmodule Nostr.Client do
   }
 
   alias Nostr.Crypto.AES256CBC
-  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.Relays.RelaySocket
 
   @default_config {}
 
