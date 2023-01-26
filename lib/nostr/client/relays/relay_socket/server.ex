@@ -49,6 +49,13 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call(:url, _from, %RelaySocket{conn: conn} = state) do
+    url = ~s(#{conn.private.scheme}://#{conn.host}:#{conn.port})
+
+    {:reply, url, state}
+  end
+
+  @impl true
   def handle_call(
         command,
         _from,
