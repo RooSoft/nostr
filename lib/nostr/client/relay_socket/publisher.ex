@@ -1,4 +1,4 @@
-defmodule Nostr.RelaySocket.Publisher do
+defmodule Nostr.Client.RelaySocket.Publisher do
   @moduledoc """
   Sends events to the subscriber's console
   """

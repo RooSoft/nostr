@@ -1,4 +1,4 @@
-defmodule Nostr.RelaySocket.FrameHandler do
+defmodule Nostr.Client.RelaySocket.FrameHandler do
   @moduledoc """
   Websocket frames are first sent here to be decoded and then sent to the frame dispatcher
   """

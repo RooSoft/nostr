@@ -8,7 +8,7 @@ defmodule Nostr.Client.Workflows.SendRepost do
 
   require Logger
 
-  alias Nostr.RelaySocket
+  alias Nostr.Client.RelaySocket
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{RepostEvent, EndOfStoredEvents}
 

@@ -1,4 +1,4 @@
-defmodule Nostr.RelaySocket.Connector do
+defmodule Nostr.Client.RelaySocket.Connector do
   @moduledoc """
   All things related to websocket connection with relays
   """

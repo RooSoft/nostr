@@ -1,4 +1,4 @@
-defmodule Nostr.RelaySocket.Server do
+defmodule Nostr.Client.RelaySocket.Server do
   @moduledoc """
   The process handling all of the RelaySocket commands
   """
@@ -7,8 +7,8 @@ defmodule Nostr.RelaySocket.Server do
 
   require Logger
 
-  alias Nostr.RelaySocket
-  alias Nostr.RelaySocket.{Connector, MessageDispatcher, Publisher, Sender}
+  alias Nostr.Client.RelaySocket
+  alias Nostr.Client.RelaySocket.{Connector, MessageDispatcher, Publisher, Sender}
   alias Nostr.Client.{SendRequest}
 
   @impl true

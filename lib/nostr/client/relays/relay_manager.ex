@@ -5,7 +5,7 @@ defmodule Nostr.Client.Relays.RelayManager do
 
   use DynamicSupervisor
 
-  alias Nostr.RelaySocket
+  alias Nostr.Client.{RelayManager, RelaySocket}
 
   def start_link(_options) do
     opts = [strategy: :one_for_one, name: Nostr.Client.RelayManager]
@@ -19,13 +19,13 @@ defmodule Nostr.Client.Relays.RelayManager do
   end
 
   def add(relay_url) do
-    DynamicSupervisor.start_child(Nostr.Client.RelayManager, {RelaySocket, [relay_url, self()]})
+    DynamicSupervisor.start_child(RelayManager, {RelaySocket, [relay_url, self()]})
   end
 
   def active_pids() do
-    DynamicSupervisor.which_children(Nostr.Client.RelayManager)
+    DynamicSupervisor.which_children(RelayManager)
     |> Enum.map(&get_pid/1)
   end
 
-  defp get_pid({:undefined, pid, :worker, [Nostr.RelaySocket]}), do: pid
+  defp get_pid({:undefined, pid, :worker, [RelaySocket]}), do: pid
 end

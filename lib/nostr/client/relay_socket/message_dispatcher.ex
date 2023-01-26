@@ -1,4 +1,4 @@
-defmodule Nostr.RelaySocket.MessageDispatcher do
+defmodule Nostr.Client.RelaySocket.MessageDispatcher do
   @moduledoc """
   Sends websocket messages to the right destination
   """
@@ -6,7 +6,7 @@ defmodule Nostr.RelaySocket.MessageDispatcher do
   require Logger
 
   alias Mint.{WebSocket}
-  alias Nostr.RelaySocket.{FrameHandler, Publisher, Sender}
+  alias Nostr.Client.RelaySocket.{FrameHandler, Publisher, Sender}
 
   def dispatch(message, %{conn: conn, url: url, owner_pid: owner_pid} = state) do
     case WebSocket.stream(conn, message) do
