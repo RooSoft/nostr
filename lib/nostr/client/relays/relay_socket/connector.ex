@@ -1,6 +1,12 @@
 defmodule Nostr.Client.Relays.RelaySocket.Connector do
   @moduledoc """
-  All things related to websocket connection with relays
+  Websocket connection initialization
+
+  Based on https://hexdocs.pm/mint_web_socket/Mint.WebSocket.html
+
+  Once the upgrade request is done, response will go through
+  MessageDispatcher.dispatch/2 and the connection process will
+  continue from that point on.
   """
   alias Mint.{HTTP, Types, WebSocket}
 
