@@ -146,7 +146,9 @@ defmodule Nostr.RelaySocket.Server do
           }
         }
 
-      {:error, message} ->
+      {:error, e} ->
+        message = Exception.message(e)
+
         Publisher.unsuccessful_connection(owner_pid, relay_url, message)
 
         {:stop, {:shutdown, "error in RelaySocket init: #{message}"}}
