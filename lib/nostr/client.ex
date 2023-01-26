@@ -11,6 +11,7 @@ defmodule Nostr.Client do
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile, Note}
+  alias Nostr.Client.Relays.RelayManager
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
@@ -52,7 +53,7 @@ defmodule Nostr.Client do
   @impl true
   def init(_config) do
     children = [
-      {DynamicSupervisor, name: Nostr.RelaySockets, strategy: :one_for_one},
+      RelayManager,
       {DynamicSupervisor, name: Nostr.Subscriptions, strategy: :one_for_one}
     ]
 
@@ -60,7 +61,7 @@ defmodule Nostr.Client do
   end
 
   def add_relay(relay_url) do
-    DynamicSupervisor.start_child(Nostr.RelaySockets, {Nostr.RelaySocket, [relay_url, self()]})
+    RelayManager.add(relay_url)
   end
 
   @doc """
@@ -75,7 +76,7 @@ defmodule Nostr.Client do
           :ok,
           DynamicSupervisor.start_child(
             Nostr.Subscriptions,
-            {ProfileSubscription, [relay_pids(), binary_pubkey, self()]}
+            {ProfileSubscription, [RelayManager.active_pids(), binary_pubkey, self()]}
           )
         }
 
@@ -89,7 +90,7 @@ defmodule Nostr.Client do
   """
   @spec update_profile(Profile.t(), PrivateKey.id()) :: GenServer.on_start()
   def update_profile(%Profile{} = profile, privkey) do
-    relay_pids()
+    RelayManager.active_pids()
     |> UpdateProfile.start_link(profile, privkey)
   end
 
@@ -102,7 +103,7 @@ defmodule Nostr.Client do
       {:ok, binary_pubkey} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {ContactsSubscription, [relay_pids(), binary_pubkey, self()]}
+          {ContactsSubscription, [RelayManager.active_pids(), binary_pubkey, self()]}
         )
 
       {:error, message} ->
@@ -120,7 +121,7 @@ defmodule Nostr.Client do
          {:ok, binary_pubkey} <- PublicKey.to_binary(pubkey) do
       {
         :ok,
-        Follow.start_link(relay_pids(), binary_pubkey, binary_privkey)
+        Follow.start_link(RelayManager.active_pids(), binary_pubkey, binary_privkey)
       }
     else
       {:error, message} -> {:error, message}
@@ -137,7 +138,7 @@ defmodule Nostr.Client do
          {:ok, binary_pubkey} <- PublicKey.to_binary(pubkey) do
       {
         :ok,
-        Unfollow.start_link(relay_pids(), binary_pubkey, binary_privkey)
+        Unfollow.start_link(RelayManager.active_pids(), binary_pubkey, binary_privkey)
       }
     else
       {:error, message} -> {:error, message}
@@ -153,7 +154,8 @@ defmodule Nostr.Client do
       {:ok, binary_private_key} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {EncryptedDirectMessagesSubscription, [relay_pids(), binary_private_key, self()]}
+          {EncryptedDirectMessagesSubscription,
+           [RelayManager.active_pids(), binary_private_key, self()]}
         )
 
       {:error, message} ->
@@ -179,7 +181,7 @@ defmodule Nostr.Client do
            ),
          {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
          :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- relay_pids() do
+      for relay_pid <- RelayManager.active_pids() do
         RelaySocket.send_event(relay_pid, signed_event)
       end
 
@@ -199,7 +201,7 @@ defmodule Nostr.Client do
       {:ok, binary_note_id} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {NoteSubscription, [relay_pids(), binary_note_id, self()]}
+          {NoteSubscription, [RelayManager.active_pids(), binary_note_id, self()]}
         )
 
       {:error, message} ->
@@ -219,7 +221,7 @@ defmodule Nostr.Client do
           :ok,
           DynamicSupervisor.start_child(
             Nostr.Subscriptions,
-            {NotesSubscription, [relay_pids(), binary_pub_keys, self()]}
+            {NotesSubscription, [RelayManager.active_pids(), binary_pub_keys, self()]}
           )
         }
 
@@ -236,7 +238,8 @@ defmodule Nostr.Client do
   def delete_events(note_ids, note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, binary_note_ids} <- Note.Id.to_binary(note_ids) do
-      {:ok, DeleteEvents.start_link(relay_pids(), binary_note_ids, note, binary_privkey)}
+      {:ok,
+       DeleteEvents.start_link(RelayManager.active_pids(), binary_note_ids, note, binary_privkey)}
     else
       {:error, message} -> {:error, message}
     end
@@ -251,7 +254,7 @@ defmodule Nostr.Client do
       {:ok, binary_pubkeys} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {DeletionsSubscription, [relay_pids(), binary_pubkeys, self()]}
+          {DeletionsSubscription, [RelayManager.active_pids(), binary_pubkeys, self()]}
         )
 
       {:error, error} ->
@@ -266,7 +269,7 @@ defmodule Nostr.Client do
   def repost(note_id, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
-      {:ok, SendRepost.start_link(relay_pids(), binary_note_id, binary_privkey)}
+      {:ok, SendRepost.start_link(RelayManager.active_pids(), binary_note_id, binary_privkey)}
     else
       {:error, message} -> {:error, message}
     end
@@ -281,7 +284,7 @@ defmodule Nostr.Client do
       {:ok, binary_pubkeys} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {RepostsSubscription, [relay_pids(), binary_pubkeys, self()]}
+          {RepostsSubscription, [RelayManager.active_pids(), binary_pubkeys, self()]}
         )
 
       {:error, message} ->
@@ -301,7 +304,7 @@ defmodule Nostr.Client do
           :ok,
           DynamicSupervisor.start_child(
             Nostr.Subscriptions,
-            {ReactionsSubscription, [relay_pids(), binary_pubkeys, self()]}
+            {ReactionsSubscription, [RelayManager.active_pids(), binary_pubkeys, self()]}
           )
         }
 
@@ -319,7 +322,7 @@ defmodule Nostr.Client do
       {:ok, binary_pubkey} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
-          {TimelineSubscription, [relay_pids(), binary_pubkey, self()]}
+          {TimelineSubscription, [RelayManager.active_pids(), binary_pubkey, self()]}
         )
 
       {:error, message} ->
@@ -337,7 +340,7 @@ defmodule Nostr.Client do
          text_event = TextEvent.create(note, pubkey),
          {:ok, signed_event} <- Signer.sign_event(text_event.event, binary_privkey),
          :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- relay_pids() do
+      for relay_pid <- RelayManager.active_pids() do
         RelaySocket.send_event(relay_pid, signed_event)
       end
 
@@ -355,15 +358,15 @@ defmodule Nostr.Client do
          {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
       {
         :ok,
-        SendReaction.start_link(relay_pids(), binary_note_id, binary_privkey, content)
+        SendReaction.start_link(
+          RelayManager.active_pids(),
+          binary_note_id,
+          binary_privkey,
+          content
+        )
       }
     else
       {:error, message} -> {:error, message}
     end
-  end
-
-  defp relay_pids do
-    DynamicSupervisor.which_children(Nostr.RelaySockets)
-    |> Enum.map(&elem(&1, 1))
   end
 end
