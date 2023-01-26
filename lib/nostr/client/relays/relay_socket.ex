@@ -41,6 +41,10 @@ defmodule Nostr.Client.Relays.RelaySocket do
     GenServer.call(pid, {:subscriptions})
   end
 
+  def websocket_activated?(pid) do
+    GenServer.call(pid, :websocket_activated?)
+  end
+
   @doc """
   Revokes a subscription from a relay
   """

@@ -39,6 +39,16 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call(:websocket_activated?, _from, %RelaySocket{websocket: nil} = state) do
+    {:reply, false, state}
+  end
+
+  @impl true
+  def handle_call(:websocket_activated?, _from, %RelaySocket{websocket: _} = state) do
+    {:reply, true, state}
+  end
+
+  @impl true
   def handle_call(
         command,
         _from,

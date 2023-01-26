@@ -25,7 +25,12 @@ defmodule Nostr.Client.Relays.RelayManager do
   def active_pids() do
     DynamicSupervisor.which_children(RelayManager)
     |> Enum.map(&get_pid/1)
+    |> Enum.filter(&websocket_activated?/1)
   end
 
   defp get_pid({:undefined, pid, :worker, [RelaySocket]}), do: pid
+
+  defp websocket_activated?(pid) do
+    RelaySocket.websocket_activated?(pid)
+  end
 end
