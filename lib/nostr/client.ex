@@ -63,11 +63,6 @@ defmodule Nostr.Client do
     DynamicSupervisor.start_child(Nostr.RelaySockets, {Nostr.RelaySocket, [relay_url, self()]})
   end
 
-  def relay_pids do
-    DynamicSupervisor.which_children(Nostr.RelaySockets)
-    |> Enum.map(&elem(&1, 1))
-  end
-
   @doc """
   Get an author's profile
   """
@@ -365,5 +360,10 @@ defmodule Nostr.Client do
     else
       {:error, message} -> {:error, message}
     end
+  end
+
+  defp relay_pids do
+    DynamicSupervisor.which_children(Nostr.RelaySockets)
+    |> Enum.map(&elem(&1, 1))
   end
 end
