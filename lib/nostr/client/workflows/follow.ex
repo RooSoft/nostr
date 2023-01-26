@@ -4,6 +4,12 @@ defmodule Nostr.Client.Workflows.Follow do
   it can properly enable a user's to follow a new contact
   """
 
+  #### TODO: make sure to have the latest contact list before upgrading it
+  ####       right now, we update the first contact list that we receive
+  ####       and it might not be the latest...
+  ####       maybe will have to make sure we connect to the relay list from
+  ####       the user's metadata, get all contact lists, and pick the latest
+
   use GenServer
 
   alias Nostr.Client.RelaySocket
