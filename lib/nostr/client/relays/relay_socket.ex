@@ -41,8 +41,8 @@ defmodule Nostr.Client.Relays.RelaySocket do
     GenServer.call(pid, {:subscriptions})
   end
 
-  def websocket_activated?(pid) do
-    GenServer.call(pid, :websocket_activated?)
+  def ready?(pid) do
+    GenServer.call(pid, :ready?)
   end
 
   def url(pid) do
