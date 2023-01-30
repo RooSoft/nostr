@@ -17,6 +17,14 @@ defmodule NostrApp.Subscribe do
     end
   end
 
+  @spec to_recommended_servers() :: :ok
+  def to_recommended_servers() do
+    case Client.subscribe_recommended_servers() do
+      {:ok, _} -> Logger.info("Subscribed to recommended servers")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
+
   @spec to_contacts(PublicKey.id()) :: :ok
   def to_contacts(public_key) do
     case Client.subscribe_contacts(public_key) do

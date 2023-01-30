@@ -10,7 +10,7 @@ defmodule NostrApp.Server do
   alias NostrApp.{ConsoleHandler, Subscribe}
 
   alias Nostr.Client
-  alias Nostr.Event.Types.MetadataEvent
+  alias Nostr.Event.Types.{MetadataEvent, RecommendedServerEvent}
   alias Nostr.Models.{Profile}
   alias Nostr.Keys.{PrivateKey, PublicKey}
 
@@ -164,6 +164,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:recommended_servers}, socket) do
+    Subscribe.to_recommended_servers()
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:profile, public_key}, socket) do
     Subscribe.to_profile(public_key)
 
@@ -267,6 +274,13 @@ defmodule NostrApp.Server do
     IO.puts("from #{relay}")
     # credo:disable-for-next-line
     IO.inspect(event)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%RecommendedServerEvent{relay: relay, event: event}, socket) do
+    IO.puts("#{relay} is recommended by #{event.pubkey |> PublicKey.to_npub()}")
 
     {:noreply, socket}
   end

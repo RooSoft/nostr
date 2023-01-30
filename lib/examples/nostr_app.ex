@@ -24,6 +24,10 @@ defmodule NostrApp do
     GenServer.cast(Server, {:update_profile, profile})
   end
 
+  def recommended_servers() do
+    GenServer.cast(Server, {:recommended_servers})
+  end
+
   ### NIP-01
   def note(note_id) do
     GenServer.cast(Server, {:note, note_id})

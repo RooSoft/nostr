@@ -12,7 +12,8 @@ defmodule Nostr.Event.Dispatcher do
     ContactsEvent,
     EncryptedDirectMessageEvent,
     RepostEvent,
-    ReactionEvent
+    ReactionEvent,
+    RecommendedServerEvent
   }
 
   @doc """
@@ -55,9 +56,7 @@ defmodule Nostr.Event.Dispatcher do
   end
 
   def dispatch(%{"kind" => 2} = content) do
-    Logger.info("2- recommend relay: #{inspect(content)}")
-
-    {:ok, :recommend_relay_event}
+    RecommendedServerEvent.parse(content)
   end
 
   def dispatch(%{"kind" => 3} = content) do

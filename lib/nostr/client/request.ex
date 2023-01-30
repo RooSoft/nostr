@@ -7,6 +7,7 @@ defmodule Nostr.Client.Request do
 
   @metadata_kind 0
   @text_kind 1
+  @recommended_servers_kind 2
   @contacts_kind 3
   @encrypted_direct_message_kind 4
   @deletion_kind 5
@@ -15,6 +16,10 @@ defmodule Nostr.Client.Request do
 
   def profile(pubkey) do
     get_by_authors([pubkey], [@metadata_kind], nil)
+  end
+
+  def recommended_servers() do
+    get_by_authors([], [@recommended_servers_kind], nil)
   end
 
   def contacts(pubkey, limit) do

@@ -75,8 +75,17 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
-  def handle_call({:profile, pubkey, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.profile(pubkey)
+  def handle_call({:profile, subscriber}, _from, state) do
+    {atom_subscription_id, json} = Nostr.Client.Request.recommended_servers()
+
+    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+
+    {:reply, atom_subscription_id, state}
+  end
+
+  @impl true
+  def handle_call({:recommended_servers, subscriber}, _from, state) do
+    {atom_subscription_id, json} = Nostr.Client.Request.recommended_servers()
 
     send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
 

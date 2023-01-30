@@ -15,6 +15,7 @@ defmodule Nostr.Client do
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
+    RecommendedServersSubscription,
     ContactsSubscription,
     NoteSubscription,
     NotesSubscription,
@@ -83,6 +84,21 @@ defmodule Nostr.Client do
       {:error, message} ->
         {:error, message}
     end
+  end
+
+  @doc """
+  Get an author's recommended servers
+  """
+  @spec subscribe_recommended_servers() ::
+          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
+  def subscribe_recommended_servers() do
+    {
+      :ok,
+      DynamicSupervisor.start_child(
+        Nostr.Subscriptions,
+        {RecommendedServersSubscription, [RelayManager.active_pids(), self()]}
+      )
+    }
   end
 
   @doc """
