@@ -34,11 +34,12 @@ defmodule Nostr.Event.Types.ContactsEvent do
   def parse(body) do
     event = Event.parse(body)
 
+    relays = extract_relays(event.content)
     contacts = Enum.map(event.tags, &parse_contact/1)
 
     case event.kind do
       @kind ->
-        {:ok, create_contact_list(event, contacts)}
+        {:ok, create_contact_list(event, contacts, relays)}
 
       kind ->
         {
@@ -68,12 +69,33 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
   defp parse_contact(data), do: %{unknown_content_type: data}
 
-  defp create_contact_list(event, contacts) do
+  defp extract_relays(relays_list) when is_map(relays_list) do
+    relays_list
+    |> Map.keys()
+    |> Enum.map(fn url ->
+      item = relays_list[url]
+
+      IO.inspect(item)
+
+      %{
+        url: url,
+        read?: Map.get(item, "read"),
+        write?: Map.get(item, "write")
+      }
+    end)
+  end
+
+  defp extract_relays(_) do
+    nil
+  end
+
+  defp create_contact_list(event, contacts, relays) do
     %ContactList{
       id: event.id,
       pubkey: event.pubkey,
       created_at: event.created_at,
-      contacts: contacts
+      contacts: contacts,
+      relays: relays
     }
   end
 end

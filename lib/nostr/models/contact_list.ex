@@ -3,7 +3,7 @@ defmodule Nostr.Models.ContactList do
   Represents a nostr user's contact list
   """
 
-  defstruct [:id, :pubkey, :created_at, :contacts]
+  defstruct [:id, :pubkey, :created_at, :contacts, :relays]
 
   alias Nostr.Models.{Contact, ContactList}
 
