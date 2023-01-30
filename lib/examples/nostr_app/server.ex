@@ -42,6 +42,17 @@ defmodule NostrApp.Server do
     end
   end
 
+  @impl true
+  def handle_call({:subscriptions}, _from, socket) do
+    subscriptions =
+      Client.subscriptions()
+      |> Enum.map(fn {:undefined, pid, :worker, [type]} ->
+        {pid, type}
+      end)
+
+    {:reply, subscriptions, socket}
+  end
+
   ### Send functions
   ##################
 

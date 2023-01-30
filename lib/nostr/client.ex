@@ -385,4 +385,8 @@ defmodule Nostr.Client do
       {:error, message} -> {:error, message}
     end
   end
+
+  def subscriptions() do
+    DynamicSupervisor.which_children(Nostr.Subscriptions)
+  end
 end

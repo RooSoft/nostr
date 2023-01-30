@@ -144,4 +144,10 @@ defmodule NostrApp do
   def timeline(pubkey) do
     GenServer.cast(Server, {:timeline, pubkey})
   end
+
+  def subscriptions() do
+    subscriptions = GenServer.call(Server, {:subscriptions})
+
+    IO.puts("Subscribed to #{inspect(subscriptions)}")
+  end
 end
