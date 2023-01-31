@@ -388,5 +388,13 @@ defmodule Nostr.Client do
 
   def subscriptions() do
     DynamicSupervisor.which_children(Nostr.Subscriptions)
+    |> Enum.map(fn {:undefined, pid, :worker, [type]} ->
+      {pid, type}
+    end)
+  end
+
+  def unsubscribe(pid) do
+    DynamicSupervisor.terminate_child(Nostr.Subscriptions, pid)
+#    GenServer.call(pid, {:terminate, :shutdown})
   end
 end

@@ -43,14 +43,19 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_call({:subscriptions}, _from, socket) do
-    subscriptions =
-      Client.subscriptions()
-      |> Enum.map(fn {:undefined, pid, :worker, [type]} ->
-        {pid, type}
-      end)
+  def handle_cast({:subscriptions}, socket) do
+    subscriptions = Client.subscriptions()
 
-    {:reply, subscriptions, socket}
+    Logger.info("Subscribed to #{inspect(subscriptions)}")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_cast({:unsubscribe, pid}, socket) do
+    Client.unsubscribe(pid)
+
+    {:noreply, socket}
   end
 
   ### Send functions

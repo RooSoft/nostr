@@ -146,8 +146,10 @@ defmodule NostrApp do
   end
 
   def subscriptions() do
-    subscriptions = GenServer.call(Server, {:subscriptions})
+    GenServer.cast(Server, {:subscriptions})
+  end
 
-    IO.puts("Subscribed to #{inspect(subscriptions)}")
+  def unsubscribe(pid) do
+    GenServer.cast(Server, {:unsubscribe, pid})
   end
 end
