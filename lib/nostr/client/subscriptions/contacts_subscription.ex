@@ -35,7 +35,7 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
   end
 
   @impl true
-  def terminate(reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
+  def terminate(_reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
     unsubscribe_all(relay_pids, subscriptions)
 
     {:noreply, state}
