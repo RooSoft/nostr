@@ -26,7 +26,7 @@ defmodule Nostr.Client.Relays.RelaySocket.Connector do
         "wss" -> :wss
       end
 
-    path = "/"
+    path = uri.path
 
     with {:ok, conn} <- HTTP.connect(http_scheme, uri.host, uri.port, protocols: [:http1]),
          {:ok, conn, ref} <- WebSocket.upgrade(ws_scheme, conn, path, []) do
