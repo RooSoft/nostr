@@ -19,6 +19,8 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
+    Process.flag(:trap_exit, true)
+
     subscriptions =
       relay_pids
       |> Enum.map(fn relay_pid ->
@@ -31,6 +33,13 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
       |> set_profile_subscriptions(subscriptions)
       |> Map.put(:found, false)
     }
+  end
+
+  @impl true
+  def terminate(_reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
+    unsubscribe_all(relay_pids, subscriptions)
+
+    {:noreply, state}
   end
 
   @impl true
@@ -67,5 +76,11 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   defp set_profile_subscriptions(state, subscriptions) do
     Map.put(state, :subscriptions, subscriptions)
+  end
+
+  defp unsubscribe_all(relay_pids, subscriptions) do
+    for relay_pid <- relay_pids, subscription <- subscriptions do
+      RelaySocket.unsubscribe(relay_pid, subscription)
+    end
   end
 end
