@@ -34,4 +34,10 @@ defmodule Nostr.Client.FrameDispatcher do
 
     {:error, "unknown frame type: #{type}"}
   end
+
+  def dispatch(unknown) do
+    Logger.debug("UNKNOWN FRAME: #{inspect(unknown)}")
+
+    {:error, "unknown frame: #{unknown}"}
+  end
 end
