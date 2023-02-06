@@ -3,7 +3,7 @@ defmodule Nostr.Client.Request do
   Transforms simple functions into JSON requests that relays can interpret
   """
 
-  alias Nostr.Util
+  @default_id_size 16
 
   @metadata_kind 0
   @text_kind 1
@@ -52,7 +52,7 @@ defmodule Nostr.Client.Request do
   end
 
   defp get_by_kind(kind, pubkeys, limit) do
-    request_id = Util.generate_random_id()
+    request_id = generate_random_id()
     filter = filter_by_kind(kind, pubkeys, limit)
     json = request(request_id, filter)
 
@@ -62,7 +62,7 @@ defmodule Nostr.Client.Request do
   end
 
   defp get_by_ids(ids, kind) do
-    request_id = Util.generate_random_id()
+    request_id = generate_random_id()
     filter = filter_by_ids(ids, kind, 1)
     json = request(request_id, filter)
 
@@ -72,7 +72,7 @@ defmodule Nostr.Client.Request do
   end
 
   defp get_by_authors(pubkeys, kinds, limit) do
-    request_id = Util.generate_random_id()
+    request_id = generate_random_id()
     filter = filter_by_authors(pubkeys, kinds, limit)
     json = request(request_id, filter)
 
@@ -121,5 +121,10 @@ defmodule Nostr.Client.Request do
   defp request(id, filter) do
     ["REQ", id, filter]
     |> Jason.encode!()
+  end
+
+  @spec generate_random_id(integer()) :: binary()
+  defp generate_random_id(size \\ @default_id_size) do
+    :crypto.strong_rand_bytes(size) |> Binary.to_hex()
   end
 end
