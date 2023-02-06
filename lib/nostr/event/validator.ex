@@ -24,6 +24,7 @@ defmodule Nostr.Event.Validator do
     end
   end
 
+  @spec validate_signature(Event.t()) :: :ok | {:error, atom()}
   def validate_signature(%Event{id: hex_id, sig: sig, pubkey: pubkey}) do
     id = Binary.from_hex(hex_id)
 
