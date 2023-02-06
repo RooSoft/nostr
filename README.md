@@ -96,7 +96,7 @@ NostrApp.send("aren't you entertained?")
 
 ```elixir
 "note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
-|> Nostr.Models.Note.Id.from_bech32()
+|> Nostr.Event.Id.from_bech32()
 |> NostrApp.repost()
 ```
 
@@ -104,7 +104,7 @@ NostrApp.send("aren't you entertained?")
 
 ```elixir
 "note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
-|> Nostr.Models.Note.Id.from_bech32()
+|> Nostr.Event.Id.from_bech32()
 |> NostrApp.delete()
 ```
 
