@@ -75,6 +75,7 @@ defmodule Nostr.Event.Id do
   def from_bech32(bech32_event_id) do
     case Bech32.decode(bech32_event_id) do
       {:ok, hrp, event_id} -> {:ok, hrp, event_id}
+      {:error, :no_seperator} -> {:error, "not a valid bech32 identifier"}
       {:error, message} -> {:error, message}
     end
   end
@@ -92,6 +93,46 @@ defmodule Nostr.Event.Id do
     case from_bech32(bech32_id) do
       {:ok, _hrp, event_id} -> event_id
       {:error, message} -> raise message
+    end
+  end
+
+  @doc """
+  Does its best to convert any event id format to binary, issues an error if it can't
+  ## Examples
+      iex> "note1qkjgra6cm5ms6m88kqdapfjnxm8q50lcurevtpvm4f6pfs8j5sxq90f098"
+      ...> |> Nostr.Event.Id.to_binary()
+      { :ok, "note", <<0x05a481f758dd370d6ce7b01bd0a65336ce0a3ff8e0f2c5859baa7414c0f2a40c::256>> }
+  """
+  @spec to_binary(<<_::256>> | String.t() | list()) ::
+          {:ok, <<_::256>>} | {:ok, list(<<_::256>>)} | {:error, String.t()}
+  def to_binary(<<_::256>> = event_id), do: {:ok, event_id}
+  def to_binary(event_id) when is_binary(event_id), do: from_bech32(event_id)
+
+  def to_binary(event_id) when is_list(event_id) do
+    event_id
+    |> Enum.reverse()
+    |> Enum.reduce({:ok, []}, &reduce_to_binaries/2)
+  end
+
+  def to_binary(not_lowercase_bech32_event_id) do
+    not_lowercase_bech32_event_id
+    |> String.downcase()
+    |> from_bech32()
+  end
+
+  defp reduce_to_binaries(event_id, acc) do
+    case acc do
+      {:ok, binary_event_ids} ->
+        case to_binary(event_id) do
+          {:ok, _type, binary_event_id} ->
+            {:ok, [binary_event_id | binary_event_ids]}
+
+          {:error, message} ->
+            {:error, message}
+        end
+
+      {:error, message} ->
+        {:error, message}
     end
   end
 end

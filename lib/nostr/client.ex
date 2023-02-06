@@ -7,6 +7,7 @@ defmodule Nostr.Client do
 
   require Logger
 
+  alias Nostr.Event
   alias Nostr.Keys.{PublicKey, PrivateKey}
   alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
@@ -213,8 +214,8 @@ defmodule Nostr.Client do
   """
   @spec subscribe_note(Note.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
-    case Note.Id.to_binary(note_id) do
-      {:ok, binary_note_id} ->
+    case Event.Id.to_binary(note_id) do
+      {:ok, "note", binary_note_id} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
           {NoteSubscription, [RelayManager.active_pids(), binary_note_id, self()]}
@@ -253,7 +254,7 @@ defmodule Nostr.Client do
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def delete_events(note_ids, note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, binary_note_ids} <- Note.Id.to_binary(note_ids) do
+         {:ok, "note", binary_note_ids} <- Event.Id.to_binary(note_ids) do
       {:ok,
        DeleteEvents.start_link(RelayManager.active_pids(), binary_note_ids, note, binary_privkey)}
     else
@@ -284,7 +285,7 @@ defmodule Nostr.Client do
   @spec repost(Note.id(), PrivateKey.id()) :: {:ok, GenServer.on_start()} | {:error, String.t()}
   def repost(note_id, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
+         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
       {:ok, SendRepost.start_link(RelayManager.active_pids(), binary_note_id, binary_privkey)}
     else
       {:error, message} -> {:error, message}
@@ -371,7 +372,7 @@ defmodule Nostr.Client do
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def react(note_id, privkey, content \\ "+") do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, binary_note_id} <- Note.Id.to_binary(note_id) do
+         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
       {
         :ok,
         SendReaction.start_link(
@@ -395,6 +396,6 @@ defmodule Nostr.Client do
 
   def unsubscribe(pid) do
     DynamicSupervisor.terminate_child(Nostr.Subscriptions, pid)
-#    GenServer.call(pid, {:terminate, :shutdown})
+    #    GenServer.call(pid, {:terminate, :shutdown})
   end
 end
