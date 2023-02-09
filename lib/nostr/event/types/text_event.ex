@@ -7,10 +7,10 @@ defmodule Nostr.Event.Types.TextEvent do
 
   require Logger
 
-  defstruct event: %Nostr.Event{}
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.TextEvent
+
+  defstruct event: %Event{}
 
   @type t :: %TextEvent{}
 
@@ -19,14 +19,14 @@ defmodule Nostr.Event.Types.TextEvent do
   @spec create(binary(), <<_::256>>) :: TextEvent.t()
   def create(content, pubkey) do
     event =
-      %{Event.create(content, pubkey) | kind: @kind}
+      Event.create(@kind, content, pubkey)
       |> Event.add_id()
 
     %TextEvent{event: event}
   end
 
   def parse(%{"content" => content} = body) do
-    event = %{Event.parse(body) | content: content}
+    event = %{Event.decode(body) | content: content}
 
     case event.kind do
       @kind -> {:ok, %TextEvent{event: event}}

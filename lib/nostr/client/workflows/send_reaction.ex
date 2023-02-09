@@ -8,9 +8,10 @@ defmodule Nostr.Client.Workflows.SendReaction do
 
   require Logger
 
+  alias NostrBasics.Event.{Signer, Validator}
+
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{ReactionEvent, EndOfStoredEvents}
+  alias Nostr.Event.Types.{ReactionEvent}
 
   def start_link(relay_pids, note_id, privkey, content \\ "+") do
     GenServer.start(__MODULE__, %{
@@ -52,12 +53,14 @@ defmodule Nostr.Client.Workflows.SendReaction do
     {:noreply, state}
   end
 
-  @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, state) do
-    ## nothing to do
+  ## TODO figure out what to do with this case once NostrBasics refactoring is done
+  #
+  # @impl true
+  # def handle_info({_relay, %EndOfStoredEvents{}}, state) do
+  #   ## nothing to do
 
-    {:noreply, state}
-  end
+  #   {:noreply, state}
+  # end
 
   @impl true
   # when we first get the note, time to react on it

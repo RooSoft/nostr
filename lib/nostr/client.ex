@@ -7,9 +7,10 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Event
+  alias NostrBasics.{Event}
+  alias NostrBasics.Event.{Signer, Validator}
+
   alias Nostr.Keys.{PublicKey, PrivateKey}
-  alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile, Note}
   alias Nostr.Client.Relays.RelayManager

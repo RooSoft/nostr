@@ -5,11 +5,11 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
 
   require Logger
 
-  defstruct [:decrypted, :decryption_error, event: %Nostr.Event{}]
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.EncryptedDirectMessageEvent
   alias Nostr.Keys.PublicKey
+
+  defstruct [:decrypted, :decryption_error, event: %Event{}]
 
   @type t :: %EncryptedDirectMessageEvent{}
 
@@ -22,7 +22,7 @@ defmodule Nostr.Event.Types.EncryptedDirectMessageEvent do
     tags = [["p", hex_pubkey]]
 
     event =
-      %{Event.create(content, local_pubkey) | kind: @kind, tags: tags}
+      %{Event.create(@kind, content, local_pubkey) | tags: tags}
       |> Event.add_id()
 
     %EncryptedDirectMessageEvent{event: event}

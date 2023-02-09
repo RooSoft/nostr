@@ -7,20 +7,19 @@ defmodule Nostr.Event.Types.MetadataEvent do
 
   require Logger
 
-  defstruct event: %Nostr.Event{}
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Models.Profile
   alias Nostr.Event.Types.MetadataEvent
+
+  defstruct event: %Event{}
 
   @kind 0
 
   @spec create_empty_event(<<_::256>>) :: Event.t()
   def create_empty_event(pubkey) do
     %{
-      Event.create(nil, pubkey)
-      | kind: @kind,
-        tags: [],
+      Event.create(@kind, nil, pubkey)
+      | tags: [],
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()
@@ -33,9 +32,8 @@ defmodule Nostr.Event.Types.MetadataEvent do
       {:ok, json_profile} ->
         event =
           %{
-            Event.create(json_profile, pubkey)
-            | kind: @kind,
-              tags: [],
+            Event.create(@kind, json_profile, pubkey)
+            | tags: [],
               created_at: DateTime.utc_now()
           }
           |> Event.add_id()

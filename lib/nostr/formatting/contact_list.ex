@@ -1,5 +1,5 @@
 defimpl Inspect, for: Nostr.Models.ContactList do
-  alias Nostr.Formatting.HexBinary
+  alias NostrBasics.HexBinary
 
   def inspect(%Nostr.Models.ContactList{} = contact_list, opts) do
     %{

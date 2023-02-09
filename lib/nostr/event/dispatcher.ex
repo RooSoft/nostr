@@ -30,11 +30,11 @@ defmodule Nostr.Event.Dispatcher do
       ...>     "8d3b6dc22f3a94e1491ebb6997ff220156c89826e925e383430d0e488e80f4b5aaa03d04f75a3dafd80a97d42a7546c048720b9861cf0df776da824de716f5a6",
       ...>   "tags" => []
       ...> }
-      ...>  |> Nostr.Event.Dispatcher.dispatch
+      ...> |> Nostr.Event.Dispatcher.dispatch
       {
         :ok,
         %Nostr.Event.Types.TextEvent{
-          event: %Nostr.Event{
+          event: %NostrBasics.Event{
             id: "e02903e546a84d54772121f4bbbe213f171103a3c3a121b5531098dafdaba725",
             pubkey: <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
             created_at: ~U[2022-12-26 19:24:59Z],

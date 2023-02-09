@@ -8,8 +8,9 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
 
   require Logger
 
+  alias NostrBasics.Event.{Signer, Validator}
+
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{DeleteEvent}
 
   def start_link(relay_pids, event_ids, note, privkey) do

@@ -8,10 +8,10 @@ defmodule Nostr.Event.Types.DeleteEvent do
 
   require Logger
 
-  defstruct event: %Nostr.Event{}
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.{DeleteEvent}
+
+  defstruct event: %Event{}
 
   @kind 5
 
@@ -21,9 +21,8 @@ defmodule Nostr.Event.Types.DeleteEvent do
       |> Enum.map(&["e", Binary.to_hex(&1)])
 
     %{
-      Event.create(note, pubkey)
-      | kind: @kind,
-        tags: tags,
+      Event.create(@kind, note, pubkey)
+      | tags: tags,
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()

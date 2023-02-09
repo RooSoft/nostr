@@ -1,9 +1,10 @@
 defmodule Nostr.Integration.SignAndVerifyTest do
   use ExUnit.Case, async: true
 
+  alias NostrBasics.Event
+  alias NostrBasics.Event.{Signer, Validator}
+
   alias Nostr.Keys.PublicKey
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event
 
   @test_private_key <<0x4E22DA43418DD934373CBB38A5AB13059191A2B3A51C5E0B67EB1334656943B8::256>>
 
@@ -52,7 +53,7 @@ defmodule Nostr.Integration.SignAndVerifyTest do
     #     <<0x3769EADFAC12E7BCCEEE97B7519EF283303BB4FB6D8B9F6A2CE7044B8941139557DEA3D9091BC571DDE8C9E2EA1BCD85EFC4F04F28A6EA0409EF73EF82DB7705::512>>
     # }
 
-    event = %Nostr.Event{
+    event = %Event{
       id: "76de8fef03eda5ba3ff5eda7eeef7b9a0b2d7cc6dc13242702ddc9fa93d15edd",
       pubkey: <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
       created_at: ~U[2023-01-11 20:06:57Z],

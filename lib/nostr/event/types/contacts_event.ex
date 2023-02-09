@@ -5,7 +5,7 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
   require Logger
 
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Models.{Contact, ContactList}
 
   @kind 3
@@ -23,9 +23,8 @@ defmodule Nostr.Event.Types.ContactsEvent do
       end)
 
     %{
-      Event.create(@empty_content, pubkey)
-      | kind: @kind,
-        tags: tags,
+      Event.create(@kind, @empty_content, pubkey)
+      | tags: tags,
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()

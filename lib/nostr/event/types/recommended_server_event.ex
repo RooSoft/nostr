@@ -5,19 +5,18 @@ defmodule Nostr.Event.Types.RecommendedServerEvent do
   This represents mainly a user's relay list at the time of this writing
   """
 
-  defstruct [:relay, event: %Nostr.Event{}]
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.RecommendedServerEvent
+
+  defstruct [:relay, event: %Event{}]
 
   @kind 2
 
   @spec create_empty_event(<<_::256>>) :: Event.t()
   def create_empty_event(pubkey) do
     %{
-      Event.create(nil, pubkey)
-      | kind: @kind,
-        tags: [],
+      Event.create(@kind, nil, pubkey)
+      | tags: [],
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()

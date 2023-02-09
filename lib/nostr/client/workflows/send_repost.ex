@@ -8,9 +8,9 @@ defmodule Nostr.Client.Workflows.SendRepost do
 
   require Logger
 
+  alias NostrBasics.Event.{Signer, Validator}
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{RepostEvent, EndOfStoredEvents}
+  alias Nostr.Event.Types.{RepostEvent}
 
   def start_link(relay_pids, note_id, privkey) do
     GenServer.start(__MODULE__, %{
@@ -51,12 +51,14 @@ defmodule Nostr.Client.Workflows.SendRepost do
     {:noreply, state}
   end
 
-  @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, state) do
-    ## nothing to do
+  ## TODO figure out what to do with this case once NostrBasics refactoring is done
+  #
+  # @impl true
+  # def handle_info({_relay, %EndOfStoredEvents{}}, state) do
+  #   ## nothing to do
 
-    {:noreply, state}
-  end
+  #   {:noreply, state}
+  # end
 
   @impl true
   # when we first get the note, time to repost it

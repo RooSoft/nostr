@@ -13,10 +13,10 @@ defmodule Nostr.Event.Types.RepostEvent do
 
   require Logger
 
-  defstruct event: %Nostr.Event{}
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.{RepostEvent, TextEvent}
+
+  defstruct event: %Event{}
 
   @type t :: %RepostEvent{}
 
@@ -36,9 +36,8 @@ defmodule Nostr.Event.Types.RepostEvent do
     content = content_from_text_event(text_event, relays)
 
     %{
-      Event.create(content, pubkey)
-      | kind: @kind,
-        tags: tags,
+      Event.create(@kind, content, pubkey)
+      | tags: tags,
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()

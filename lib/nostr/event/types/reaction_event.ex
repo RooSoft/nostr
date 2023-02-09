@@ -7,10 +7,10 @@ defmodule Nostr.Event.Types.ReactionEvent do
 
   require Logger
 
-  defstruct event: %Nostr.Event{}
-
-  alias Nostr.Event
+  alias NostrBasics.Event
   alias Nostr.Event.Types.{TextEvent, ReactionEvent}
+
+  defstruct event: %Event{}
 
   @kind 7
 
@@ -21,9 +21,8 @@ defmodule Nostr.Event.Types.ReactionEvent do
     ]
 
     %{
-      Event.create(content, pubkey)
-      | kind: @kind,
-        tags: tags,
+      Event.create(@kind, content, pubkey)
+      | tags: tags,
         created_at: DateTime.utc_now()
     }
     |> Event.add_id()

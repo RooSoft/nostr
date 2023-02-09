@@ -3,5 +3,5 @@ defmodule Nostr.Event.Types.EndOfStoredEvents do
   Representing an empty event that signals the end of a list of recorded event
   """
 
-  defstruct []
+  defstruct [:relay_url, :subscription_id]
 end

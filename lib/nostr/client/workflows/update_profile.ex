@@ -8,9 +8,10 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
 
   require Logger
 
+  alias NostrBasics.Event.{Signer, Validator}
+
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Models.Profile
-  alias Nostr.Event.{Signer, Validator}
   alias Nostr.Event.Types.{MetadataEvent}
 
   def start_link(relay_pids, %Profile{} = new_profile, privkey) do
