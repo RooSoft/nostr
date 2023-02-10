@@ -7,11 +7,9 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
   use GenServer
 
   alias NostrBasics.Event
-  alias NostrBasics.Crypto.AES256CBC
   alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{EncryptedDirectMessageEvent, EndOfStoredEvents}
 
   def start_link([relay_pids, private_key, subscriber]) do
     GenServer.start_link(__MODULE__, %{
@@ -44,27 +42,19 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
   end
 
   @impl true
-  def handle_info(
-        {_relay_url,
-         %EncryptedDirectMessageEvent{
-           event: %Event{pubkey: remote_pubkey, content: encrypted_content}
-         } = encrypted_dm},
-        %{subscriber: subscriber, private_key: local_private_key} = state
-      ) do
-    case AES256CBC.decrypt(encrypted_content, local_private_key, remote_pubkey) do
-      {:ok, decrypted} ->
-        send(subscriber, %{encrypted_dm | decrypted: decrypted})
-
-      {:error, message} ->
-        send(subscriber, %{encrypted_dm | decryption_error: message})
-    end
+  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+    IO.inspect("EOSE in encrypted direct messages subscription #{relay_url} #{subscription_id}")
+    ## nothing to do
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({_relay_url, %EndOfStoredEvents{}}, state) do
-    ## nothing to do
+  def handle_info(
+        {_relay_url, _subscription_id, %Event{} = event},
+        %{subscriber: subscriber} = state
+      ) do
+    send(subscriber, event)
 
     {:noreply, state}
   end
