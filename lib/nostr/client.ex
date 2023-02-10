@@ -255,7 +255,7 @@ defmodule Nostr.Client do
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def delete_events(note_ids, note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_ids} <- Event.Id.to_binary(note_ids) do
+         {:ok, binary_note_ids} <- Event.Id.to_binary(note_ids) do
       {:ok,
        DeleteEvents.start_link(RelayManager.active_pids(), binary_note_ids, note, binary_privkey)}
     else
