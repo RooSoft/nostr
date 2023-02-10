@@ -228,9 +228,9 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Get an author's notes
+  Get a list of author's notes
   """
-  @spec subscribe_notes(list(Note.id())) ::
+  @spec subscribe_notes(list(Note.id()) | Note.id()) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_notes(pubkeys) when is_list(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
@@ -246,6 +246,10 @@ defmodule Nostr.Client do
       {:error, message} ->
         {:error, message}
     end
+  end
+
+  def subscribe_notes(pubkey) do
+    subscribe_notes([pubkey])
   end
 
   @doc """
