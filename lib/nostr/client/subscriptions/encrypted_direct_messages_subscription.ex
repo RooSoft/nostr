@@ -7,11 +7,11 @@ defmodule Nostr.Client.Subscriptions.EncryptedDirectMessagesSubscription do
   use GenServer
 
   alias NostrBasics.Event
+  alias NostrBasics.Crypto.AES256CBC
+  alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, EndOfStoredEvents}
-  alias Nostr.Keys.PublicKey
-  alias Nostr.Crypto.AES256CBC
 
   def start_link([relay_pids, private_key, subscriber]) do
     GenServer.start_link(__MODULE__, %{

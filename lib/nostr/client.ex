@@ -10,6 +10,7 @@ defmodule Nostr.Client do
   alias NostrBasics.{Event}
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
+  alias NostrBasics.Crypto.AES256CBC
 
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile, Note}
@@ -37,7 +38,6 @@ defmodule Nostr.Client do
     UpdateProfile
   }
 
-  alias Nostr.Crypto.AES256CBC
   alias Nostr.Client.Relays.RelaySocket
 
   @default_config {}

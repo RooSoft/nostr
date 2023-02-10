@@ -9,6 +9,7 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
   require Logger
 
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Models.Profile
@@ -48,7 +49,7 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
   end
 
   defp update_profile(%Profile{} = new_profile, privkey, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+    pubkey = PublicKey.from_private_key!(privkey)
 
     with {:ok, event} <- MetadataEvent.create_event(new_profile, pubkey),
          {:ok, signed_event} <- Signer.sign_event(event, privkey) do

@@ -9,6 +9,7 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
   require Logger
 
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{DeleteEvent}
@@ -48,7 +49,7 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
   end
 
   defp delete_event(event_ids, note, privkey, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+    pubkey = PublicKey.from_private_key!(privkey)
 
     with event <- DeleteEvent.create_event(event_ids, note, pubkey),
          {:ok, signed_event} <- Signer.sign_event(event, privkey) do

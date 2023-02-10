@@ -9,6 +9,8 @@ defmodule Nostr.Client.Workflows.SendRepost do
   require Logger
 
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
+
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{RepostEvent}
 
@@ -95,7 +97,7 @@ defmodule Nostr.Client.Workflows.SendRepost do
   end
 
   defp repost(note, found_on_relay, privkey, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+    pubkey = PublicKey.from_private_key!(privkey)
 
     {:ok, signed_event} =
       note

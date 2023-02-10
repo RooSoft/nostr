@@ -8,6 +8,7 @@ defmodule Nostr.Client.Workflows.SendReaction do
 
   require Logger
 
+  alias NostrBasics.Keys.PublicKey
   alias NostrBasics.Event.{Signer, Validator}
 
   alias Nostr.Client.Relays.RelaySocket
@@ -97,7 +98,7 @@ defmodule Nostr.Client.Workflows.SendReaction do
   end
 
   defp react(note, privkey, content, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+    pubkey = PublicKey.from_private_key!(privkey)
 
     {:ok, signed_event} =
       note
