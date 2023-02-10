@@ -7,7 +7,6 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   use GenServer
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.EndOfStoredEvents
 
   def start_link([relay_pids, pubkeys, subscriber]) do
     GenServer.start_link(__MODULE__, %{
@@ -40,15 +39,16 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   end
 
   @impl true
-  def handle_info(note, %{subscriber: subscriber} = state) do
-    send(subscriber, note)
+  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+    IO.inspect("EOSE in notes subscription #{relay_url} #{subscription_id}")
+    ## nothing to do
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info(%EndOfStoredEvents{}, state) do
-    ## nothing to do
+  def handle_info(note, %{subscriber: subscriber} = state) do
+    send(subscriber, note)
 
     {:noreply, state}
   end
