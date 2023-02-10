@@ -13,11 +13,11 @@ defmodule Nostr.Client.Workflows.Follow do
   use GenServer
 
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{ContactsEvent, EndOfStoredEvents}
   alias Nostr.Models.ContactList
-  alias Nostr.Keys.PublicKey
 
   def start_link(relay_pids, follow_pubkey, privkey) do
     GenServer.start(__MODULE__, %{
@@ -66,7 +66,7 @@ defmodule Nostr.Client.Workflows.Follow do
 
   @impl true
   def handle_info({_relay, %EndOfStoredEvents{}}, %{privkey: privkey, treated: false} = state) do
-    profile_pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+    profile_pubkey = PublicKey.from_private_key!(privkey)
 
     new_contact_list = %Nostr.Models.ContactList{
       pubkey: profile_pubkey,

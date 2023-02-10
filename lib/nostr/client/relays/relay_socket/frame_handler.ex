@@ -24,11 +24,16 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandler do
 
   defp handle_message(
          {:end_of_stored_events, subscription_id},
-         _subscriptions,
+         subscriptions,
          relay_url,
-         owner_pid
+         _owner_pid
        ) do
-    send(owner_pid, {:console, :eose, %{url: relay_url, subscription_id: subscription_id}})
+    message = {:end_of_stored_events, relay_url, subscription_id}
+
+    case Keyword.get(subscriptions, String.to_atom(subscription_id)) do
+      nil -> message
+      subscriber -> send(subscriber, message)
+    end
   end
 
   defp handle_message({:ok, event_id, success?, message}, _subscriptions, relay_url, owner_pid) do
