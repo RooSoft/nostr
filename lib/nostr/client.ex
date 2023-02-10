@@ -9,8 +9,8 @@ defmodule Nostr.Client do
 
   alias NostrBasics.{Event}
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.{PublicKey, PrivateKey}
 
-  alias Nostr.Keys.{PublicKey, PrivateKey}
   alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
   alias Nostr.Models.{Profile, Note}
   alias Nostr.Client.Relays.RelayManager

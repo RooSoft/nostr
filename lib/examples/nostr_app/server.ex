@@ -9,10 +9,11 @@ defmodule NostrApp.Server do
 
   alias NostrApp.{ConsoleHandler, Subscribe}
 
+  alias NostrBasics.Keys.{PrivateKey, PublicKey}
+
   alias Nostr.Client
   alias Nostr.Event.Types.{MetadataEvent, RecommendedServerEvent}
   alias Nostr.Models.{Profile}
-  alias Nostr.Keys.{PrivateKey, PublicKey}
 
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do

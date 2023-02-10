@@ -3,8 +3,7 @@ defmodule Nostr.Integration.SignAndVerifyTest do
 
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
-
-  alias Nostr.Keys.PublicKey
+  alias NostrBasics.Keys.PublicKey
 
   @test_private_key <<0x4E22DA43418DD934373CBB38A5AB13059191A2B3A51C5E0B67EB1334656943B8::256>>
 
