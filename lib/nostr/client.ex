@@ -216,7 +216,7 @@ defmodule Nostr.Client do
   @spec subscribe_note(Note.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
     case Event.Id.to_binary(note_id) do
-      {:ok, "note", binary_note_id} ->
+      {:ok, binary_note_id} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
           {NoteSubscription, [RelayManager.active_pids(), binary_note_id, self()]}
