@@ -29,13 +29,13 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
     relay_url = "my.relay.social"
 
-    {:console, :eose, %{subscription_id: subscription_id, url: received_relay_url}} =
+    {:end_of_stored_events, received_relay_url, subscription_id} =
       FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
     assert subscription_id == "a806462fec12d934e452e1375a2401ef"
     assert received_relay_url == relay_url
 
-    assert_receive {:console, :eose, %{subscription_id: ^subscription_id, url: ^relay_url}}
+    assert_receive {:end_of_stored_events, ^received_relay_url, ^subscription_id}
   end
 
   test "manage an NOTICE frame" do

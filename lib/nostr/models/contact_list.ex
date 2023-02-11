@@ -3,9 +3,15 @@ defmodule Nostr.Models.ContactList do
   Represents a nostr user's contact list
   """
 
-  defstruct [:id, :pubkey, :created_at, :contacts, :relays]
+  defstruct [:pubkey, :contacts, :relays]
 
   alias Nostr.Models.{Contact, ContactList}
+
+  @type t :: %ContactList{}
+
+  def from_event(event) do
+    ContactList.Converter.from_event(event)
+  end
 
   def add(%ContactList{contacts: contacts} = contact_list, pubkey) do
     contact = %Contact{pubkey: pubkey}
