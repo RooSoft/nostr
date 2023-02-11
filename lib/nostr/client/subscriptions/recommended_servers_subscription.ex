@@ -33,11 +33,9 @@ defmodule Nostr.Client.Subscriptions.RecommendedServersSubscription do
   end
 
   @impl true
-  def handle_info(
-        {_relay_url, %EndOfStoredEvents{} = eose},
-        %{found: false, subscriber: subscriber} = state
-      ) do
-    send(subscriber, eose)
+  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+    IO.inspect("EOSE in note subscription #{relay_url} #{subscription_id}")
+    ## nothing to do
 
     {:noreply, state}
   end
