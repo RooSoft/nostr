@@ -16,7 +16,7 @@ defmodule Nostr.Client.Workflows.Follow do
   alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{ContactsEvent, EndOfStoredEvents}
+  alias Nostr.Event.Types.{ContactsEvent}
   alias Nostr.Models.ContactList
 
   def start_link(relay_pids, follow_pubkey, privkey) do
@@ -65,7 +65,10 @@ defmodule Nostr.Client.Workflows.Follow do
   end
 
   @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, %{privkey: privkey, treated: false} = state) do
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{privkey: privkey, treated: false} = state
+      ) do
     profile_pubkey = PublicKey.from_private_key!(privkey)
 
     new_contact_list = %Nostr.Models.ContactList{
