@@ -52,6 +52,12 @@ defmodule Nostr.Models.ContactList.Converter do
   defp extract_relays(nil), do: []
   defp extract_relays(""), do: []
 
+  defp extract_relays(relays_list) when is_binary(relays_list) do
+    relays_list
+    |> Jason.decode!()
+    |> extract_relays()
+  end
+
   defp extract_relays(relays_list) when is_map(relays_list) do
     relays_list
     |> Map.keys()
