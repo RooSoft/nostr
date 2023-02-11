@@ -90,9 +90,7 @@ defmodule Nostr.Event.Types.ContactsEvent do
 
   defp create_contact_list(event, contacts, relays) do
     %ContactList{
-      id: event.id,
       pubkey: event.pubkey,
-      created_at: event.created_at,
       contacts: contacts,
       relays: relays
     }

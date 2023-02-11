@@ -70,7 +70,6 @@ defmodule Nostr.Client.Workflows.Unfollow do
 
     new_contact_list = %Nostr.Models.ContactList{
       pubkey: profile_pubkey,
-      created_at: DateTime.utc_now(),
       contacts: []
     }
 
