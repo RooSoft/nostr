@@ -7,7 +7,7 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
   use GenServer
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{MetadataEvent, EndOfStoredEvents}
+  alias Nostr.Event.Types.{MetadataEvent}
 
   def start_link([relay_pids, pubkey, subscriber]) do
     GenServer.start_link(__MODULE__, %{
@@ -44,18 +44,19 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   @impl true
   def handle_info(
-        {_relay_url, %Nostr.Event.Types.EndOfStoredEvents{}},
-        %{found: false, pubkey: pubkey, subscriber: subscriber} = state
+        {:end_of_stored_events, _relay_url, _subscription_id},
+        %{found: false} = state
       ) do
-    empty_event = MetadataEvent.create_empty_event(pubkey)
-
-    send(subscriber, empty_event)
+    # no profile found
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({_relay_url, %EndOfStoredEvents{}}, %{found: true} = state) do
+  def handle_info(
+        {:end_of_stored_events, _relay_url, _subscription_id},
+        %{found: true} = state
+      ) do
     ## nothing to do, we're done here
 
     {:noreply, state}
@@ -63,7 +64,7 @@ defmodule Nostr.Client.Subscriptions.ProfileSubscription do
 
   @impl true
   def handle_info(
-        {_relay_url, %MetadataEvent{} = event},
+        {_relay, _subscription_id, event},
         %{subscriber: subscriber} = state
       ) do
     send(subscriber, event)
