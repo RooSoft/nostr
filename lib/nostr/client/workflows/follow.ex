@@ -12,11 +12,11 @@ defmodule Nostr.Client.Workflows.Follow do
 
   use GenServer
 
+  alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{ContactsEvent}
   alias Nostr.Models.ContactList
   alias Nostr.Client.Relays.RelaySocket.Publisher
 
@@ -135,11 +135,13 @@ defmodule Nostr.Client.Workflows.Follow do
   end
 
   defp follow(follow_pubkey, privkey, %ContactList{} = contact_list, relay_pids) do
-    contact_list = ContactList.add(contact_list, follow_pubkey)
+    contact_list_event =
+      ContactList.add(contact_list, follow_pubkey)
+      |> ContactList.to_event()
 
     {:ok, signed_event} =
-      contact_list
-      |> ContactsEvent.create_event()
+      %Event{contact_list_event | created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     :ok = Validator.validate_event(signed_event)
