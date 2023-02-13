@@ -12,11 +12,11 @@ defmodule Nostr.Client.Workflows.Unfollow do
 
   use GenServer
 
+  alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{ContactsEvent}
   alias Nostr.Models.ContactList
   alias Nostr.Client.Relays.RelaySocket.Publisher
 
@@ -141,11 +141,13 @@ defmodule Nostr.Client.Workflows.Unfollow do
   end
 
   defp unfollow(unfollow_pubkey, privkey, contact_list, relay_pids) do
-    contact_list = ContactList.remove(contact_list, unfollow_pubkey)
+    contact_list =
+      ContactList.remove(contact_list, unfollow_pubkey)
+      |> ContactList.to_event()
 
     {:ok, signed_event} =
-      contact_list
-      |> ContactsEvent.create_event()
+      %Event{contact_list | created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     :ok = Validator.validate_event(signed_event)
