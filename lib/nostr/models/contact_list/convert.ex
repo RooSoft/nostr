@@ -25,8 +25,9 @@ defmodule Nostr.Models.ContactList.Convert do
 
   defp content_from_relays(relays) do
     for %{url: url, read?: read?, write?: write?} <- relays do
-      {url, %{write: read?, read: write?}}
+      {url, %{read: read?, write: write?}}
     end
     |> Map.new()
+    |> Jason.encode!()
   end
 end

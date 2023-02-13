@@ -70,7 +70,7 @@ defmodule Nostr.Models.ContactList do
       tags: [
         ["p", "5ab9f2efb1fda6bc32696f6f3fd715e156346175b93b6382099d23627693c3f2", ""]
       ],
-      content: %{"wss://nos.lol" => %{read: false, write: true}}
+      content: ~s({"wss://nos.lol":{"read":true,"write":false}})
     }
   """
   @spec to_event(ContactList.t()) :: Event.t()
