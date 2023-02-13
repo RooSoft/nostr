@@ -58,4 +58,8 @@ defmodule NostrApp.ConsoleHandler do
   def handle(:ok, %{event_id: event_id, message: _message, success?: success?, url: url}) do
     Logger.info("#{url} sent #{event_id}: #{success?}")
   end
+
+  def handle(unknown_atom, data) do
+    Logger.warning("got a #{unknown_atom}: #{inspect(data)}")
+  end
 end

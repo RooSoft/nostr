@@ -18,12 +18,14 @@ defmodule Nostr.Client.Workflows.Follow do
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Event.Types.{ContactsEvent}
   alias Nostr.Models.ContactList
+  alias Nostr.Client.Relays.RelaySocket.Publisher
 
   def start_link(relay_pids, follow_pubkey, privkey) do
     GenServer.start(__MODULE__, %{
       relay_pids: relay_pids,
       privkey: privkey,
-      follow_pubkey: follow_pubkey
+      follow_pubkey: follow_pubkey,
+      owner_pid: self()
     })
   end
 
@@ -95,17 +97,26 @@ defmodule Nostr.Client.Workflows.Follow do
 
   @impl true
   # when we first get the contacts, time to add a new pubkey on it
-  def handle_info({_relay, _subscription_id, contacts_event}, %{got_contact_list: false} = state) do
-    {:ok, contact_list} = ContactList.from_event(contacts_event)
+  def handle_info(
+        {relay, _subscription_id, contacts_event},
+        %{got_contact_list: false, owner_pid: owner_pid} = state
+      ) do
+    case ContactList.from_event(contacts_event) do
+      {:ok, contact_list} ->
+        send(self(), {:follow, contact_list})
+        send(self(), :unsubscribe_contacts)
 
-    send(self(), {:follow, contact_list})
-    send(self(), :unsubscribe_contacts)
+        {
+          :noreply,
+          state
+          |> Map.put(:got_contact_list, true)
+        }
 
-    {
-      :noreply,
-      state
-      |> Map.put(:got_contact_list, true)
-    }
+      {:error, message} ->
+        Publisher.workflow_error(owner_pid, relay, message)
+
+        {:stop, message, state}
+    end
   end
 
   defp subscribe_contacts(relay_pids, pubkey) do

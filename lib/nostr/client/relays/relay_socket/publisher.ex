@@ -39,6 +39,10 @@ defmodule Nostr.Client.Relays.RelaySocket.Publisher do
     send(pid, {:console, :unexpected, %{url: relay_url, frame: frame}})
   end
 
+  def workflow_error(pid, relay_url, message) do
+    send(pid, {:console, :workflow_error, %{url: relay_url, message: message}})
+  end
+
   defp stringify(message) when is_atom(message), do: Atom.to_string(message)
   defp stringify(message) when is_binary(message), do: message
 end
