@@ -377,7 +377,7 @@ defmodule Nostr.Client do
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def react(note_id, privkey, content \\ "+") do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
+         {:ok, binary_note_id} <- Event.Id.to_binary(note_id) do
       {
         :ok,
         SendReaction.start_link(

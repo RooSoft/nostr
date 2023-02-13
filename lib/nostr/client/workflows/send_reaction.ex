@@ -9,10 +9,11 @@ defmodule Nostr.Client.Workflows.SendReaction do
   require Logger
 
   alias NostrBasics.Keys.PublicKey
+  alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{ReactionEvent}
+  alias Nostr.Models.Reaction
 
   def start_link(relay_pids, note_id, privkey, content \\ "+") do
     GenServer.start(__MODULE__, %{
@@ -31,7 +32,7 @@ defmodule Nostr.Client.Workflows.SendReaction do
       :ok,
       state
       |> Map.put(:subscriptions, subscriptions)
-      |> Map.put(:treated, false)
+      |> Map.put(:got_note, false)
     }
   end
 
@@ -46,39 +47,35 @@ defmodule Nostr.Client.Workflows.SendReaction do
   end
 
   def handle_info(
-        {:react, note},
+        {:react, event},
         %{privkey: privkey, content: content, relay_pids: relay_pids} = state
       ) do
-    react(note, privkey, content, relay_pids)
+    react(event, privkey, content, relay_pids)
 
     {:noreply, state}
   end
 
-  ## TODO figure out what to do with this case once NostrBasics refactoring is done
-  #
-  # @impl true
-  # def handle_info({_relay, %EndOfStoredEvents{}}, state) do
-  #   ## nothing to do
-
-  #   {:noreply, state}
-  # end
+  @impl true
+  def handle_info({:end_of_stored_events, _relay, _subscription_id}, state) do
+    {:noreply, state}
+  end
 
   @impl true
   # when we first get the note, time to react on it
-  def handle_info({_relay, note}, %{treated: false} = state) do
-    send(self(), {:react, note})
+  def handle_info({_relay, _subscription_id, event}, %{got_note: false} = state) do
+    send(self(), {:react, event})
     send(self(), :unsubscribe)
 
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:got_note, true)
     }
   end
 
   @impl true
   # when the note has already been reacted on
-  def handle_info({_relay, _note}, %{treated: true} = state) do
+  def handle_info({_relay, _subscription_id, _note}, %{got_note: true} = state) do
     {:noreply, state}
   end
 
@@ -97,12 +94,16 @@ defmodule Nostr.Client.Workflows.SendReaction do
     end
   end
 
-  defp react(note, privkey, content, relay_pids) do
+  defp react(event, privkey, content, relay_pids) do
     pubkey = PublicKey.from_private_key!(privkey)
 
+    {:ok, reaction_event} =
+      %Reaction{event_id: event.id, event_pubkey: event.pubkey}
+      |> Reaction.to_event(pubkey)
+
     {:ok, signed_event} =
-      note
-      |> ReactionEvent.create_event(content, pubkey)
+      %Event{reaction_event | content: content, created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     Validator.validate_event(signed_event)
