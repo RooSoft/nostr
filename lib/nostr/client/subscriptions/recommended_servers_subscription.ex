@@ -7,7 +7,6 @@ defmodule Nostr.Client.Subscriptions.RecommendedServersSubscription do
   use GenServer
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{RecommendedServerEvent, EndOfStoredEvents}
 
   def start_link([relay_pids, subscriber]) do
     GenServer.start_link(__MODULE__, %{
@@ -41,15 +40,8 @@ defmodule Nostr.Client.Subscriptions.RecommendedServersSubscription do
   end
 
   @impl true
-  def handle_info({_relay_url, %EndOfStoredEvents{}}, %{found: true} = state) do
-    ## nothing to do, we're done here
-
-    {:noreply, state}
-  end
-
-  @impl true
   def handle_info(
-        {_relay_url, %RecommendedServerEvent{} = event},
+        {_relay_url, _subscriptions, event},
         %{subscriber: subscriber} = state
       ) do
     send(subscriber, event)
