@@ -1,4 +1,4 @@
-defmodule Nostr.Models.ContactList.Converter do
+defmodule Nostr.Models.ContactList.Extract do
   @contact_kind 3
 
   alias Nostr.Models.{Contact, ContactList}
@@ -13,10 +13,10 @@ defmodule Nostr.Models.ContactList.Converter do
       ...>   created_at: ~U[2023-02-11 13:15:17Z],
       ...>   kind: 3,
       ...>   tags: [["p", "5ab9f2efb1fda6bc32696f6f3fd715e156346175b93b6382099d23627693c3f2", ""]],
-      ...>   content: "",
+      ...>   content: ~s({"wss://nos.lol":{"write":false,"read":true}}),
       ...>   sig: <<0xc177a56607ef5f5d137478aeca851791a35514f5ad55f8e0e3901f561c004cc1d15a1b048a03c6f4b01e5c675ecd132fb0b5a2cc3cc7562e848fe5a968c658c5::512>>
       ...> }
-      ...> |> Nostr.Models.ContactList.Converter.from_event
+      ...> |> Nostr.Models.ContactList.Extract.from_event
       {
         :ok,
         %Nostr.Models.ContactList{
@@ -28,7 +28,7 @@ defmodule Nostr.Models.ContactList.Converter do
               petname: nil
             }
           ],
-          relays: []
+          relays: [%{url: "wss://nos.lol", read?: true, write?: false}]
         }
       }
   """

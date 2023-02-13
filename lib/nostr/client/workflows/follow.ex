@@ -56,7 +56,7 @@ defmodule Nostr.Client.Workflows.Follow do
   end
 
   def handle_info(
-        {:follow, contacts},
+        {:follow, %ContactList{contacts: contacts}},
         %{privkey: privkey, relay_pids: relay_pids, follow_pubkey: follow_pubkey} = state
       ) do
     follow(follow_pubkey, privkey, contacts, relay_pids)
@@ -87,8 +87,10 @@ defmodule Nostr.Client.Workflows.Follow do
 
   @impl true
   # when we first get the contacts, time to add a new pubkey on it
-  def handle_info({_relay, contacts}, %{treated: false} = state) do
-    send(self(), {:follow, contacts})
+  def handle_info({_relay, _subscription_id, contacts_event}, %{treated: false} = state) do
+    contact_list = ContactList.from_event(contacts_event)
+
+    send(self(), {:follow, contact_list})
     send(self(), :unsubscribe_contacts)
 
     {
@@ -119,7 +121,7 @@ defmodule Nostr.Client.Workflows.Follow do
     end
   end
 
-  defp follow(follow_pubkey, privkey, contact_list, relay_pids) do
+  defp follow(follow_pubkey, privkey, %ContactList{} = contact_list, relay_pids) do
     contact_list = ContactList.add(contact_list, follow_pubkey)
 
     {:ok, signed_event} =
