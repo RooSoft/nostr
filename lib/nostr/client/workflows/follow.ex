@@ -37,7 +37,7 @@ defmodule Nostr.Client.Workflows.Follow do
           :ok,
           state
           |> Map.put(:subscriptions, subscriptions)
-          |> Map.put(:treated, false)
+          |> Map.put(:got_contact_list, false)
         }
 
       {:error, message} ->
@@ -56,10 +56,10 @@ defmodule Nostr.Client.Workflows.Follow do
   end
 
   def handle_info(
-        {:follow, %ContactList{contacts: contacts}},
+        {:follow, %ContactList{} = contact_list},
         %{privkey: privkey, relay_pids: relay_pids, follow_pubkey: follow_pubkey} = state
       ) do
-    follow(follow_pubkey, privkey, contacts, relay_pids)
+    follow(follow_pubkey, privkey, contact_list, relay_pids)
 
     {:noreply, state}
   end
@@ -67,11 +67,19 @@ defmodule Nostr.Client.Workflows.Follow do
   @impl true
   def handle_info(
         {:end_of_stored_events, _relay, _subscription_id},
-        %{privkey: privkey, treated: false} = state
+        %{got_contact_list: true} = state
+      ) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{privkey: privkey, got_contact_list: false} = state
       ) do
     profile_pubkey = PublicKey.from_private_key!(privkey)
 
-    new_contact_list = %Nostr.Models.ContactList{
+    new_contact_list = %ContactList{
       pubkey: profile_pubkey,
       contacts: []
     }
@@ -81,14 +89,14 @@ defmodule Nostr.Client.Workflows.Follow do
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:got_contact_list, true)
     }
   end
 
   @impl true
   # when we first get the contacts, time to add a new pubkey on it
-  def handle_info({_relay, _subscription_id, contacts_event}, %{treated: false} = state) do
-    contact_list = ContactList.from_event(contacts_event)
+  def handle_info({_relay, _subscription_id, contacts_event}, %{got_contact_list: false} = state) do
+    {:ok, contact_list} = ContactList.from_event(contacts_event)
 
     send(self(), {:follow, contact_list})
     send(self(), :unsubscribe_contacts)
@@ -96,14 +104,8 @@ defmodule Nostr.Client.Workflows.Follow do
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:got_contact_list, true)
     }
-  end
-
-  @impl true
-  # when the follow has already been executed
-  def handle_info({_relay, _contacts}, %{treated: true} = state) do
-    {:noreply, state}
   end
 
   defp subscribe_contacts(relay_pids, pubkey) do
