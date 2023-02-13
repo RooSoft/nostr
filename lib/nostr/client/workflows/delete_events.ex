@@ -8,11 +8,12 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
 
   require Logger
 
+  alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
 
+  alias Nostr.Models.Delete
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.{DeleteEvent}
 
   def start_link(relay_pids, event_ids, note, privkey) do
     GenServer.start(__MODULE__, %{
@@ -51,14 +52,18 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
   defp delete_event(event_ids, note, privkey, relay_pids) do
     pubkey = PublicKey.from_private_key!(privkey)
 
-    with event <- DeleteEvent.create_event(event_ids, note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(event, privkey) do
-      Validator.validate_event(signed_event)
-      send_event(signed_event, relay_pids)
-    else
-      {:error, message} ->
-        Logger.warning(message)
-    end
+    {:ok, delete_event} =
+      %Delete{event_ids: event_ids, note: note}
+      |> Delete.to_event(pubkey)
+
+    {:ok, signed_event} =
+      %Event{delete_event | created_at: DateTime.utc_now()}
+      |> Event.add_id()
+      |> Signer.sign_event(privkey)
+
+    :ok = Validator.validate_event(signed_event)
+
+    send_event(signed_event, relay_pids)
   end
 
   defp send_event(validated_event, relay_pids) do
