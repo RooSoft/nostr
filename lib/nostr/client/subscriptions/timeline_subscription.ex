@@ -49,7 +49,7 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
     pubkeys =
       event
       |> IO.inspect(label: "EVENt")
-      |> ContactList.Converter.from_event()
+      |> ContactList.from_event()
       |> elem(1)
       |> Map.get(:contacts)
       |> Enum.map(& &1.pubkey)
