@@ -12,7 +12,7 @@ defmodule NostrApp.Server do
   alias NostrBasics.Keys.{PrivateKey, PublicKey}
 
   alias Nostr.Client
-  alias Nostr.Event.Types.{MetadataEvent, RecommendedServerEvent}
+  alias Nostr.Event.Types.{MetadataEvent}
   alias Nostr.Models.{Profile}
 
   @impl true
@@ -291,13 +291,6 @@ defmodule NostrApp.Server do
     IO.puts("from #{relay}")
     # credo:disable-for-next-line
     IO.inspect(event)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info(%RecommendedServerEvent{relay: relay, event: event}, socket) do
-    IO.puts("#{relay} is recommended by #{event.pubkey |> PublicKey.to_npub()}")
 
     {:noreply, socket}
   end
