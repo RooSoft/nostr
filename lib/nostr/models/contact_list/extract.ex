@@ -32,7 +32,7 @@ defmodule Nostr.Models.ContactList.Extract do
         }
       }
   """
-  @spec from_event(Event.t()) :: ContactList.t()
+  @spec from_event(Event.t()) :: {:ok, ContactList.t()} | {:error, String.t()}
   def from_event(event) do
     relays = extract_relays(event.content)
     contacts = Enum.map(event.tags, &parse_contact/1)

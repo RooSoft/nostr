@@ -41,7 +41,7 @@ defmodule Nostr.Models.ContactList do
         }
       }
   """
-  @spec from_event(Event.t()) :: ContactList.t()
+  @spec from_event(Event.t()) :: {:ok, ContactList.t()} | {:error, String.t()}
   def from_event(event) do
     ContactList.Extract.from_event(event)
   end
