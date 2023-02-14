@@ -40,7 +40,6 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   @impl true
   def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
-    IO.inspect("EOSE in notes subscription #{relay_url} #{subscription_id}")
     ## nothing to do
 
     {:noreply, state}

@@ -35,7 +35,6 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
 
   @impl true
   def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
-    IO.inspect("EOSE in timeline subscription #{relay_url} #{subscription_id}")
     ## nothing to do
 
     {:noreply, state}
@@ -48,7 +47,6 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
       ) do
     pubkeys =
       event
-      |> IO.inspect(label: "EVENt")
       |> ContactList.from_event()
       |> elem(1)
       |> Map.get(:contacts)
