@@ -10,11 +10,10 @@ defmodule Nostr.Client do
   alias NostrBasics.{Event}
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
-  alias NostrBasics.Crypto.AES256CBC
 
-  alias Nostr.Event.Types.{EncryptedDirectMessageEvent}
   alias Nostr.Models.{Profile, Note}
   alias Nostr.Client.Relays.RelayManager
+  alias Nostr.Client.Tasks
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
@@ -185,29 +184,11 @@ defmodule Nostr.Client do
   Sends an encrypted direct message
   """
   @spec send_encrypted_direct_messages(PublicKey.id(), String.t(), PrivateKey.id()) ::
-          :ok | {:error, binary()}
+          :ok | {:error, String.t()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
-    with {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
-         {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
-         {:ok, binary_local_pubkey} <- PublicKey.from_private_key(binary_private_key),
-         encrypted_message = AES256CBC.encrypt(message, binary_private_key, binary_remote_pubkey),
-         dm_event =
-           EncryptedDirectMessageEvent.create(
-             encrypted_message,
-             binary_local_pubkey,
-             binary_remote_pubkey
-           ),
-         {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
-         :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- RelayManager.active_pids() do
-        RelaySocket.send_event(relay_pid, signed_event)
-      end
+    relay_pids = RelayManager.active_pids()
 
-      :ok
-    else
-      {:error, message} when is_atom(message) -> Atom.to_string(message)
-      {:error, message} -> {:error, message}
-    end
+    Tasks.SendEncryptedDirectMessage.execute(message, remote_pubkey, private_key, relay_pids)
   end
 
   @doc """

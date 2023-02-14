@@ -23,6 +23,8 @@ defmodule Nostr.Models.ContactList.Convert do
     end)
   end
 
+  defp content_from_relays(nil), do: ""
+
   defp content_from_relays(relays) do
     for %{url: url, read?: read?, write?: write?} <- relays do
       {url, %{read: read?, write: write?}}

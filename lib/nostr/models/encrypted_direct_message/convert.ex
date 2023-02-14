@@ -39,10 +39,11 @@ defmodule Nostr.Models.EncryptedDirectMessage.Convert do
         signing_private_key
       ) do
     with {:ok, binary_signing_pubkey} <- PublicKey.from_private_key(signing_private_key),
-         {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey) do
+         {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
+         {:ok, binary_private_key} <- PrivateKey.to_binary(signing_private_key) do
       hex_remote_pubkey = PublicKey.to_hex(binary_remote_pubkey)
 
-      encrypted_message = AES256CBC.encrypt(content, binary_signing_pubkey, binary_remote_pubkey)
+      encrypted_message = AES256CBC.encrypt(content, binary_private_key, binary_remote_pubkey)
       tags = [["p", hex_remote_pubkey]]
 
       {
