@@ -8,7 +8,6 @@ defmodule Nostr.Client do
   require Logger
 
   alias NostrBasics.{Event}
-  alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
 
   alias Nostr.Models.{Profile, Note}
@@ -36,8 +35,6 @@ defmodule Nostr.Client do
     SendRepost,
     UpdateProfile
   }
-
-  alias Nostr.Client.Relays.RelaySocket
 
   @default_config {}
 
@@ -338,21 +335,9 @@ defmodule Nostr.Client do
   """
   @spec send_note(String.t(), PrivateKey.id()) :: :ok | {:error, String.t()}
   def send_note(note, privkey) do
-    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, pubkey} <- PublicKey.from_private_key(privkey),
-         {:ok, note_event} <- Note.to_event(%Note{content: note}, pubkey),
-         event_with_id <- Event.add_id(%Event{note_event | created_at: DateTime.utc_now()}),
-         {:ok, signed_event} <- Signer.sign_event(event_with_id, binary_privkey),
-         :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- RelayManager.active_pids() do
-        RelaySocket.send_event(relay_pid, signed_event)
-      end
+    relay_pids = RelayManager.active_pids()
 
-      :ok
-    else
-      {:error, message} when is_atom(message) -> {:error, Atom.to_string(message)}
-      {:error, message} -> {:error, message}
-    end
+    Tasks.SendNote.execute(note, privkey, relay_pids)
   end
 
   @spec react(Note.id(), PrivateKey.id(), String.t()) ::
