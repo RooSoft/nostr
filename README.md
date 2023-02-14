@@ -31,7 +31,7 @@ iex -S mix
 ```
 
 ```elixir
-Nostr.Keys.PrivateKey.create()
+NostrBasics.Keys.PrivateKey.create()
 ```
 
 ## Use the example app
@@ -46,7 +46,7 @@ relays = [
   "wss://relay.nostr.pro"
 ]
 
-private_key = Nostr.Keys.PrivateKey.create
+private_key = NostrBasics.Keys.PrivateKey.create
 
 NostrApp.start_link(relays, private_key)
 ```
@@ -62,7 +62,7 @@ iex -S mix
 ### Edit your profile
 
 ```elixir
-profile = %Nostr.Models.Profile{
+%Nostr.Models.Profile{
   about: "Instance of https://github.com/RooSoft/nostr being tested in the wild",
   name: "roosoft_test_bot",
   picture: "https://nostr.build/i/p/5158p.jpg"
@@ -79,7 +79,7 @@ NostrApp.profile
 ### Subscribe to a timeline
 
 ```elixir
-Nostr.Keys.PublicKey.from_private(private_key)
+NostrBasics.Keys.PublicKey.from_private_key(private_key)
 |> NostrApp.timeline()
 ```
 
@@ -89,23 +89,19 @@ and are now able to send messages with that identity.
 ### Send a message
 
 ```elixir
-NostrApp.send("aren't you entertained?")
+NostrApp.send_note("aren't you entertained?")
 ```
 
 ### Repost a message
 
 ```elixir
-"note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
-|> Nostr.Event.Id.from_bech32()
-|> NostrApp.repost()
+NostrApp.repost("note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7")
 ```
 
 ### Delete a message
 
 ```elixir
-"note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7"
-|> Nostr.Event.Id.from_bech32()
-|> NostrApp.delete()
+NostrApp.delete("note14n5txr742qzq4awx0mmd2x36tul9lrlrgfjvjpr6ev8h82z6yzqs5msdq7")
 ```
 
 ### Follow someone
@@ -113,17 +109,13 @@ NostrApp.send("aren't you entertained?")
 This is a bit rough around the edges still, but will be simplified soon
 
 ```elixir
-"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
-|> Nostr.Keys.PublicKey.from_npub!()
-|> NostrApp.follow()
+NostrApp.follow("npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z")
 ```
 
 ### Unfollow someone
 
 ```elixir
-"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
-|> Nostr.Keys.PublicKey.from_npub!()
-|> NostrApp.unfollow()
+NostrApp.unfollow("npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z")
 ```
 
 ### See who someone is currently following
@@ -131,9 +123,7 @@ This is a bit rough around the edges still, but will be simplified soon
 Could be yourself or anybody...
 
 ```elixir
-"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
-|> Nostr.Keys.PublicKey.from_npub!()
-|> NostrApp.contacts 
+NostrApp.contacts("npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z")
 ```
 
 ### Subscribe to incoming encrypted direct messages
@@ -145,8 +135,6 @@ NostrApp.encrypted_direct_messages
 ### Send an encrypted direct message to someone
 
 ```elixir
-"npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z"
-|> Nostr.Keys.PublicKey.from_npub!()
-|> NostrApp.send_encrypted_direct_messages "Howdy?" 
+NostrApp.send_encrypted_direct_messages("npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z", "Howdy?")
 ```
 
