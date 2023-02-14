@@ -12,17 +12,20 @@ defmodule Nostr.Client.Workflows.Follow do
 
   use GenServer
 
+  alias NostrBasics.Event
+  alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
+
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{ContactsEvent, EndOfStoredEvents}
   alias Nostr.Models.ContactList
-  alias Nostr.Keys.PublicKey
+  alias Nostr.Client.Relays.RelaySocket.Publisher
 
   def start_link(relay_pids, follow_pubkey, privkey) do
     GenServer.start(__MODULE__, %{
       relay_pids: relay_pids,
       privkey: privkey,
-      follow_pubkey: follow_pubkey
+      follow_pubkey: follow_pubkey,
+      owner_pid: self()
     })
   end
 
@@ -36,7 +39,7 @@ defmodule Nostr.Client.Workflows.Follow do
           :ok,
           state
           |> Map.put(:subscriptions, subscriptions)
-          |> Map.put(:treated, false)
+          |> Map.put(:got_contact_list, false)
         }
 
       {:error, message} ->
@@ -55,21 +58,31 @@ defmodule Nostr.Client.Workflows.Follow do
   end
 
   def handle_info(
-        {:follow, contacts},
+        {:follow, %ContactList{} = contact_list},
         %{privkey: privkey, relay_pids: relay_pids, follow_pubkey: follow_pubkey} = state
       ) do
-    follow(follow_pubkey, privkey, contacts, relay_pids)
+    follow(follow_pubkey, privkey, contact_list, relay_pids)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, %{privkey: privkey, treated: false} = state) do
-    profile_pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{got_contact_list: true} = state
+      ) do
+    {:noreply, state}
+  end
 
-    new_contact_list = %Nostr.Models.ContactList{
+  @impl true
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{privkey: privkey, got_contact_list: false} = state
+      ) do
+    profile_pubkey = PublicKey.from_private_key!(privkey)
+
+    new_contact_list = %ContactList{
       pubkey: profile_pubkey,
-      created_at: DateTime.utc_now(),
       contacts: []
     }
 
@@ -78,27 +91,32 @@ defmodule Nostr.Client.Workflows.Follow do
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:got_contact_list, true)
     }
   end
 
   @impl true
   # when we first get the contacts, time to add a new pubkey on it
-  def handle_info({_relay, contacts}, %{treated: false} = state) do
-    send(self(), {:follow, contacts})
-    send(self(), :unsubscribe_contacts)
+  def handle_info(
+        {relay, _subscription_id, contacts_event},
+        %{got_contact_list: false, owner_pid: owner_pid} = state
+      ) do
+    case ContactList.from_event(contacts_event) do
+      {:ok, contact_list} ->
+        send(self(), {:follow, contact_list})
+        send(self(), :unsubscribe_contacts)
 
-    {
-      :noreply,
-      state
-      |> Map.put(:treated, true)
-    }
-  end
+        {
+          :noreply,
+          state
+          |> Map.put(:got_contact_list, true)
+        }
 
-  @impl true
-  # when the follow has already been executed
-  def handle_info({_relay, _contacts}, %{treated: true} = state) do
-    {:noreply, state}
+      {:error, message} ->
+        Publisher.workflow_error(owner_pid, relay, message)
+
+        {:stop, message, state}
+    end
   end
 
   defp subscribe_contacts(relay_pids, pubkey) do
@@ -116,12 +134,14 @@ defmodule Nostr.Client.Workflows.Follow do
     end
   end
 
-  defp follow(follow_pubkey, privkey, contact_list, relay_pids) do
-    contact_list = ContactList.add(contact_list, follow_pubkey)
+  defp follow(follow_pubkey, privkey, %ContactList{} = contact_list, relay_pids) do
+    contact_list_event =
+      ContactList.add(contact_list, follow_pubkey)
+      |> ContactList.to_event()
 
     {:ok, signed_event} =
-      contact_list
-      |> ContactsEvent.create_event()
+      %Event{contact_list_event | created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     :ok = Validator.validate_event(signed_event)

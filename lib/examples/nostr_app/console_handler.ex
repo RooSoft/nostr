@@ -46,4 +46,20 @@ defmodule NostrApp.ConsoleHandler do
   def handle(:transport_error, %{url: url, message: message}) do
     Logger.warning("transport error from #{url}: #{message}")
   end
+
+  def handle(:unknown_relay_message, %{url: url, message: message}) do
+    Logger.warning("unknown relay message from #{url}: #{message}")
+  end
+
+  def handle(:malformed_json_relay_message, %{url: url, message: message}) do
+    Logger.warning("malformed JSON relay message from #{url}: #{message}")
+  end
+
+  def handle(:ok, %{event_id: event_id, message: _message, success?: success?, url: url}) do
+    Logger.info("#{url} sent #{event_id}: #{success?}")
+  end
+
+  def handle(unknown_atom, data) do
+    Logger.warning("got a #{unknown_atom}: #{inspect(data)}")
+  end
 end

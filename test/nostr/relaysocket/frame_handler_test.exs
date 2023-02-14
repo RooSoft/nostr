@@ -2,17 +2,26 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
   use ExUnit.Case, async: true
 
   alias Nostr.Client.Relays.RelaySocket.FrameHandler
-  alias Nostr.Frames.{Ok}
-  alias Nostr.Event.Types.{EndOfStoredEvents}
 
   test "manage an OK frame" do
     frame = ~s(["OK","a806462fec12d934e452e1375a2401ef",true,"duplicate:"])
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
     relay_url = "my.relay.social"
 
-    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+    {:console, :ok,
+     %{
+       event_id: event_id,
+       message: message,
+       success?: success?,
+       url: received_relay_url
+     }} = result = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {^relay_url, %Ok{persisted?: true, reason: "duplicate:"}}
+    assert event_id == "a806462fec12d934e452e1375a2401ef"
+    assert message == "duplicate:"
+    assert success?
+    assert received_relay_url == relay_url
+
+    assert_receive ^result
   end
 
   test "manage an EOSE frame" do
@@ -20,9 +29,13 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
     relay_url = "my.relay.social"
 
-    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+    {:end_of_stored_events, received_relay_url, subscription_id} =
+      FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {^relay_url, %EndOfStoredEvents{}}
+    assert subscription_id == "a806462fec12d934e452e1375a2401ef"
+    assert received_relay_url == relay_url
+
+    assert_receive {:end_of_stored_events, ^received_relay_url, ^subscription_id}
   end
 
   test "manage an NOTICE frame" do
@@ -31,20 +44,29 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
     relay_url = "my.relay.social"
     subscriptions = []
 
-    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+    {:console, :notice, %{message: received_message, url: received_relay_url}} =
+      FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+
+    assert received_message == message
+    assert received_relay_url == relay_url
 
     assert_receive {:console, :notice, %{message: ^message, url: ^relay_url}}
   end
 
   test "manage a parsing error" do
-    frame = ~s("["EVENT"]")
+    frame = ~s(["EVENT")
 
     relay_url = "my.relay.social"
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
 
-    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+    {:console, :malformed_json_relay_message,
+     [url: received_relay_url, message: received_message]} =
+      result = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {:console, :parsing_error, %{frame: ^frame, url: ^relay_url}}
+    assert received_relay_url == relay_url
+    assert received_message == "error decoding JSON at position 8: "
+
+    assert_receive ^result
   end
 
   test "manage a contact event" do
@@ -54,22 +76,20 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandlerTest do
     relay_url = "my.relay.social"
     subscriptions = [a806462fec12d934e452e1375a2401ef: self()]
 
-    :ok = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
+    {"my.relay.social", "a806462fec12d934e452e1375a2401ef",
+     %NostrBasics.Event{
+       id: "c12c05c4adc8a5ba2fb38c7067735c9cf2336c2aa68fa5100d435a74a345bea5",
+       pubkey: <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
+       created_at: ~U[2023-01-20 20:46:54Z],
+       kind: 3,
+       tags: [
+         ["p", "0000002855ad7906a7568bf4d971d82056994aa67af3cf0048a825415ac90672", ""]
+       ],
+       content: "",
+       sig:
+         <<0x2B3DD20798EE1EB2A01442E097689151CC3DED1F368A34114D0BC43A2B5416FB9AE70D984475CD423FC035B8A68F606B5EAD5DB950AB56A1D6ADB311C47FA525::512>>
+     }} = result = FrameHandler.handle_text_frame(frame, subscriptions, relay_url, self())
 
-    assert_receive {"my.relay.social",
-                    %Nostr.Models.ContactList{
-                      id: "c12c05c4adc8a5ba2fb38c7067735c9cf2336c2aa68fa5100d435a74a345bea5",
-                      pubkey:
-                        <<0x5AB9F2EFB1FDA6BC32696F6F3FD715E156346175B93B6382099D23627693C3F2::256>>,
-                      created_at: ~U[2023-01-20 20:46:54Z],
-                      contacts: [
-                        %Nostr.Models.Contact{
-                          pubkey:
-                            <<0x0000002855AD7906A7568BF4D971D82056994AA67AF3CF0048A825415AC90672::256>>,
-                          main_relay: "",
-                          petname: nil
-                        }
-                      ]
-                    }}
+    assert_receive ^result
   end
 end

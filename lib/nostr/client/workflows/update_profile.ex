@@ -8,10 +8,12 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
 
   require Logger
 
+  alias NostrBasics.Event
+  alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
+
   alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Models.Profile
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{MetadataEvent}
 
   def start_link(relay_pids, %Profile{} = new_profile, privkey) do
     GenServer.start(__MODULE__, %{
@@ -25,38 +27,42 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
   def init(%{new_profile: new_profile} = state) do
     send(self(), {:update, new_profile})
 
-    {
-      :ok,
-      state
-      |> Map.put(:treated, false)
-    }
+    {:ok, state}
   end
 
   @impl true
   def handle_info(
         {:update, new_profile},
-        %{treated: false, privkey: privkey, relay_pids: relay_pids} = state
+        %{privkey: privkey, relay_pids: relay_pids} = state
       ) do
     update_profile(new_profile, privkey, relay_pids)
 
-    {
-      :noreply,
-      state
-      |> Map.put(:treated, true)
-    }
+    {:noreply, state}
   end
 
-  defp update_profile(%Profile{} = new_profile, privkey, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+  defp update_profile(%Profile{} = new_profile, private_key, relay_pids) do
+    with {:ok, pubkey} <- PublicKey.from_private_key(private_key),
+         {:ok, profile_event} <- create_profile_event(new_profile, pubkey),
+         {:ok, signed_event} <- prepare_and_sign_event(profile_event, private_key) do
+      :ok = Validator.validate_event(signed_event)
 
-    with {:ok, event} <- MetadataEvent.create_event(new_profile, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(event, privkey) do
-      Validator.validate_event(signed_event)
       send_event(signed_event, relay_pids)
+
+      :ok
     else
-      {:error, message} ->
-        Logger.warning(message)
+      {:error, message} -> {:error, message}
     end
+  end
+
+  defp create_profile_event(%Profile{} = profile, pubkey) do
+    profile
+    |> Profile.to_event(pubkey)
+  end
+
+  defp prepare_and_sign_event(event, private_key) do
+    %Event{event | created_at: DateTime.utc_now()}
+    |> Event.add_id()
+    |> Signer.sign_event(private_key)
   end
 
   defp send_event(validated_event, relay_pids) do

@@ -8,9 +8,12 @@ defmodule Nostr.Client.Workflows.SendRepost do
 
   require Logger
 
+  alias NostrBasics.Event
+  alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
+
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{RepostEvent, EndOfStoredEvents}
+  alias Nostr.Models.Repost
 
   def start_link(relay_pids, note_id, privkey) do
     GenServer.start(__MODULE__, %{
@@ -28,7 +31,7 @@ defmodule Nostr.Client.Workflows.SendRepost do
       :ok,
       state
       |> Map.put(:subscriptions, subscriptions)
-      |> Map.put(:treated, false)
+      |> Map.put(:note_received?, false)
     }
   end
 
@@ -52,28 +55,26 @@ defmodule Nostr.Client.Workflows.SendRepost do
   end
 
   @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, state) do
-    ## nothing to do
-
+  def handle_info({:end_of_stored_events, _relay, _subscription_id}, state) do
     {:noreply, state}
   end
 
   @impl true
   # when we first get the note, time to repost it
-  def handle_info({relay, note}, %{treated: false} = state) do
+  def handle_info({relay, _subscription_id, note}, %{note_received?: false} = state) do
     send(self(), {:repost, note, relay})
     send(self(), :unsubscribe)
 
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:note_received?, true)
     }
   end
 
   @impl true
   # when the note has already been reposted
-  def handle_info({_relay, _note}, %{treated: true} = state) do
+  def handle_info({_relay, _subscription_id, _note}, %{note_received?: true} = state) do
     {:noreply, state}
   end
 
@@ -92,12 +93,16 @@ defmodule Nostr.Client.Workflows.SendRepost do
     end
   end
 
-  defp repost(note, found_on_relay, privkey, relay_pids) do
-    pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+  defp repost(event, found_on_relay, privkey, relay_pids) do
+    pubkey = PublicKey.from_private_key!(privkey)
+
+    {:ok, repost} =
+      %Repost{event: event, relays: [found_on_relay]}
+      |> Repost.to_event(pubkey)
 
     {:ok, signed_event} =
-      note
-      |> RepostEvent.create_event(pubkey, [found_on_relay])
+      %Event{repost | created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     Validator.validate_event(signed_event)

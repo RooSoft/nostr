@@ -9,10 +9,10 @@ defmodule NostrApp.Server do
 
   alias NostrApp.{ConsoleHandler, Subscribe}
 
+  alias NostrBasics.Keys.{PrivateKey, PublicKey}
+
   alias Nostr.Client
-  alias Nostr.Event.Types.{MetadataEvent, RecommendedServerEvent}
   alias Nostr.Models.{Profile}
-  alias Nostr.Keys.{PrivateKey, PublicKey}
 
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do
@@ -124,7 +124,7 @@ defmodule NostrApp.Server do
   @impl true
   def handle_cast({:delete, event_ids, note}, %{private_key: private_key} = socket) do
     case Client.delete_events(event_ids, note, private_key) do
-      {:ok, _} -> Logger.info("sent a deletion command for #{event_ids}")
+      {:ok, _} -> Logger.info("sent a deletion command for #{inspect(event_ids)}")
       {:error, message} -> Logger.error(message)
     end
 
@@ -278,25 +278,11 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info({relay, %MetadataEvent{} = event}, socket) do
-    Logger.info("From #{relay}, got a profile: #{inspect(event)}")
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_info({relay, event}, socket) do
     # credo:disable-for-next-line
     IO.puts("from #{relay}")
     # credo:disable-for-next-line
     IO.inspect(event)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info(%RecommendedServerEvent{relay: relay, event: event}, socket) do
-    IO.puts("#{relay} is recommended by #{event.pubkey |> PublicKey.to_npub()}")
 
     {:noreply, socket}
   end

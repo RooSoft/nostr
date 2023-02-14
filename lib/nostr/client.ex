@@ -7,12 +7,12 @@ defmodule Nostr.Client do
 
   require Logger
 
-  alias Nostr.Event
-  alias Nostr.Keys.{PublicKey, PrivateKey}
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
+  alias NostrBasics.{Event}
+  alias NostrBasics.Keys.{PublicKey, PrivateKey}
+
   alias Nostr.Models.{Profile, Note}
   alias Nostr.Client.Relays.RelayManager
+  alias Nostr.Client.Tasks
 
   alias Nostr.Client.Subscriptions.{
     ProfileSubscription,
@@ -35,9 +35,6 @@ defmodule Nostr.Client do
     SendRepost,
     UpdateProfile
   }
-
-  alias Nostr.Crypto.AES256CBC
-  alias Nostr.Client.Relays.RelaySocket
 
   @default_config {}
 
@@ -184,29 +181,11 @@ defmodule Nostr.Client do
   Sends an encrypted direct message
   """
   @spec send_encrypted_direct_messages(PublicKey.id(), String.t(), PrivateKey.id()) ::
-          :ok | {:error, binary()}
+          :ok | {:error, String.t()}
   def send_encrypted_direct_messages(remote_pubkey, message, private_key) do
-    with {:ok, binary_remote_pubkey} <- PublicKey.to_binary(remote_pubkey),
-         {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
-         {:ok, binary_local_pubkey} <- PublicKey.from_private_key(binary_private_key),
-         encrypted_message = AES256CBC.encrypt(message, binary_private_key, binary_remote_pubkey),
-         dm_event =
-           EncryptedDirectMessageEvent.create(
-             encrypted_message,
-             binary_local_pubkey,
-             binary_remote_pubkey
-           ),
-         {:ok, signed_event} <- Signer.sign_event(dm_event.event, private_key),
-         :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- RelayManager.active_pids() do
-        RelaySocket.send_event(relay_pid, signed_event)
-      end
+    relay_pids = RelayManager.active_pids()
 
-      :ok
-    else
-      {:error, message} when is_atom(message) -> Atom.to_string(message)
-      {:error, message} -> {:error, message}
-    end
+    Tasks.SendEncryptedDirectMessage.execute(message, remote_pubkey, private_key, relay_pids)
   end
 
   @doc """
@@ -215,7 +194,7 @@ defmodule Nostr.Client do
   @spec subscribe_note(Note.id()) :: DynamicSupervisor.on_start_child()
   def subscribe_note(note_id) do
     case Event.Id.to_binary(note_id) do
-      {:ok, "note", binary_note_id} ->
+      {:ok, binary_note_id} ->
         DynamicSupervisor.start_child(
           Nostr.Subscriptions,
           {NoteSubscription, [RelayManager.active_pids(), binary_note_id, self()]}
@@ -227,9 +206,9 @@ defmodule Nostr.Client do
   end
 
   @doc """
-  Get an author's notes
+  Get a list of author's notes
   """
-  @spec subscribe_notes(list(Note.id())) ::
+  @spec subscribe_notes(list(Note.id()) | Note.id()) ::
           {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
   def subscribe_notes(pubkeys) when is_list(pubkeys) do
     case PublicKey.to_binary(pubkeys) do
@@ -247,6 +226,10 @@ defmodule Nostr.Client do
     end
   end
 
+  def subscribe_notes(pubkey) do
+    subscribe_notes([pubkey])
+  end
+
   @doc """
   Deletes events
   """
@@ -254,7 +237,7 @@ defmodule Nostr.Client do
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def delete_events(note_ids, note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_ids} <- Event.Id.to_binary(note_ids) do
+         {:ok, binary_note_ids} <- Event.Id.to_binary(note_ids) do
       {:ok,
        DeleteEvents.start_link(RelayManager.active_pids(), binary_note_ids, note, binary_privkey)}
     else
@@ -285,7 +268,7 @@ defmodule Nostr.Client do
   @spec repost(Note.id(), PrivateKey.id()) :: {:ok, GenServer.on_start()} | {:error, String.t()}
   def repost(note_id, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
+         {:ok, binary_note_id} <- Event.Id.to_binary(note_id) do
       {:ok, SendRepost.start_link(RelayManager.active_pids(), binary_note_id, binary_privkey)}
     else
       {:error, message} -> {:error, message}
@@ -352,27 +335,16 @@ defmodule Nostr.Client do
   """
   @spec send_note(String.t(), PrivateKey.id()) :: :ok | {:error, String.t()}
   def send_note(note, privkey) do
-    with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, pubkey} <- PublicKey.from_private_key(privkey),
-         text_event = TextEvent.create(note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(text_event.event, binary_privkey),
-         :ok <- Validator.validate_event(signed_event) do
-      for relay_pid <- RelayManager.active_pids() do
-        RelaySocket.send_event(relay_pid, signed_event)
-      end
+    relay_pids = RelayManager.active_pids()
 
-      :ok
-    else
-      {:error, message} when is_atom(message) -> {:error, Atom.to_string(message)}
-      {:error, message} -> {:error, message}
-    end
+    Tasks.SendNote.execute(note, privkey, relay_pids)
   end
 
   @spec react(Note.id(), PrivateKey.id(), String.t()) ::
           {:ok, GenServer.on_start()} | {:error, String.t()}
   def react(note_id, privkey, content \\ "+") do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
+         {:ok, binary_note_id} <- Event.Id.to_binary(note_id) do
       {
         :ok,
         SendReaction.start_link(

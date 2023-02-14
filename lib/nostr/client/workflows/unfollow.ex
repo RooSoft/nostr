@@ -12,17 +12,20 @@ defmodule Nostr.Client.Workflows.Unfollow do
 
   use GenServer
 
+  alias NostrBasics.Event
+  alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Keys.PublicKey
+
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.{Signer, Validator}
-  alias Nostr.Event.Types.{ContactsEvent, EndOfStoredEvents}
   alias Nostr.Models.ContactList
-  alias Nostr.Keys.PublicKey
+  alias Nostr.Client.Relays.RelaySocket.Publisher
 
   def start_link(relay_pids, unfollow_pubkey, privkey) do
     GenServer.start(__MODULE__, %{
       relay_pids: relay_pids,
       privkey: privkey,
-      unfollow_pubkey: unfollow_pubkey
+      unfollow_pubkey: unfollow_pubkey,
+      owner_pid: self()
     })
   end
 
@@ -36,7 +39,7 @@ defmodule Nostr.Client.Workflows.Unfollow do
           :ok,
           state
           |> Map.put(:subscriptions, subscriptions)
-          |> Map.put(:treated, false)
+          |> Map.put(:got_contact_list, false)
         }
 
       {:error, message} ->
@@ -64,12 +67,22 @@ defmodule Nostr.Client.Workflows.Unfollow do
   end
 
   @impl true
-  def handle_info({_relay, %EndOfStoredEvents{}}, %{privkey: privkey, treated: false} = state) do
-    profile_pubkey = Nostr.Keys.PublicKey.from_private_key!(privkey)
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{got_contact_list: true} = state
+      ) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(
+        {:end_of_stored_events, _relay, _subscription_id},
+        %{privkey: privkey, got_contact_list: false} = state
+      ) do
+    profile_pubkey = PublicKey.from_private_key!(privkey)
 
     new_contact_list = %Nostr.Models.ContactList{
       pubkey: profile_pubkey,
-      created_at: DateTime.utc_now(),
       contacts: []
     }
 
@@ -78,26 +91,37 @@ defmodule Nostr.Client.Workflows.Unfollow do
     {
       :noreply,
       state
-      |> Map.put(:treated, true)
+      |> Map.put(:got_contact_list, true)
     }
   end
 
   @impl true
   # when we first get the contacts, time to add a new pubkey on it
-  def handle_info({_relay, contacts}, %{treated: false} = state) do
-    send(self(), {:unfollow, contacts})
-    send(self(), :unsubscribe_contacts)
+  def handle_info(
+        {relay, _subscription_id, contacts_event},
+        %{got_contact_list: false, owner_pid: owner_pid} = state
+      ) do
+    case ContactList.from_event(contacts_event) do
+      {:ok, contact_list} ->
+        send(self(), {:unfollow, contact_list})
+        send(self(), :unsubscribe_contacts)
 
-    {
-      :noreply,
-      state
-      |> Map.put(:treated, true)
-    }
+        {
+          :noreply,
+          state
+          |> Map.put(:got_contact_list, true)
+        }
+
+      {:error, message} ->
+        Publisher.workflow_error(owner_pid, relay, message)
+
+        {:stop, message, state}
+    end
   end
 
   @impl true
   # when the unfollow has already been executed
-  def handle_info({_relay, _contacts}, %{treated: true} = state) do
+  def handle_info({_relay, _subscription_id, _contacts}, %{got_contact_list: true} = state) do
     {:noreply, state}
   end
 
@@ -117,11 +141,13 @@ defmodule Nostr.Client.Workflows.Unfollow do
   end
 
   defp unfollow(unfollow_pubkey, privkey, contact_list, relay_pids) do
-    contact_list = ContactList.remove(contact_list, unfollow_pubkey)
+    contact_list =
+      ContactList.remove(contact_list, unfollow_pubkey)
+      |> ContactList.to_event()
 
     {:ok, signed_event} =
-      contact_list
-      |> ContactsEvent.create_event()
+      %Event{contact_list | created_at: DateTime.utc_now()}
+      |> Event.add_id()
       |> Signer.sign_event(privkey)
 
     :ok = Validator.validate_event(signed_event)

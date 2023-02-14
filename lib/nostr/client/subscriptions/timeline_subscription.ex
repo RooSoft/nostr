@@ -5,9 +5,9 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
 
   use GenServer
 
-  alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Event.Types.EndOfStoredEvents
+  alias NostrBasics.Event
 
+  alias Nostr.Client.Relays.RelaySocket
   alias Nostr.Models.{ContactList}
 
   def start_link([relay_pids, pubkey, subscriber]) do
@@ -34,12 +34,24 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
   end
 
   @impl true
+  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+    IO.inspect("EOSE in timeline subscription #{relay_url} #{subscription_id}")
+    ## nothing to do
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_info(
-        {_relay_url, %ContactList{contacts: contacts}},
+        {_relay_url, _subscription_id, %Event{kind: 3} = event},
         %{relay_pids: relay_pids, pubkey: _pubkey, subscriber: _subscriber} = state
       ) do
     pubkeys =
-      contacts
+      event
+      |> IO.inspect(label: "EVENt")
+      |> ContactList.from_event()
+      |> elem(1)
+      |> Map.get(:contacts)
       |> Enum.map(& &1.pubkey)
 
     unsubscribe_all_notes(state)
@@ -55,15 +67,11 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
   end
 
   @impl true
-  def handle_info({relay_url, event}, %{subscriber: subscriber} = state) do
+  def handle_info(
+        {relay_url, _subscription_id, %Event{kind: 1} = event},
+        %{subscriber: subscriber} = state
+      ) do
     send(subscriber, {relay_url, event})
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_info(%EndOfStoredEvents{}, state) do
-    ## nothing to do
 
     {:noreply, state}
   end

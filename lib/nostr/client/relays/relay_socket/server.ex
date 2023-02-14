@@ -76,83 +76,83 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
 
   @impl true
   def handle_call({:profile, public_key, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.profile(public_key)
+    {subscription_id, json} = Nostr.Client.Request.profile(public_key)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:recommended_servers, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.recommended_servers()
+    {subscription_id, json} = Nostr.Client.Request.recommended_servers()
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:contacts, pubkey, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.contacts(pubkey, limit)
+    {subscription_id, json} = Nostr.Client.Request.contacts(pubkey, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:note, note_id, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.note(note_id)
+    {subscription_id, json} = Nostr.Client.Request.note(note_id)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:notes, pubkeys, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
+    {subscription_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:deletions, pubkeys, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.deletions(pubkeys, limit)
+    {subscription_id, json} = Nostr.Client.Request.deletions(pubkeys, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:reposts, pubkeys, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.reposts(pubkeys, limit)
+    {subscription_id, json} = Nostr.Client.Request.reposts(pubkeys, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:reactions, pubkeys, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
+    {subscription_id, json} = Nostr.Client.Request.reactions(pubkeys, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
   def handle_call({:encrypted_direct_messages, pubkey, limit, subscriber}, _from, state) do
-    {atom_subscription_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
+    {subscription_id, json} = Nostr.Client.Request.encrypted_direct_messages(pubkey, limit)
 
-    send(self(), {:subscription_request, state, atom_subscription_id, json, subscriber})
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 
-    {:reply, atom_subscription_id, state}
+    {:reply, subscription_id, state}
   end
 
   @impl true
@@ -182,8 +182,8 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
-  def handle_info({:subscription_request, state, atom_subscription_id, json, subscriber}, state) do
-    state = Sender.send_subscription_request(state, atom_subscription_id, json, subscriber)
+  def handle_info({:subscription_request, state, subscription_id, json, subscriber}, state) do
+    state = Sender.send_subscription_request(state, subscription_id, json, subscriber)
 
     {:noreply, state}
   end
