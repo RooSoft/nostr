@@ -12,7 +12,6 @@ defmodule NostrApp.Server do
   alias NostrBasics.Keys.{PrivateKey, PublicKey}
 
   alias Nostr.Client
-  alias Nostr.Event.Types.{MetadataEvent}
   alias Nostr.Models.{Profile}
 
   @impl true
@@ -274,13 +273,6 @@ defmodule NostrApp.Server do
   @impl true
   def handle_info({:console, type, message}, socket) do
     ConsoleHandler.handle(type, message)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({relay, %MetadataEvent{} = event}, socket) do
-    Logger.info("From #{relay}, got a profile: #{inspect(event)}")
 
     {:noreply, socket}
   end

@@ -1,27 +1,10 @@
-defmodule Nostr.Models.Profile do
-  @moduledoc """
-  Represents a user's profile
-  """
-
-  defstruct [:about, :banner, :display_name, :lud16, :name, :nip05, :picture, :website]
+defmodule Nostr.Models.Profile.Convert do
+  alias NostrBasics.Keys.PublicKey
+  alias NostrBasics.Event
 
   alias Nostr.Models.Profile
 
-  @type t :: %Profile{}
-
-  # This thing is needed so that the Jason library knows how to serialize the events
-  defimpl Jason.Encoder do
-    def encode(
-          %Profile{} = profile,
-          opts
-        ) do
-      profile
-      |> Map.from_struct()
-      |> Enum.filter(&(&1 != nil))
-      |> Enum.into(%{})
-      |> Jason.Encode.map(opts)
-    end
-  end
+  @reaction_kind 0
 
   @doc """
   Creates a new nostr profile
@@ -37,7 +20,7 @@ defmodule Nostr.Models.Profile do
       ...>   picture: "https://image.com/satoshi_avatar",
       ...>   website: "https://bitcoin.org"
       ...> }
-      ...> |> Nostr.Models.Profile.to_event(<<0x5ab9f2efb1fda6bc32696f6f3fd715e156346175b93b6382099d23627693c3f2::256>>)
+      ...> |> Nostr.Models.Profile.Convert.to_event(<<0x5ab9f2efb1fda6bc32696f6f3fd715e156346175b93b6382099d23627693c3f2::256>>)
       {
         :ok,
         %NostrBasics.Event{
@@ -49,7 +32,16 @@ defmodule Nostr.Models.Profile do
       }
   """
   @spec to_event(Profile.t(), PublicKey.t()) :: {:ok, Event.t()} | {:error, String.t()}
-  def to_event(profile, pubkey) do
-    Profile.Convert.to_event(profile, pubkey)
+  def to_event(%Profile{} = profile, pubkey) do
+    case Jason.encode(profile) do
+      {:ok, json_profile} ->
+        {
+          :ok,
+          Event.create(@reaction_kind, json_profile, pubkey)
+        }
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 end
