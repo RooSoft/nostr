@@ -290,7 +290,7 @@ defmodule Nostr.Client do
   @spec repost(Note.id(), PrivateKey.id()) :: {:ok, GenServer.on_start()} | {:error, String.t()}
   def repost(note_id, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
-         {:ok, "note", binary_note_id} <- Event.Id.to_binary(note_id) do
+         {:ok, binary_note_id} <- Event.Id.to_binary(note_id) do
       {:ok, SendRepost.start_link(RelayManager.active_pids(), binary_note_id, binary_privkey)}
     else
       {:error, message} -> {:error, message}
