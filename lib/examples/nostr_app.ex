@@ -6,7 +6,7 @@ defmodule NostrApp do
 
   alias NostrApp.Server
 
-  alias Nostr.Models.Profile
+  alias NostrBasics.Models.Profile
 
   def start_link(relays, private_key) do
     args = %{relays: relays, private_key: private_key}

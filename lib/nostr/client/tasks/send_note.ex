@@ -6,9 +6,9 @@ defmodule Nostr.Client.Tasks.SendNote do
   alias NostrBasics.Keys.{PrivateKey, PublicKey}
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Models.Note
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.Note
 
   @doc """
   Sends a note

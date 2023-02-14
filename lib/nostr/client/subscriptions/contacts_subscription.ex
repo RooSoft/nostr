@@ -41,7 +41,7 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
   end
 
   @impl true
-  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+  def handle_info({:end_of_stored_events, _relay_url, _subscription_id}, state) do
     ## nothing to do
 
     {:noreply, state}

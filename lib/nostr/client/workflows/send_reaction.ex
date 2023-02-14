@@ -11,9 +11,9 @@ defmodule Nostr.Client.Workflows.SendReaction do
   alias NostrBasics.Keys.PublicKey
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Models.Reaction
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.Reaction
 
   def start_link(relay_pids, note_id, privkey, content \\ "+") do
     GenServer.start(__MODULE__, %{

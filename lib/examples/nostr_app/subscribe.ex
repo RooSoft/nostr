@@ -5,9 +5,10 @@ defmodule NostrApp.Subscribe do
 
   require Logger
 
+  alias NostrBasics.Models.Note
+
   alias Nostr.Client
   alias Nostr.Keys.{PublicKey, PrivateKey}
-  alias Nostr.Models.Note
 
   @spec to_profile(PublicKey.id()) :: :ok
   def to_profile(public_key) do

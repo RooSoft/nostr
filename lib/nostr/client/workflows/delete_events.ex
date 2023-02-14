@@ -11,8 +11,8 @@ defmodule Nostr.Client.Workflows.DeleteEvents do
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
-
-  alias Nostr.Models.Delete
+  alias NostrBasics.Models.Delete
+  
   alias Nostr.Client.Relays.RelaySocket
 
   def start_link(relay_pids, event_ids, note, privkey) do

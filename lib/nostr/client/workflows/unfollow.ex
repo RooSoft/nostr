@@ -15,9 +15,9 @@ defmodule Nostr.Client.Workflows.Unfollow do
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
+  alias NostrBasics.Models.ContactList
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.ContactList
   alias Nostr.Client.Relays.RelaySocket.Publisher
 
   def start_link(relay_pids, unfollow_pubkey, privkey) do
@@ -81,7 +81,7 @@ defmodule Nostr.Client.Workflows.Unfollow do
       ) do
     profile_pubkey = PublicKey.from_private_key!(privkey)
 
-    new_contact_list = %Nostr.Models.ContactList{
+    new_contact_list = %NostrBasics.Models.ContactList{
       pubkey: profile_pubkey,
       contacts: []
     }

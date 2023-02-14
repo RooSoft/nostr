@@ -6,9 +6,9 @@ defmodule Nostr.Client.Tasks.SendEncryptedDirectMessage do
   alias NostrBasics.Keys.{PrivateKey, PublicKey}
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
+  alias NostrBasics.Models.EncryptedDirectMessage
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.EncryptedDirectMessage
 
   @doc """
   Encrypt and send a direct message

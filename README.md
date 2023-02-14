@@ -62,7 +62,7 @@ iex -S mix
 ### Edit your profile
 
 ```elixir
-%Nostr.Models.Profile{
+%NostrBasics.Models.Profile{
   about: "Instance of https://github.com/RooSoft/nostr being tested in the wild",
   name: "roosoft_test_bot",
   picture: "https://nostr.build/i/p/5158p.jpg"

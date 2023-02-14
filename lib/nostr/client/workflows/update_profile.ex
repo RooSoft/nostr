@@ -11,9 +11,9 @@ defmodule Nostr.Client.Workflows.UpdateProfile do
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
+  alias NostrBasics.Models.Profile
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.Profile
 
   def start_link(relay_pids, %Profile{} = new_profile, privkey) do
     GenServer.start(__MODULE__, %{

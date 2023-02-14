@@ -9,8 +9,8 @@ defmodule Nostr.Client do
 
   alias NostrBasics.{Event}
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
-
-  alias Nostr.Models.{Profile, Note}
+  alias NostrBasics.Models.{Profile, Note}
+  
   alias Nostr.Client.Relays.RelayManager
   alias Nostr.Client.Tasks
 

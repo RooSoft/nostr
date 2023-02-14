@@ -10,9 +10,9 @@ defmodule NostrApp.Server do
   alias NostrApp.{ConsoleHandler, Subscribe}
 
   alias NostrBasics.Keys.{PrivateKey, PublicKey}
+  alias NostrBasics.Models.{Profile}
 
   alias Nostr.Client
-  alias Nostr.Models.{Profile}
 
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do

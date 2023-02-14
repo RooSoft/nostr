@@ -6,9 +6,9 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
   use GenServer
 
   alias NostrBasics.Event
+  alias NostrBasics.Models.{ContactList}
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.{ContactList}
 
   def start_link([relay_pids, pubkey, subscriber]) do
     GenServer.start_link(__MODULE__, %{
@@ -34,7 +34,7 @@ defmodule Nostr.Client.Subscriptions.TimelineSubscription do
   end
 
   @impl true
-  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
+  def handle_info({:end_of_stored_events, _relay_url, _subscription_id}, state) do
     ## nothing to do
 
     {:noreply, state}

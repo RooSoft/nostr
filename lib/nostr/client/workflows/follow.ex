@@ -15,9 +15,9 @@ defmodule Nostr.Client.Workflows.Follow do
   alias NostrBasics.Event
   alias NostrBasics.Event.{Signer, Validator}
   alias NostrBasics.Keys.PublicKey
+  alias NostrBasics.Models.ContactList
 
   alias Nostr.Client.Relays.RelaySocket
-  alias Nostr.Models.ContactList
   alias Nostr.Client.Relays.RelaySocket.Publisher
 
   def start_link(relay_pids, follow_pubkey, privkey) do
