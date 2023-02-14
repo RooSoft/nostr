@@ -359,8 +359,9 @@ defmodule Nostr.Client do
   def send_note(note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),
-         text_event = Event.create(note, pubkey),
-         {:ok, signed_event} <- Signer.sign_event(text_event.event, binary_privkey),
+         {:ok, note_event} <- Note.to_event(%Note{content: note}, pubkey),
+         event_with_id <- Event.add_id(%Event{note_event | created_at: DateTime.utc_now()}),
+         {:ok, signed_event} <- Signer.sign_event(event_with_id, binary_privkey),
          :ok <- Validator.validate_event(signed_event) do
       for relay_pid <- RelayManager.active_pids() do
         RelaySocket.send_event(relay_pid, signed_event)
