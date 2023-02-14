@@ -12,7 +12,7 @@ defmodule Nostr.Client do
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
   alias NostrBasics.Crypto.AES256CBC
 
-  alias Nostr.Event.Types.{EncryptedDirectMessageEvent, TextEvent}
+  alias Nostr.Event.Types.{EncryptedDirectMessageEvent}
   alias Nostr.Models.{Profile, Note}
   alias Nostr.Client.Relays.RelayManager
 
@@ -359,7 +359,7 @@ defmodule Nostr.Client do
   def send_note(note, privkey) do
     with {:ok, binary_privkey} <- PrivateKey.to_binary(privkey),
          {:ok, pubkey} <- PublicKey.from_private_key(privkey),
-         text_event = TextEvent.create(note, pubkey),
+         text_event = Event.create(note, pubkey),
          {:ok, signed_event} <- Signer.sign_event(text_event.event, binary_privkey),
          :ok <- Validator.validate_event(signed_event) do
       for relay_pid <- RelayManager.active_pids() do
