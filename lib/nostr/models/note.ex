@@ -29,7 +29,7 @@ defmodule Nostr.Models.Note do
       }
   """
   @spec to_event(Note.t(), PublicKey.t()) :: {:ok, Event.t()} | {:error, String.t()}
-  def to_event(reaction, pubkey) do
-    Note.Convert.to_event(reaction, pubkey)
+  def to_event(note, pubkey) do
+    Note.Convert.to_event(note, pubkey)
   end
 end
