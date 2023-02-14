@@ -19,7 +19,7 @@ as easy to use as can be.
 ```elixir
 def deps do
   [
-    {:nostr, "~> 0.1.3"}
+    {:nostr, "~> 0.2.0"}
   ]
 end
 ```
