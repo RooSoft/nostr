@@ -60,7 +60,7 @@ defmodule Nostr.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:hammox, "~> 0.7", only: :test},
       {:mint_web_socket, "~> 1.0"},
-      {:nostr_basics, "~> 0.1.1"}
+      {:nostr_basics, "~> 0.1.2"}
     ]
   end
 end

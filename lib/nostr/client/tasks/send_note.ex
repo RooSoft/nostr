@@ -20,7 +20,7 @@ defmodule Nostr.Client.Tasks.SendNote do
       ...> |> Nostr.Client.Tasks.SendNote.execute(private_key, relay_pids)
       :ok
   """
-  @spec execute(String.t(), PrivateKey.t(), list()) :: :ok | {:error, String.t()}
+  @spec execute(String.t(), PrivateKey.id(), list()) :: :ok | {:error, String.t()}
   def execute(contents, private_key, relay_pids) do
     with {:ok, pubkey} <- PublicKey.from_private_key(private_key),
          {:ok, dm_event} <- create_note_event(contents, pubkey),

@@ -21,7 +21,7 @@ defmodule Nostr.Client.Tasks.SendEncryptedDirectMessage do
       ...> |> Nostr.Client.Tasks.SendEncryptedDirectMessage.execute(remote_pubkey, private_key, relay_pids)
       :ok
   """
-  @spec execute(String.t(), PublicKey.id(), PrivateKey.t(), list()) :: :ok | {:error, String.t()}
+  @spec execute(String.t(), PublicKey.id(), PrivateKey.id(), list()) :: :ok | {:error, String.t()}
   def execute(contents, remote_pubkey, private_key, relay_pids) do
     with {:ok, dm_event} <- create_dm_event(contents, remote_pubkey, private_key),
          {:ok, signed_event} <- prepare_and_sign_event(dm_event, private_key) do
