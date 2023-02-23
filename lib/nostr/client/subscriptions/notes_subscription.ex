@@ -18,9 +18,18 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   @impl true
   def init(%{relay_pids: relay_pids, pubkeys: pubkeys} = state) do
+    Process.flag(:trap_exit, true)
+
     send(self(), {:connect, relay_pids, pubkeys})
 
     {:ok, state}
+  end
+
+  @impl true
+  def terminate(_reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
+    unsubscribe_all(relay_pids, subscriptions)
+
+    {:noreply, state}
   end
 
   @impl true
@@ -54,5 +63,11 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   defp set_note_subscriptions(state, subscriptions) do
     Map.put(state, :subscriptions, subscriptions)
+  end
+
+  defp unsubscribe_all(relay_pids, subscriptions) do
+    for relay_pid <- relay_pids, subscription <- subscriptions do
+      RelaySocket.unsubscribe(relay_pid, subscription)
+    end
   end
 end
