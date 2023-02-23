@@ -6,6 +6,8 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   use GenServer
 
+  require Logger
+
   alias Nostr.Client.Relays.RelaySocket
 
   def start_link([relay_pids, pubkeys, subscriber]) do
@@ -48,8 +50,9 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
   end
 
   @impl true
-  def handle_info({:end_of_stored_events, _relay_url, _subscription_id}, state) do
+  def handle_info({:end_of_stored_events, relay_url, subscription_id}, state) do
     ## nothing to do
+    Logger.debug("got an EOSE from #{relay_url} for #{subscription_id}")
 
     {:noreply, state}
   end
