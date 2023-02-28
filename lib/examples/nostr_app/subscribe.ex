@@ -42,10 +42,8 @@ defmodule NostrApp.Subscribe do
 
   @spec to_kinds(list()) :: :ok
   def to_kinds(kinds) when is_list(kinds) do
-    case Client.subscribe_kinds(kinds) do
-      {:ok, _} -> Logger.info("Subscribed to kind #{kinds} notes")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
-    end
+    Client.subscribe_kinds(kinds)
+    Logger.info("Subscribed to kind #{kinds} notes")
   end
 
   @spec to_notes(list(PublicKey.id())) :: :ok
