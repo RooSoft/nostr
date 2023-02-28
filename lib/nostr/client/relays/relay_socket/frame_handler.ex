@@ -5,7 +5,6 @@ defmodule Nostr.Client.Relays.RelaySocket.FrameHandler do
 
   alias NostrBasics.RelayMessage
 
-  @spec handle_text_frame(list(), list(), map(), pid()) :: :ok
   def handle_text_frame(frame, subscriptions, relay_url, owner_pid) do
     RelayMessage.parse(frame)
     |> handle_message(subscriptions, relay_url, owner_pid)

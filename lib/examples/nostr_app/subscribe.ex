@@ -20,10 +20,8 @@ defmodule NostrApp.Subscribe do
 
   @spec to_recommended_servers() :: :ok
   def to_recommended_servers() do
-    case Client.subscribe_recommended_servers() do
-      {:ok, _} -> Logger.info("Subscribed to recommended servers")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
-    end
+    Client.subscribe_recommended_servers()
+    Logger.info("Subscribed to recommended servers")
   end
 
   @spec to_contacts(PublicKey.id()) :: :ok
@@ -38,6 +36,14 @@ defmodule NostrApp.Subscribe do
   def to_note(note_id) do
     case Client.subscribe_note(note_id) do
       {:ok, _} -> Logger.info("Subscribed to a note")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
+
+  @spec to_kinds(list()) :: :ok
+  def to_kinds(kinds) when is_list(kinds) do
+    case Client.subscribe_kinds(kinds) do
+      {:ok, _} -> Logger.info("Subscribed to kind #{kinds} notes")
       {:error, message} -> Logger.warn("#{inspect(message)}")
     end
   end

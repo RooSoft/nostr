@@ -201,6 +201,13 @@ defmodule NostrApp.Server do
   end
 
   @impl true
+  def handle_cast({:global_notes}, socket) do
+    Subscribe.to_kinds([1])
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_cast({:notes}, %{public_key: public_key} = socket) do
     Subscribe.to_notes([public_key])
 

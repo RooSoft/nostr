@@ -30,6 +30,16 @@ defmodule Nostr.Client.Request do
     get_by_ids([id], @text_kind)
   end
 
+  def kinds(kinds, limit \\ 10) when is_list(kinds) do
+    request_id = generate_random_id()
+    filter = %{kinds: kinds, limit: limit}
+    json = request(request_id, filter)
+
+    atom_request_id = String.to_atom(request_id)
+
+    {atom_request_id, json}
+  end
+
   def notes(pubkeys, limit \\ 10) when is_list(pubkeys) do
     get_by_authors(pubkeys, [@text_kind], limit)
   end

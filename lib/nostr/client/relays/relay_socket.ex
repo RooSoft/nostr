@@ -79,6 +79,11 @@ defmodule Nostr.Client.Relays.RelaySocket do
     GenServer.call(pid, {:note, note_id, self()})
   end
 
+  @spec subscribe_kinds(pid(), list(integer()), integer()) :: atom()
+  def subscribe_kinds(pid, kinds, limit \\ 10) when is_list(kinds) do
+    GenServer.call(pid, {:kinds, kinds, limit, self()})
+  end
+
   @spec subscribe_notes(pid(), list(<<_::256>>), integer()) :: atom()
   def subscribe_notes(pid, pubkeys, limit \\ 10) when is_list(pubkeys) do
     GenServer.call(pid, {:notes, pubkeys, limit, self()})

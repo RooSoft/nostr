@@ -10,7 +10,7 @@ defmodule Nostr.Client do
   alias NostrBasics.{Event}
   alias NostrBasics.Keys.{PublicKey, PrivateKey}
   alias NostrBasics.Models.{Profile, Note}
-  
+
   alias Nostr.Client.Relays.RelayManager
   alias Nostr.Client.Tasks
 
@@ -18,6 +18,7 @@ defmodule Nostr.Client do
     ProfileSubscription,
     RecommendedServersSubscription,
     ContactsSubscription,
+    KindsSubscription,
     NoteSubscription,
     NotesSubscription,
     DeletionsSubscription,
@@ -87,16 +88,12 @@ defmodule Nostr.Client do
   @doc """
   Get an author's recommended servers
   """
-  @spec subscribe_recommended_servers() ::
-          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
+  @spec subscribe_recommended_servers() :: DynamicSupervisor.on_start_child()
   def subscribe_recommended_servers() do
-    {
-      :ok,
-      DynamicSupervisor.start_child(
-        Nostr.Subscriptions,
-        {RecommendedServersSubscription, [RelayManager.active_pids(), self()]}
-      )
-    }
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {RecommendedServersSubscription, [RelayManager.active_pids(), self()]}
+    )
   end
 
   @doc """
@@ -203,6 +200,18 @@ defmodule Nostr.Client do
       {:error, message} ->
         {:error, message}
     end
+  end
+
+  @doc """
+  Get a list of event of specific kinds
+  """
+  @spec subscribe_kinds(list(integer())) ::
+          {:ok, DynamicSupervisor.on_start_child()} | {:error, String.t()}
+  def subscribe_kinds(kinds) when is_list(kinds) do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {KindsSubscription, [RelayManager.active_pids(), kinds, self()]}
+    )
   end
 
   @doc """

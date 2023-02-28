@@ -28,6 +28,10 @@ defmodule NostrApp do
     GenServer.cast(Server, {:recommended_servers})
   end
 
+  def global_notes() do
+    GenServer.cast(Server, {:global_notes})
+  end
+
   ### NIP-01
   def note(note_id) do
     GenServer.cast(Server, {:note, note_id})
