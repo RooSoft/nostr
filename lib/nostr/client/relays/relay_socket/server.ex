@@ -111,8 +111,8 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
-  def handle_call({:kinds, pubkeys, limit, subscriber}, _from, state) do
-    {subscription_id, json} = Nostr.Client.Request.kinds(pubkeys, limit)
+  def handle_call({:kinds, kinds, limit, subscriber}, _from, state) do
+    {subscription_id, json} = Nostr.Client.Request.kinds(kinds, limit)
 
     send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 

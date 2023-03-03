@@ -21,11 +21,14 @@ defmodule NostrApp.Server do
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
       connect_to_relays(relays)
 
+      {:ok, file} = File.open("/Users/roo/notes.json", [:write])
+
       {
         :ok,
         %{args | private_key: binary_private_key}
         |> Map.put(:supervisor_pid, supervisor_pid)
         |> Map.put(:public_key, public_key)
+        |> Map.put(:file, file)
       }
     else
       {:error, message} ->
@@ -202,7 +205,7 @@ defmodule NostrApp.Server do
 
   @impl true
   def handle_cast({:global_notes}, socket) do
-    Subscribe.to_kinds([1])
+    Subscribe.to_kinds([0, 1, 3, 4, 6, 7, 9735])
 
     {:noreply, socket}
   end
@@ -295,7 +298,22 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info(event, socket) do
+  def handle_info({_relay, _sub, event}, %{file: file} = socket) do
+    # credo:disable-for-next-line
+    contents =
+      event
+      |> Jason.encode!()
+
+    IO.binwrite(file, contents)
+    IO.binwrite(file, "\n")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%NostrBasics.Event{kind: 4, content: content} = event, socket) do
+    # credo:disable-for-next-line
+    #    IO.puts("from #{relay}")
     # credo:disable-for-next-line
     IO.inspect(event)
 
