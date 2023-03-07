@@ -95,6 +95,7 @@ defmodule Nostr.Client.Relays.RelaySocket.MessageDispatcher do
       # reply to pings with pongs
       {:ping, data}, state ->
         Publisher.ping(owner_pid, url)
+        ### TODO: seen this call return a {:error, _}, please manage this
         {:ok, state} = Sender.send_pong(state, data)
         state
 

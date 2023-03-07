@@ -14,6 +14,8 @@ defmodule NostrApp.Server do
 
   alias Nostr.Client
 
+  @kind_encrypted_dm 4
+
   @impl true
   def init(%{relays: relays, private_key: private_key} = args) do
     with {:ok, binary_private_key} <- PrivateKey.to_binary(private_key),
@@ -43,6 +45,13 @@ defmodule NostrApp.Server do
       other ->
         {:stop, {:shutdown, other}}
     end
+  end
+
+  @impl true
+  def handle_cast(:all, socket) do
+    Subscribe.to_all()
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -311,11 +320,21 @@ defmodule NostrApp.Server do
   end
 
   @impl true
-  def handle_info(%NostrBasics.Event{kind: 4, content: content} = event, socket) do
-    # credo:disable-for-next-line
-    #    IO.puts("from #{relay}")
-    # credo:disable-for-next-line
-    IO.inspect(event)
+  def handle_info(
+        %NostrBasics.Event{kind: @kind_encrypted_dm, pubkey: pubkey, content: content} = event,
+        %{private_key: private_key} = socket
+      ) do
+    IO.inspect(event, label: "dm")
+
+    NostrBasics.Crypto.AES256CBC.decrypt(content, private_key, pubkey)
+    |> IO.inspect(label: "decrypted")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(event, socket) do
+    IO.inspect(event, label: "event")
 
     {:noreply, socket}
   end

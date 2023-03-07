@@ -10,6 +10,14 @@ defmodule NostrApp.Subscribe do
 
   alias Nostr.Client
 
+  @spec to_all() :: :ok
+  def to_all() do
+    case Client.subscribe_all() do
+      {:ok, _} -> Logger.info("Subscribed to all}")
+      {:error, message} -> Logger.warn("#{inspect(message)}")
+    end
+  end
+
   @spec to_profile(PublicKey.id()) :: :ok
   def to_profile(public_key) do
     case Client.subscribe_profile(public_key) do

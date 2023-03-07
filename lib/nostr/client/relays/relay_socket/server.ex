@@ -39,6 +39,15 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   end
 
   @impl true
+  def handle_call({:all, limit, subscriber}, _from, state) do
+    {subscription_id, json} = Nostr.Client.Request.all(limit)
+
+    send(self(), {:subscription_request, state, subscription_id, json, subscriber})
+
+    {:reply, subscription_id, state}
+  end
+
+  @impl true
   def handle_call(:ready?, _from, %RelaySocket{websocket: nil} = state) do
     {:reply, false, state}
   end

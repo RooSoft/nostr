@@ -14,6 +14,10 @@ defmodule NostrApp do
     GenServer.start_link(Server, args, name: Server)
   end
 
+  def all() do
+    GenServer.cast(Server, :all)
+  end
+
   ### NIP-01
   def profile(pubkey \\ nil) do
     GenServer.cast(Server, {:profile, pubkey})

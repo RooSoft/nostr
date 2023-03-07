@@ -32,7 +32,9 @@ defmodule Nostr.Client.Request do
 
   def all(limit \\ 10) do
     request_id = generate_random_id()
-    filter = %{limit: limit}
+
+    # got to specify kinds, or else, some relays won't return anything
+    filter = %{kinds: [1, 5, 6, 7, 9735], limit: limit}
     json = request(request_id, filter)
 
     atom_request_id = String.to_atom(request_id)

@@ -61,6 +61,11 @@ defmodule Nostr.Client.Relays.RelaySocket do
     GenServer.cast(pid, {:send_event, event})
   end
 
+  @spec subscribe_all(pid(), integer()) :: atom()
+  def subscribe_all(pid, limit \\ 10) do
+    GenServer.call(pid, {:all, limit, self()})
+  end
+
   def subscribe_profile(pid, pubkey) do
     GenServer.call(pid, {:profile, pubkey, self()})
   end

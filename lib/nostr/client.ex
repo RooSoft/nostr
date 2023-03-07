@@ -15,6 +15,7 @@ defmodule Nostr.Client do
   alias Nostr.Client.Tasks
 
   alias Nostr.Client.Subscriptions.{
+    AllSubscription,
     ProfileSubscription,
     RecommendedServersSubscription,
     ContactsSubscription,
@@ -62,6 +63,17 @@ defmodule Nostr.Client do
 
   def add_relay(relay_url) do
     RelayManager.add(relay_url)
+  end
+
+  @doc """
+  Get everything that goes through the relay
+  """
+  @spec subscribe_all() :: DynamicSupervisor.on_start_child()
+  def subscribe_all() do
+    DynamicSupervisor.start_child(
+      Nostr.Subscriptions,
+      {AllSubscription, [RelayManager.active_pids(), self()]}
+    )
   end
 
   @doc """
