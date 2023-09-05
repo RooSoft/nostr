@@ -14,7 +14,7 @@ defmodule NostrApp.Subscribe do
   def to_all() do
     case Client.subscribe_all() do
       {:ok, _} -> Logger.info("Subscribed to all}")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -22,7 +22,7 @@ defmodule NostrApp.Subscribe do
   def to_profile(public_key) do
     case Client.subscribe_profile(public_key) do
       {:ok, _} -> Logger.info("Subscribed to a profile")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -36,7 +36,7 @@ defmodule NostrApp.Subscribe do
   def to_contacts(public_key) do
     case Client.subscribe_contacts(public_key) do
       {:ok, _} -> Logger.info("Subscribed to a contact list")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -44,7 +44,7 @@ defmodule NostrApp.Subscribe do
   def to_note(note_id) do
     case Client.subscribe_note(note_id) do
       {:ok, _} -> Logger.info("Subscribed to a note")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -58,7 +58,7 @@ defmodule NostrApp.Subscribe do
   def to_notes(public_keys) do
     case Client.subscribe_notes(public_keys) do
       {:ok, _} -> Logger.info("Subscribed to notes from: #{inspect(public_keys)}")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -66,7 +66,7 @@ defmodule NostrApp.Subscribe do
   def to_encrypted_direct_messages(private_key) do
     case Client.encrypted_direct_messages(private_key) do
       {:ok, _} -> Logger.info("Subscribed to #{inspect(private_key)}'s encrypted messages")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -74,7 +74,7 @@ defmodule NostrApp.Subscribe do
   def to_reactions(public_keys) do
     case Client.subscribe_reactions(public_keys) do
       {:ok, _} -> Logger.info("Subscribed to #{inspect(public_keys)}'s reactions")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -82,7 +82,7 @@ defmodule NostrApp.Subscribe do
   def to_deletions(public_keys) do
     case Client.subscribe_deletions(public_keys) do
       {:ok, _} -> Logger.info("Subscribed to #{inspect(public_keys)}'s deletions")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -90,7 +90,7 @@ defmodule NostrApp.Subscribe do
   def to_reposts(public_keys) do
     case Client.subscribe_reposts(public_keys) do
       {:ok, _} -> Logger.info("Subscribed to #{inspect(public_keys)}'s reposts")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 
@@ -98,7 +98,7 @@ defmodule NostrApp.Subscribe do
   def to_timeline(public_key) do
     case Client.subscribe_timeline(public_key) do
       {:ok, _} -> Logger.info("Subscribed to #{inspect(public_key)}'s timeline")
-      {:error, message} -> Logger.warn("#{inspect(message)}")
+      {:error, message} -> Logger.warning("#{inspect(message)}")
     end
   end
 end
