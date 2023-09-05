@@ -138,4 +138,3 @@ NostrApp.encrypted_direct_messages
 NostrApp.send_encrypted_direct_messages("npub1s5yq6wadwrxde4lhfs56gn64hwzuhnfa6r9mj476r5s4hkunzgzqrs6q7z", "Howdy?")
 ```
 
-
