@@ -22,7 +22,11 @@ defmodule Nostr.Client.Relays.RelaySocket do
   ## Examples
     iex> Nostr.Client.Relays.RelaySocket.start_link("wss://relay.nostr.pro")
   """
-  @spec start_link(list()) :: GenServer.on_start()
+  @spec start_link(binary | list()) :: GenServer.on_start()
+  def start_link(relay_url) when is_binary(relay_url) do
+    start_link([relay_url, self()])
+  end
+
   def start_link([relay_url, owner_pid]) do
     GenServer.start_link(Server, %{relay_url: relay_url, owner_pid: owner_pid})
   end
