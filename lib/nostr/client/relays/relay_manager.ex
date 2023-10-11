@@ -18,8 +18,20 @@ defmodule Nostr.Client.Relays.RelayManager do
     {:ok, opts}
   end
 
-  def add(relay_url) do
+  def add(relay_url_list) when is_list(relay_url_list) do
+    for relay_url <- relay_url_list do
+      add(relay_url)
+    end
+  end
+
+  def add(relay_url) when is_binary(relay_url) do
     DynamicSupervisor.start_child(RelayManager, {RelaySocket, [relay_url, self()]})
+  end
+
+  def active_relay_sockets do
+    DynamicSupervisor.which_children(RelayManager)
+    |> Enum.map(&get_pid/1)
+    |> Enum.filter(&RelaySocket.ready?/1)
   end
 
   def active_pids() do

@@ -58,8 +58,6 @@ defmodule Nostr.Client.Subscriptions.AllSubscription do
 
   @impl true
   def handle_info(event, %{subscriber: subscriber} = state) do
-    IO.inspect(event, label: "in all_subscription")
-
     send(subscriber, event)
 
     {:noreply, state}

@@ -6,38 +6,59 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
 
   use GenServer
 
+  require Logger
+
   alias Nostr.Client.Relays.RelaySocket
 
-  def start_link([relay_pids, pubkey, subscriber]) do
-    GenServer.start_link(__MODULE__, %{
-      relay_pids: relay_pids,
+  def start([relay_pid, pubkey, subscriber]), do: start(relay_pid, pubkey, subscriber)
+
+  def start(relay_pid, pubkey, subscriber \\ self()) when is_pid(relay_pid) do
+    Logger.info("#{inspect(relay_pid)} contacts subscription: #{inspect(pubkey)}")
+
+    GenServer.start(__MODULE__, %{
+      relay_pid: relay_pid,
       pubkey: pubkey,
       subscriber: subscriber
     })
   end
 
   @impl true
-  def init(%{relay_pids: relay_pids, pubkey: pubkey} = state) do
+  def init(state) do
     Process.flag(:trap_exit, true)
 
-    subscriptions =
-      relay_pids
-      |> Enum.map(fn relay_pid ->
-        RelaySocket.subscribe_contacts(relay_pid, pubkey)
-      end)
+    send(self(), :connect)
 
-    {
-      :ok,
-      state
-      |> set_contract_subscriptions(subscriptions)
-    }
+    {:ok, state}
   end
 
   @impl true
-  def terminate(_reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
-    unsubscribe_all(relay_pids, subscriptions)
+  def terminate(_reason, %{relay_pid: relay_pid} = state) do
+    if(Map.has_key?(state, :relay_subscription)) do
+      subscription = Map.get(state, :relay_subscription)
+      unsubscribe(relay_pid, subscription)
+    end
 
     {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(:connect, %{relay_pid: relay_pid, pubkey: pubkey} = state) do
+    case Process.alive?(relay_pid) do
+      true ->
+        subscription = RelaySocket.subscribe_contacts(relay_pid, pubkey)
+
+        {
+          :noreply,
+          state
+          |> set_contract_subscription(subscription)
+        }
+
+      false ->
+        Process.flag(:trap_exit, false)
+        Process.exit(self(), "disconnected relay, can't subscribe to contacts")
+
+        {:noreply, state}
+    end
   end
 
   @impl true
@@ -49,20 +70,16 @@ defmodule Nostr.Client.Subscriptions.ContactsSubscription do
 
   @impl true
   def handle_info(profile, %{subscriber: subscriber} = state) do
-    IO.puts("CONTACTS FROM HERE")
-
     send(subscriber, profile)
 
     {:noreply, state}
   end
 
-  defp set_contract_subscriptions(state, subscriptions) do
-    Map.put(state, :subscriptions, subscriptions)
+  defp set_contract_subscription(state, subscription) do
+    Map.put(state, :relay_subscription, subscription)
   end
 
-  defp unsubscribe_all(relay_pids, subscriptions) do
-    for relay_pid <- relay_pids, subscription <- subscriptions do
-      RelaySocket.unsubscribe(relay_pid, subscription)
-    end
+  defp unsubscribe(relay_pid, subscription) do
+    RelaySocket.unsubscribe(relay_pid, subscription)
   end
 end

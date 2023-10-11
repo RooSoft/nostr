@@ -10,43 +10,69 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
 
   alias Nostr.Client.Relays.RelaySocket
 
-  def start_link([relay_pids, pubkeys, subscriber]) do
-    GenServer.start_link(__MODULE__, %{
-      relay_pids: relay_pids,
+  def start([relay_pid, pubkeys, subscriber]), do: start(relay_pid, pubkeys, subscriber)
+
+  def start(relay_pid, pubkeys, subscriber \\ self()) when is_pid(relay_pid) do
+    Logger.info("#{inspect(relay_pid)} notes subscription: #{inspect(pubkeys)}")
+
+    GenServer.start(__MODULE__, %{
+      relay_pid: relay_pid,
       pubkeys: pubkeys,
-      subscriber: subscriber
+      subscriber: subscriber,
+      relay_subscriptions: []
     })
   end
 
   @impl true
-  def init(%{relay_pids: relay_pids, pubkeys: pubkeys} = state) do
+  def init(%{relay_pid: relay_pid, pubkeys: pubkeys} = state) do
     Process.flag(:trap_exit, true)
 
-    send(self(), {:connect, relay_pids, pubkeys})
+    Logger.warning("NEW SUBSCRIPTION- ---------------- #{inspect(self())}")
+
+    send(self(), {:connect, relay_pid, pubkeys})
 
     {:ok, state}
   end
 
   @impl true
-  def terminate(_reason, %{relay_pids: relay_pids, subscriptions: subscriptions} = state) do
-    unsubscribe_all(relay_pids, subscriptions)
+  def terminate(
+        _reason,
+        %{relay_pid: relay_pid, relay_subscriptions: relay_subscriptions} = state
+      ) do
+    Logger.warning("the #{inspect(self())} note subscription is terminating")
+
+    unsubscribe(relay_pid, relay_subscriptions)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({:connect, relay_pids, pubkeys}, state) do
-    subscriptions =
-      relay_pids
-      |> Enum.map(fn relay_pid ->
-        RelaySocket.subscribe_notes(relay_pid, pubkeys)
-      end)
+  def terminate(reason, %{relay_pid: relay_pid, subscriber: subscriber} = state) do
+    Logger.warning(
+      "TERMINATE EVENT: #{inspect(relay_pid)} #{inspect(subscriber)}, #{inspect(reason)}"
+    )
 
-    {
-      :noreply,
-      state
-      |> set_note_subscriptions(subscriptions)
-    }
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:connect, relay_pid, pubkeys}, state) do
+    case Process.alive?(relay_pid) do
+      true ->
+        subscription = RelaySocket.subscribe_notes(relay_pid, pubkeys)
+
+        {
+          :noreply,
+          state
+          |> add_notes_subscription(subscription)
+        }
+
+      false ->
+        Process.flag(:trap_exit, false)
+        Process.exit(self(), "disconnected relay, can't subscribe to notes")
+
+        {:noreply, state}
+    end
   end
 
   @impl true
@@ -64,12 +90,12 @@ defmodule Nostr.Client.Subscriptions.NotesSubscription do
     {:noreply, state}
   end
 
-  defp set_note_subscriptions(state, subscriptions) do
-    Map.put(state, :subscriptions, subscriptions)
+  defp add_notes_subscription(%{relay_subscriptions: relay_subscriptions} = state, subscription) do
+    %{state | relay_subscriptions: [subscription | relay_subscriptions]}
   end
 
-  defp unsubscribe_all(relay_pids, subscriptions) do
-    for relay_pid <- relay_pids, subscription <- subscriptions do
+  defp unsubscribe(relay_pid, subscriptions) do
+    for subscription <- subscriptions do
       RelaySocket.unsubscribe(relay_pid, subscription)
     end
   end

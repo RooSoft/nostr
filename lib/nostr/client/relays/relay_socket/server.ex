@@ -13,9 +13,18 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
 
   @impl true
   def init(%{relay_url: relay_url, owner_pid: owner_pid}) do
+    Logger.info("Starting a relay socket for #{relay_url}, #{inspect self()}")
+
     send(self(), {:connect_to_relay, relay_url, owner_pid})
 
     {:ok, %RelaySocket{}}
+  end
+
+  @impl true
+  def terminate(reason, state) do
+    Logger.warning("A relay socket is terminating: #{inspect reason}")
+
+    {:ok, state}
   end
 
   @impl true
@@ -60,6 +69,9 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   @impl true
   def handle_call(:url, _from, %RelaySocket{conn: conn} = state) do
     url = ~s(#{conn.private.scheme}://#{conn.host}:#{conn.port})
+
+    IO.inspect("URL: #{url}")
+    IO.inspect state
 
     {:reply, url, state}
   end
@@ -131,6 +143,8 @@ defmodule Nostr.Client.Relays.RelaySocket.Server do
   @impl true
   def handle_call({:notes, pubkeys, limit, subscriber}, _from, state) do
     {subscription_id, json} = Nostr.Client.Request.notes(pubkeys, limit)
+
+    IO.puts json
 
     send(self(), {:subscription_request, state, subscription_id, json, subscriber})
 

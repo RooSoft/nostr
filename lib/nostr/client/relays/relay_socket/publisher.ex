@@ -4,7 +4,7 @@ defmodule Nostr.Client.Relays.RelaySocket.Publisher do
   """
 
   def successful_connection(pid, relay_url) do
-    send(pid, {:console, :connected, %{url: relay_url}})
+    send(pid, {:console, :connected, %{url: relay_url, pid: self()}})
   end
 
   def websockets_ready(pid, relay_url) do
