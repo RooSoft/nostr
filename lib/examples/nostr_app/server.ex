@@ -23,14 +23,11 @@ defmodule NostrApp.Server do
          {:ok, supervisor_pid} <- Nostr.Client.start_link() do
       connect_to_relays(relays)
 
-      {:ok, file} = File.open("/Users/roo/notes.json", [:write])
-
       {
         :ok,
         %{args | private_key: binary_private_key}
         |> Map.put(:supervisor_pid, supervisor_pid)
         |> Map.put(:public_key, public_key)
-        |> Map.put(:file, file)
       }
     else
       {:error, message} ->
